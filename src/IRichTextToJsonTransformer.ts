@@ -1,10 +1,10 @@
-import { Elements } from "@kentico/kontent-delivery";
+import { Elements } from "@kontent-ai/delivery-sdk";
 import { HTMLElement } from 'node-html-parser';
 
 export interface IHtmlNode {
     tagName: string,
     attributes: Record<string, string>,
-    textContent: string,
+    innerContent: string,
     children: IHtmlNode[]
 }
 

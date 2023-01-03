@@ -15,7 +15,7 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@kentico/kontent-delivery": "^11.13.0",
+    "@kontent-ai/delivery-sdk": "^12.4.2",
     "node-html-parser": "^5.3.3"
   }
 }
