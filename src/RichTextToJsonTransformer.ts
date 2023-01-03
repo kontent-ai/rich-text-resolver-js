@@ -8,8 +8,8 @@ class Transformer implements IRichTextToJsonTransformer {
         return this.remapNode(parsedHtml);
     }
     remapNode(parsedHtml: HTMLElement): IHtmlNode[] {
-        if(parsedHtml?.childNodes) {
-            var nodes: IHtmlNode[] = [];
+        var nodes: IHtmlNode[] = [];
+        if(parsedHtml.childNodes.length > 0 || parsedHtml.rawTagName) {            
             nodes.push({
                 tagName: parsedHtml.rawTagName ?? "",
                 attributes: parsedHtml.attributes ?? {},
@@ -19,6 +19,7 @@ class Transformer implements IRichTextToJsonTransformer {
         }
         return nodes;
     }
+
 }
 
 export const transformer = new Transformer();
