@@ -2,6 +2,24 @@ import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { transformer } from "../src/RichTextToJsonTransformer";
 
 describe("rich-text-to-json-converter", () => {
+
+  it("returns traversed tree", () => {
+    const dummyRichText: Elements.RichTextElement = {
+      value: "<p class=\"test\" id=3>before text<a href=\"mailto:email@abc.test\">email</a>after text</p>",
+      type: ElementType.RichText,
+      images: [],
+      linkedItemCodenames: [],
+      linkedItems: [],
+      links: [],
+      name: "dummy"
+  };
+
+  const result: any = transformer.traverse(transformer.parseInternal(dummyRichText).firstChild);
+
+  expect(result).toMatchInlineSnapshot();
+  })
+  
+
     it("empty rich text converts properly", () => {
         const dummyRichText: Elements.RichTextElement = {
             value: "<p><br></p>",
@@ -44,7 +62,7 @@ Array [
 
     it("nested link is parsed correctly", () => {
         const dummyRichText: Elements.RichTextElement = {
-            value: "<p class=\"test\"><a href=\"mailto:email@abc.test\">email</a></p>",
+            value: "<p class=\"test\">text<a href=\"mailto:email@abc.test\">email</a></p>",
             type: ElementType.RichText,
             images: [],
             linkedItemCodenames: [],
@@ -74,11 +92,11 @@ Array [
             "tagName": "a",
           },
         ],
-        "innerContent": "<a href=\\"mailto:email@abc.test\\">email</a>",
+        "innerContent": "text<a href=\\"mailto:email@abc.test\\">email</a>",
         "tagName": "p",
       },
     ],
-    "innerContent": "<p class=\\"test\\"><a href=\\"mailto:email@abc.test\\">email</a></p>",
+    "innerContent": "<p class=\\"test\\">text<a href=\\"mailto:email@abc.test\\">email</a></p>",
     "tagName": "",
   },
 ]
@@ -490,3 +508,7 @@ Array [
 `);
     })
 });
+
+function parseInternal(dummyRichText: Elements.RichTextElement): import("node-html-parser").Node {
+  throw new Error("Function not implemented.");
+}
