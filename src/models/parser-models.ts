@@ -1,5 +1,5 @@
 import { Elements } from "@kontent-ai/delivery-sdk";
-import { HTMLElement } from 'node-html-parser';
+import { HTMLElement, Node } from 'node-html-parser';
 
 export interface IHtmlNode {
     tagName: string,
@@ -26,7 +26,7 @@ export interface IParsedTree {
     content: IParserNode[];
 }
 
-export interface IRichTextToJsonTransformer {
-    transform(dummyRichText: Elements.RichTextElement): IHtmlNode[];
-    remapNode(parsedHtml: HTMLElement): IHtmlNode[];
+export interface IRichTextTransformer {
+    transform(node: Node): IParsedTree;
+    parse(richTextElement: Elements.RichTextElement): HTMLElement;
 };

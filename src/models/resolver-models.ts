@@ -1,12 +1,11 @@
 import { Elements, IContentItem, ILink, IParserElement, IRichTextImage } from "@kontent-ai/delivery-sdk";
-import { IParsedTree, IParserHtmlNode, IParserNode } from "./IRichTextToJsonTransformer";
+import { IParsedTree, IParserHtmlNode, IParserNode } from "./parser-models";
 
-export interface IParsedTreeResolver<TInput, TResult> {
-    resolve(input: TInput): TResult;
+export interface IRichTextElementResolver<TResult> {
+    resolve(input: Elements.RichTextElement): TResult;
 }
 
 export interface IResolverInput<TOutput> {
-    element: Elements.RichTextElement;
     contentItemResolver?: IRichTextContentItemResolver<TOutput>;
     urlResolver?: IRichTextUrlResolver<TOutput>;
     imageResolver?: IRichTextImageResolver<TOutput>;   
