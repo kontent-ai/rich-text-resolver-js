@@ -1,11 +1,12 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { transformer } from "../src/RichTextToJsonTransformer";
+import { richTextHtmlResolver } from "../src/RichTextHtmlResolver";
 
 describe("rich-text-to-json-converter", () => {
 
   it("returns traversed tree", () => {
     const dummyRichText: Elements.RichTextElement = {
-      value: "<p class=\"test\" id=3>before text<a href=\"mailto:email@abc.test\">email</a>after text</p>",
+      value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"n27ec1626_93ac_0129_64e5_1beeda45416c\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>",
       type: ElementType.RichText,
       images: [],
       linkedItemCodenames: [],
@@ -14,9 +15,10 @@ describe("rich-text-to-json-converter", () => {
       name: "dummy"
   };
 
-  const result: any = transformer.traverse(transformer.parseInternal(dummyRichText).firstChild);
+  const result = richTextHtmlResolver.resolve(transformer.traverse(transformer.parseInternal(dummyRichText).firstChild));
+  //  const result = transformer.traverse(transformer.parseInternal(dummyRichText).firstChild);
 
-  expect(result).toMatchInlineSnapshot();
+  expect(result).toMatchInlineSnapshot(`"<p class=\\"test\\" id=\\"3\\"><p>resolved rich text</p>before text<a href=\\"mailto:email@abc.test\\">email</a>after text line break <br></br></p>"`);
   })
   
 
