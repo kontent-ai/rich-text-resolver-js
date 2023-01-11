@@ -3,6 +3,7 @@ import { IRichTextElementResolver, IResolverInput, IRichTextContentItemResolver,
 import { IParsedTree, IParserHtmlNode, IParserNode, IParserTextNode } from "./models/parser-models";
 import { Transformer } from "./RichTextTransformer";
 import { HTMLElement } from "node-html-parser";
+import { isElement, isLinkedItem, isText, isUnPairedElement } from "./utils/resolverUtils";
 
 export class RichTextHtmlResolver implements IRichTextElementResolver<string> {
     private _parser = new Transformer();
@@ -28,44 +29,36 @@ export class RichTextHtmlResolver implements IRichTextElementResolver<string> {
 
     private resolveNode(node: IParserNode, element: Elements.RichTextElement): string {
         var resolvedHtml: string = '';
-        switch (node.type) {
-            case 'text':
-                resolvedHtml = resolvedHtml + (<IParserTextNode>node).content;
-                break;
-            
-            case 'tag': {
-                let htmlNode = node as IParserHtmlNode
 
-                if (htmlNode.name === 'br') {
-                    resolvedHtml += '<br>';
-                    break;
-                }
+        if (isText(node)) {
+            resolvedHtml += node.content;
+        }
 
-                if (htmlNode.name === 'object' && this._contentItemResolver) {
-                    var currentItemCodename = htmlNode.attributes['data-codename'];
-                    var currentItem = element.linkedItems.find(element => element.system.codename = currentItemCodename);
-                    resolvedHtml += this._contentItemResolver(currentItemCodename, currentItem).resolvedContent;
-                    break;
-                }
+        else if (isUnPairedElement(node)) {
+            resolvedHtml += `<${node.name}>`;
+        }
 
-                resolvedHtml = resolvedHtml + `<${htmlNode.name + this.spreadAttributes(htmlNode.attributes)}>`
+        else if (isLinkedItem(node) && this._contentItemResolver) {
+            var currentItemCodename = node.attributes['data-codename'];
+            var currentItem = element.linkedItems.find(element => element.system.codename = currentItemCodename);
+            resolvedHtml += this._contentItemResolver(currentItemCodename, currentItem).resolvedContent;
+        }
 
-                if (htmlNode.children.length > 0) {
-                    htmlNode.children.forEach((node: IParserNode) => (resolvedHtml += this.resolveNode(node, element)));
-                }
+        else if (isElement(node)) {
+            resolvedHtml = resolvedHtml + `<${node.name + this.spreadAttributes(node.attributes)}>`
 
-                resolvedHtml = resolvedHtml + `</${htmlNode.name}>`
+            if (node.children.length > 0) {
+                node.children.forEach((node) => (resolvedHtml += this.resolveNode(node, element)));
             }
 
-            default:
-                break;
+            resolvedHtml = resolvedHtml + `</${node.name}>`
         }
 
         return resolvedHtml;
     }
 
     private spreadAttributes(attributes: Record<string,string>): string {
-        var convertedAttributes = ``;
+        let convertedAttributes = ``;
         for (const attribute in attributes) {
             convertedAttributes += ` ${attribute}="${attributes[attribute]}"`
         }
@@ -74,7 +67,7 @@ export class RichTextHtmlResolver implements IRichTextElementResolver<string> {
     }
 
     resolve(element: Elements.RichTextElement): string {
-        var parsedTree = this._parser.transform(this._parser.parse(element).firstChild);
+        let parsedTree = this._parser.transform(this._parser.parse(element).firstChild);
         return parsedTree.content.map((node) => this.resolveNode(node, element)).toString();
     }
 }
