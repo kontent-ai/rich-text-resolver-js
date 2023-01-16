@@ -3,28 +3,12 @@ import { IRichTextElementResolver, IResolverInput, IRichTextContentItemResolver,
 import { IParsedTree, IParserHtmlNode, IParserNode, IParserTextNode } from "./models/parser-models";
 import { Transformer } from "./RichTextTransformer";
 import { HTMLElement } from "node-html-parser";
-import { isElement, isLinkedItem, isText, isUnPairedElement } from "./utils/resolverUtils";
+import { isElement, isImage, isItemLink, isLinkedItem, isText, isUnPairedElement } from "./utils/resolverUtils";
+import { RichTextBaseResolver } from "./RichTextBaseResolver";
 
-export class RichTextHtmlResolver implements IRichTextElementResolver<string> {
-    private _parser = new Transformer();
-    private _contentItemResolver?: IRichTextContentItemResolver<string>;
-    private _urlResolver?: IRichTextUrlResolver<string>;
-    private _imageResolver?: IRichTextImageResolver<string>;
-
-    // constructor(
-    //     contentItemResolver?: IRichTextContentItemResolver<string>,
-    //     urlResolver?: IRichTextUrlResolver<string>,
-    //     imageResolver?: IRichTextImageResolver<string>,
-    // ) {
-    //     this._contentItemResolver = contentItemResolver ?? undefined;
-    //     this._urlResolver = urlResolver ?? undefined;
-    //     this._imageResolver = imageResolver ?? undefined;
-    // }
-
+export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
     constructor(input: IResolverInput<string>) {
-        this._contentItemResolver = input.contentItemResolver ?? undefined,
-        this._urlResolver = input.urlResolver ?? undefined,
-        this._imageResolver = input.imageResolver ?? undefined
+        super(input);
     }
 
     private resolveNode(node: IParserNode, element: Elements.RichTextElement): string {
@@ -35,12 +19,31 @@ export class RichTextHtmlResolver implements IRichTextElementResolver<string> {
         }
 
         else if (isUnPairedElement(node)) {
-            resolvedHtml += `<${node.name}>`;
+            resolvedHtml += `<${node.name + this.spreadAttributes(node.attributes)}>`;
+        }
+
+        else if (isItemLink(node) && this._urlResolver) {
+            let linkId = node.attributes['data-item-id'];
+            let linkText = '';
+            let link = element.links.find(link => link.linkId === linkId);
+            
+            if (node.children.length > 0) {
+                node.children.forEach((childNode) => (linkText += this.resolveNode(childNode, element)))
+            }
+
+            resolvedHtml += this._urlResolver(linkId, linkText, element.links).resolvedUrl;
+        }
+
+        else if (isImage(node) && this._imageResolver) {
+            let assetId = node.attributes['data-asset-id'];
+            let image = element.images.find(image => image.imageId === assetId);
+
+            resolvedHtml += this._imageResolver(assetId, image)           
         }
 
         else if (isLinkedItem(node) && this._contentItemResolver) {
             var currentItemCodename = node.attributes['data-codename'];
-            var currentItem = element.linkedItems.find(element => element.system.codename = currentItemCodename);
+            var currentItem = element.linkedItems.find(item => item.system.codename === currentItemCodename);
             resolvedHtml += this._contentItemResolver(currentItemCodename, currentItem).resolvedContent;
         }
 
