@@ -1,8 +1,6 @@
-import { Elements, IParserElement, IRichTextImage } from "@kontent-ai/delivery-sdk";
-import { IRichTextElementResolver, IResolverInput, IRichTextContentItemResolver, IRichTextImageResolver, IRichTextUrlResolver } from "./models/resolver-models";
-import { IParsedTree, IParserHtmlNode, IParserNode, IParserTextNode } from "./models/parser-models";
-import { Transformer } from "./RichTextTransformer";
-import { HTMLElement } from "node-html-parser";
+import { Elements } from "@kontent-ai/delivery-sdk";
+import { IResolverInput } from "./models/resolver-models";
+import { IParserNode } from "./models/parser-models";
 import { isElement, isImage, isItemLink, isLinkedItem, isText, isUnPairedElement } from "./utils/resolverUtils";
 import { RichTextBaseResolver } from "./RichTextBaseResolver";
 
@@ -12,7 +10,7 @@ export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
     }
 
     private resolveNode(node: IParserNode, element: Elements.RichTextElement): string {
-        var resolvedHtml: string = '';
+        let resolvedHtml: string = '';
 
         if (isText(node)) {
             resolvedHtml += node.content;
@@ -42,8 +40,8 @@ export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
         }
 
         else if (isLinkedItem(node) && this._contentItemResolver) {
-            var currentItemCodename = node.attributes['data-codename'];
-            var currentItem = element.linkedItems.find(item => item.system.codename === currentItemCodename);
+            let currentItemCodename = node.attributes['data-codename'];
+            let currentItem = element.linkedItems.find(item => item.system.codename === currentItemCodename);
             resolvedHtml += this._contentItemResolver(currentItemCodename, currentItem).resolvedContent;
         }
 
@@ -70,7 +68,7 @@ export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
     }
 
     resolve(element: Elements.RichTextElement): string {
-        let parsedTree = this._parser.transform(this._parser.parse(element).firstChild);
+        let parsedTree = this._parser.transform(this._parser.parse(element));
         return parsedTree.content.map((node) => this.resolveNode(node, element)).toString();
     }
 }

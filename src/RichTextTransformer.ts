@@ -6,7 +6,7 @@ import { parse, HTMLElement, Node, TextNode } from 'node-html-parser';
 export class Transformer implements IRichTextTransformer {  
     private transformInternal(parsedRichText: Node): IParserNode[] {
 
-        var transformedNodes: IParserNode[] = [];
+        let transformedNodes: IParserNode[] = [];
 
         if (parsedRichText.childNodes.length > 0 || parsedRichText.nodeType) {
             switch (parsedRichText.nodeType) {
@@ -38,7 +38,7 @@ export class Transformer implements IRichTextTransformer {
     }
 
     transform(parsedRichText: Node): IParsedTree {
-        var transformedTree: IParsedTree = {
+        const transformedTree: IParsedTree = {
             content: this.transformInternal(parsedRichText)
         }
 
@@ -48,6 +48,6 @@ export class Transformer implements IRichTextTransformer {
     parse(richTextElement: Elements.RichTextElement): HTMLElement {
         const parseResult = parse(richTextElement.value);
 
-        return parseResult;
+        return parseResult.firstChild as HTMLElement;
     }
 }
