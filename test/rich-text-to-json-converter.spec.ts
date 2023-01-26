@@ -1,10 +1,10 @@
-import { Elements, ElementType, Responses } from "@kontent-ai/delivery-sdk";
-import { Transformer } from "../src/RichTextTransformer";
-import { RichTextHtmlResolver } from "../src/RichTextHtmlResolver";
-import { RichTextObjectResolver } from "../src/RichTextObjectResolver";
-import { IResolverInput, IRichTextHtmlContentItemResult } from "../src/models/resolver-models";
+import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
+import { RichTextNodeParser } from "../src/parsers/RichTextNodeParser";
+import { RichTextHtmlResolver } from "../src/resolvers/RichTextHtmlResolver";
+import { RichTextObjectResolver } from "../src/resolvers/RichTextObjectResolver";
 
-let richTextHtmlResolver = new RichTextHtmlResolver({
+let richTextNodeParser = new RichTextNodeParser();
+let richTextHtmlResolverBrowserParser = new RichTextHtmlResolver({
   contentItemResolver: (itemCodename, contentItem) => {
       switch (contentItem?.system.type) {
           case 'test':
@@ -13,11 +13,28 @@ let richTextHtmlResolver = new RichTextHtmlResolver({
               }       
           default:
               return {
-                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}`
+                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
               }
 
       }
-  }
+  },
+});
+
+let richTextHtmlResolverNodeParser = new RichTextHtmlResolver({
+  contentItemResolver: (itemCodename, contentItem) => {
+      switch (contentItem?.system.type) {
+          case 'test':
+              return {
+                  resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
+              }       
+          default:
+              return {
+                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
+              }
+
+      }
+  },
+  parser: richTextNodeParser
 });
 
 let richTextObjectResolver = new RichTextObjectResolver({
@@ -40,7 +57,7 @@ let richTextObjectResolver = new RichTextObjectResolver({
   }
 })
 
-let richTextTransformer = new Transformer();
+
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>",
@@ -73,9 +90,9 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
-describe("rich-text-transformer", () => {
+describe("Rich text resolver with Node parser", () => {
   it("returns parsed tree", () => {
-    const result = richTextTransformer.transform(richTextTransformer.parse(dummyRichText));
+    const result = richTextNodeParser.parse(dummyRichText);
 
     expect(result).toMatchInlineSnapshot(`
 Object {
@@ -132,78 +149,25 @@ Object {
 }
 `);
   })
-})
 
-describe("rich-text-html-resolver", () => {
-  it("resolves empty rich text correctly", () => {
+  it("parses empty rich text correctly", () => {
     dummyRichText.value = `<p><br></p>`;
-    const result = richTextHtmlResolver.resolve(dummyRichText);
+    const result = richTextHtmlResolverNodeParser.resolve(dummyRichText);
 
     expect(result).toMatchInlineSnapshot(`"<p><br></p>"`);
   })
 
-  it("returns returns resolved rich text", () => {
+  it("returns HTML resolved rich text", () => {
     dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
-    const result = richTextHtmlResolver.resolve(dummyRichText);
+    const result = richTextHtmlResolverNodeParser.resolve(dummyRichText);
 
     expect(result).toMatchInlineSnapshot(`"<p class=\\"test\\" id=\\"3\\"><p>resolved item of type:  test</p>before text<a href=\\"mailto:email@abc.test\\">email</a>after text line break <br></p>"`);
   })
 
-  it("returns rich text as JSON", () => {
-    const result = JSON.stringify(richTextTransformer.transform(richTextTransformer.parse(dummyRichText)));
+  it("returns the same content in both node and browser", () => {
+    const browserParsedResolution = richTextHtmlResolverBrowserParser.resolve(dummyRichText);
+    const nodeParsedResolution = richTextHtmlResolverNodeParser.resolve(dummyRichText);
 
-    expect(result).toMatchInlineSnapshot(`"{\\"content\\":[{\\"name\\":\\"p\\",\\"attributes\\":{\\"class\\":\\"test\\",\\"id\\":\\"3\\"},\\"children\\":[{\\"name\\":\\"object\\",\\"attributes\\":{\\"type\\":\\"application/kenticocloud\\",\\"data-type\\":\\"item\\",\\"data-rel\\":\\"component\\",\\"data-codename\\":\\"test_item\\"},\\"children\\":[],\\"type\\":\\"tag\\"},{\\"content\\":\\"before text\\",\\"type\\":\\"text\\"},{\\"name\\":\\"a\\",\\"attributes\\":{\\"href\\":\\"mailto:email@abc.test\\"},\\"children\\":[{\\"content\\":\\"email\\",\\"type\\":\\"text\\"}],\\"type\\":\\"tag\\"},{\\"content\\":\\"after text line break \\",\\"type\\":\\"text\\"},{\\"name\\":\\"br\\",\\"attributes\\":{},\\"children\\":[],\\"type\\":\\"tag\\"}],\\"type\\":\\"tag\\"}]}"`);
-  })
-});
-
-describe("rich-text-object-resolver", () => {
-  it("resolves linked item into an object", () => {
-    const result = richTextObjectResolver.resolve(dummyRichText);
-
-    expect(result).toMatchInlineSnapshot(`
-Array [
-  Object {
-    "attributes": Object {
-      "class": "test",
-      "id": "3",
-    },
-    "children": Array [
-      Object {
-        "codename": "test_item",
-        "type": "test",
-      },
-      Object {
-        "content": "before text",
-        "type": "text",
-      },
-      Object {
-        "attributes": Object {
-          "href": "mailto:email@abc.test",
-        },
-        "children": Array [
-          Object {
-            "content": "email",
-            "type": "text",
-          },
-        ],
-        "name": "a",
-        "type": "tag",
-      },
-      Object {
-        "content": "after text line break ",
-        "type": "text",
-      },
-      Object {
-        "attributes": Object {},
-        "children": Array [],
-        "name": "br",
-        "type": "tag",
-      },
-    ],
-    "name": "p",
-    "type": "tag",
-  },
-]
-`);
+    expect(nodeParsedResolution).toEqual(browserParsedResolution);
   })
 })

@@ -1,5 +1,7 @@
 import { Elements, IContentItem, ILink, IParserElement, IRichTextImage } from "@kontent-ai/delivery-sdk";
-import { IParsedTree, IParserHtmlNode, IParserNode } from "./parser-models";
+import { RichTextBrowserParser } from "../parsers/RichTextBrowserParser";
+import { RichTextNodeParser } from "../parsers/RichTextNodeParser";
+import { IParsedTree, IParserHtmlNode, IParserNode, IRichTextParser } from "./parser-models";
 
 export interface IRichTextElementResolver<TResult> {
     resolve(input: Elements.RichTextElement): TResult;
@@ -8,7 +10,8 @@ export interface IRichTextElementResolver<TResult> {
 export interface IResolverInput<TOutput> {
     contentItemResolver?: IRichTextContentItemResolver<TOutput>;
     urlResolver?: IRichTextUrlResolver<TOutput>;
-    imageResolver?: IRichTextImageResolver<TOutput>;   
+    imageResolver?: IRichTextImageResolver<TOutput>;
+    parser?: IRichTextParser;
 }
 
 export type IRichTextContentItemResolver<TOutput> = (

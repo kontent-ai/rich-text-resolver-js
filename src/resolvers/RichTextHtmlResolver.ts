@@ -1,7 +1,7 @@
 import { Elements } from "@kontent-ai/delivery-sdk";
-import { IResolverInput } from "./models/resolver-models";
-import { IParserNode } from "./models/parser-models";
-import { isElement, isImage, isItemLink, isLinkedItem, isText, isUnPairedElement } from "./utils/resolverUtils";
+import { IResolverInput } from "../models/resolver-models";
+import { IParserNode } from "../models/parser-models";
+import { isElement, isImage, isItemLink, isLinkedItem, isText, isUnPairedElement } from "../utils/resolverUtils";
 import { RichTextBaseResolver } from "./RichTextBaseResolver";
 
 export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
@@ -23,7 +23,6 @@ export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
         else if (isItemLink(node) && this._urlResolver) {
             let linkId = node.attributes['data-item-id'];
             let linkText = '';
-            let link = element.links.find(link => link.linkId === linkId);
             
             if (node.children.length > 0) {
                 node.children.forEach((childNode) => (linkText += this.resolveNode(childNode, element)))
@@ -68,7 +67,7 @@ export class RichTextHtmlResolver extends RichTextBaseResolver<string> {
     }
 
     resolve(element: Elements.RichTextElement): string {
-        let parsedTree = this._parser.transform(this._parser.parse(element));
+        let parsedTree = this._parser.parse(element);
         return parsedTree.content.map((node) => this.resolveNode(node, element)).toString();
     }
 }
