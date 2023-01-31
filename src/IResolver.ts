@@ -9,6 +9,6 @@ export interface IOutputResult<TOutput> {
 
 export interface IResolver<TInput, TOutput> {
     resolveAsync(input: TInput, resolvers: {
-        resolveDomNode(domNode: IDomNode): Promise<IOutputResult<TOutput>>
-    })
+        resolveDomNode(domNode: IDomNode): Promise<TOutput>
+    }): Promise<IOutputResult<TOutput>>
 }

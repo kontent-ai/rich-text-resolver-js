@@ -14,7 +14,7 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
     }
 
     // TODO Extract resolver types to separate definition
-    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode(domNode: IDomNode): Promise<TOutput>; })
+    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode: (domNode: IDomNode) => Promise<TOutput> })
     : Promise<IOutputResult<TOutput>> {
         const parseResult = this._parser.parse(input.value);
 
