@@ -1,7 +1,9 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextNodeParser } from "../src/parsers/RichTextNodeParser";
-import { RichTextHtmlResolver } from "../src/resolvers/RichTextHtmlResolver";
-import { RichTextObjectResolver } from "../src/resolvers/RichTextObjectResolver";
+import { IRichTextInput } from "../src/IRichTextInput";
+import { RichTextBrowserParser } from "../src/RichTextBrowserParser";
+import { RichTextNodeParser } from "../src_old/parsers/RichTextNodeParser";
+import { RichTextHtmlResolver } from "../src_old/resolvers/RichTextHtmlResolver";
+import { RichTextObjectResolver } from "../src_old/resolvers/RichTextObjectResolver";
 
 let richTextNodeParser = new RichTextNodeParser();
 let richTextHtmlResolverBrowserParser = new RichTextHtmlResolver({
@@ -171,3 +173,20 @@ Object {
     expect(nodeParsedResolution).toEqual(browserParsedResolution);
   })
 })
+
+const richText: IRichTextInput = {
+  value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p><span>text span</span>",
+  images: {},
+  modular_content: [],
+  links: {}
+};
+describe('new rich text parser', () => { 
+  it('parses rich text', () => {
+    const richTextBrowserParser = new RichTextBrowserParser();
+    const result = richTextBrowserParser.parse(richText.value);
+
+    expect(result).toMatchSnapshot();
+  })
+
+
+ })
