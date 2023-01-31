@@ -32,29 +32,29 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
 
     private async resolveAsyncInternal(node: IDomNode, resolvers: { resolveDomNode(domNode: IDomNode): Promise<TOutput>; }): Promise<IOutputResult<TOutput>> {
 
-        const elementNode = node as IDomHtmlNode;
-        if (elementNode) {
-            const resolvedChildren = await Promise.all(elementNode.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
+        if (node.type === 'tag') {
+            const resolvedChildren = await Promise.all(node.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
 
             const subResult: IOutputResult<TOutput> = {
-                childrenNodes: elementNode.children,
+                childrenNodes: node.children,
                 currentNode: node,
-                currentResolvedNode: await resolvers.resolveDomNode(elementNode),
+                currentResolvedNode: await resolvers.resolveDomNode(node),
                 childrenResolvedNodes: resolvedChildren
             };
 
             return subResult;
         }
 
-        const textNode = node as IDomTextNode;
-        if (textNode) {
+        if (node.type === "text") {
             const subResult: IOutputResult<TOutput> = {
                 childrenNodes: [], // TODO null ? 
                 currentNode: node,
-                currentResolvedNode: await resolvers.resolveDomNode(elementNode),
+                currentResolvedNode: await resolvers.resolveDomNode(node),
                 childrenResolvedNodes: [] // TODO null ? 
             };
+            return subResult;
         }
-        return new Promise(() => null);
+        
+        throw new Error("unidentified state");
     }
 }

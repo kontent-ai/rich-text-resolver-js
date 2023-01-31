@@ -1,6 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { IRichTextInput } from "../src/IRichTextInput";
 import { RichTextBrowserParser } from "../src/RichTextBrowserParser";
+import { RichTextResolver } from "../src/RichTextResolver";
 import { RichTextNodeParser } from "../src_old/parsers/RichTextNodeParser";
 import { RichTextHtmlResolver } from "../src_old/resolvers/RichTextHtmlResolver";
 import { RichTextObjectResolver } from "../src_old/resolvers/RichTextObjectResolver";
@@ -8,33 +9,33 @@ import { RichTextObjectResolver } from "../src_old/resolvers/RichTextObjectResol
 let richTextNodeParser = new RichTextNodeParser();
 let richTextHtmlResolverBrowserParser = new RichTextHtmlResolver({
   contentItemResolver: (itemCodename, contentItem) => {
-      switch (contentItem?.system.type) {
-          case 'test':
-              return {
-                  resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
-              }       
-          default:
-              return {
-                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
-              }
+    switch (contentItem?.system.type) {
+      case 'test':
+        return {
+          resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
+        }
+      default:
+        return {
+          resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
+        }
 
-      }
+    }
   },
 });
 
 let richTextHtmlResolverNodeParser = new RichTextHtmlResolver({
   contentItemResolver: (itemCodename, contentItem) => {
-      switch (contentItem?.system.type) {
-          case 'test':
-              return {
-                  resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
-              }       
-          default:
-              return {
-                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
-              }
+    switch (contentItem?.system.type) {
+      case 'test':
+        return {
+          resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
+        }
+      default:
+        return {
+          resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
+        }
 
-      }
+    }
   },
   parser: richTextNodeParser
 });
@@ -78,14 +79,14 @@ const dummyRichText: Elements.RichTextElement = {
         sitemapLocations: [],
         lastModified: "2022-10-11T11:27:25.4033512Z",
         workflowStep: "published"
-        },
-        elements: {
-          text_element: {
+      },
+      elements: {
+        text_element: {
           type: ElementType.Text,
           name: "text element",
           value: "random text value"
-          }
         }
+      }
     }
   ],
   links: [],
@@ -180,7 +181,7 @@ const richText: IRichTextInput = {
   modular_content: [],
   links: {}
 };
-describe('new rich text parser', () => { 
+describe('new rich text parser', () => {
   it('parses rich text', () => {
     const richTextBrowserParser = new RichTextBrowserParser();
     const result = richTextBrowserParser.parse(richText.value);
@@ -189,4 +190,16 @@ describe('new rich text parser', () => {
   })
 
 
+})
+
+describe('new rich text resolver', () => {
+  it('resolve all domnodes', async() => {
+    const resolver = new RichTextResolver<string>();
+
+    const result = await resolver.resolveAsync(richText,{
+      resolveDomNode: (domnode) => Promise.resolve(domnode.type)
+    });
+
+    expect(result).toMatchSnapshot();
+  })
  })

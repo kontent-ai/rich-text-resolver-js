@@ -1,12 +1,12 @@
-export interface IDomNode {
-    type: 'text' | 'tag'
-}
+export type IDomNode = IDomHtmlNode | IDomTextNode;
 
-export interface IDomTextNode extends IDomNode {
+export interface IDomTextNode {
+    type: 'text'
     content: string
 }
 
-export interface IDomHtmlNode extends IDomNode{
+export interface IDomHtmlNode {
+    type: 'tag',
     tagName: string,
     attributes: Record<string, string>,
     children: IDomNode[]
