@@ -13,29 +13,48 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
         this._parser = new RichTextBrowserParser();
     }
 
-    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode(domNode: IDomNode): Promise<IOutputResult<TOutput>>; }) {
+    // TODO Extract resolver types to separate definition
+    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode(domNode: IDomNode): Promise<TOutput>; })
+    : Promise<IOutputResult<TOutput>> {
         const parseResult = this._parser.parse(input.value);
 
-        const resolvedObject: IOutputResult<TOutput> = {
-            nodes: await Promise.all(parseResult.children.map((childNode) => this.resolveAsyncInternal(childNode)))
+        const resolvedChildren = await Promise.all(parseResult.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
+
+        const result: IOutputResult<TOutput> = {
+            childrenNodes: parseResult.children,
+            currentNode: null, // root
+            currentResolvedNode: null, // root
+            childrenResolvedNodes: resolvedChildren
         };
 
-        return resolvedObject;
-
+        return result;
     }
 
-    private async resolveAsyncInternal(node: IDomNode): Promise<TOutput> {
-        
-        // resolition
+    private async resolveAsyncInternal(node: IDomNode, resolvers: { resolveDomNode(domNode: IDomNode): Promise<TOutput>; }): Promise<IOutputResult<TOutput>> {
+
         const elementNode = node as IDomHtmlNode;
-        if(elementNode){
-            const subResult = elementNode.children.map(async (childNode) => await this.resolveAsyncInternal(childNode))
+        if (elementNode) {
+            const resolvedChildren = await Promise.all(elementNode.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
+
+            const subResult: IOutputResult<TOutput> = {
+                childrenNodes: elementNode.children,
+                currentNode: node,
+                currentResolvedNode: await resolvers.resolveDomNode(elementNode),
+                childrenResolvedNodes: resolvedChildren
+            };
+
+            return subResult;
         }
 
         const textNode = node as IDomTextNode;
-        if(textNode) {
-            const subResult = this.resolveAsyncInternal(textNode);
+        if (textNode) {
+            const subResult: IOutputResult<TOutput> = {
+                childrenNodes: [], // TODO null ? 
+                currentNode: node,
+                currentResolvedNode: await resolvers.resolveDomNode(elementNode),
+                childrenResolvedNodes: [] // TODO null ? 
+            };
         }
         return new Promise(() => null);
-    }  
+    }
 }

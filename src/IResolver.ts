@@ -1,8 +1,10 @@
 import { IDomNode } from "./IDomNode";
 
 export interface IOutputResult<TOutput> {
-    reolvedNode: TOutput,
-    nodes: TOutput[]
+    currentResolvedNode: TOutput | null,
+    currentNode: IDomNode | null,
+    childrenResolvedNodes: IOutputResult<TOutput>[],
+    childrenNodes: IDomNode[]
 }
 
 export interface IResolver<TInput, TOutput> {
