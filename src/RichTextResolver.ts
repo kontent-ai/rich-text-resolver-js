@@ -55,6 +55,6 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
             return subResult;
         }
 
-        throw new Error("unidentified state");
+        throw new Error("Unidentified state");
     }
 }
