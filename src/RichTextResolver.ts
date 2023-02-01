@@ -14,8 +14,8 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
     }
 
     // TODO Extract resolver types to separate definition
-    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode: (domNode: IDomNode) => Promise<TOutput> })
-    : Promise<IOutputResult<TOutput>> {
+    async resolveAsync(input: IRichTextInput, resolvers: { resolveDomNode?: (domNode: IDomNode) => Promise<TOutput> })
+        : Promise<IOutputResult<TOutput>> {
         const parseResult = this._parser.parse(input.value);
 
         const resolvedChildren = await Promise.all(parseResult.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
@@ -30,7 +30,7 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
         return result;
     }
 
-    private async resolveAsyncInternal(node: IDomNode, resolvers: { resolveDomNode(domNode: IDomNode): Promise<TOutput>; }): Promise<IOutputResult<TOutput>> {
+    private async resolveAsyncInternal(node: IDomNode, resolvers: { resolveDomNode?: (domNode: IDomNode) => Promise<TOutput>; }): Promise<IOutputResult<TOutput>> {
 
         if (node.type === 'tag') {
             const resolvedChildren = await Promise.all(node.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
@@ -38,7 +38,7 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
             const subResult: IOutputResult<TOutput> = {
                 childrenNodes: node.children,
                 currentNode: node,
-                currentResolvedNode: await resolvers.resolveDomNode(node),
+                currentResolvedNode: resolvers.resolveDomNode ? await resolvers.resolveDomNode(node) : null,
                 childrenResolvedNodes: resolvedChildren
             };
 
@@ -49,12 +49,12 @@ export class RichTextResolver<TOutput> implements IResolver<IRichTextInput, TOut
             const subResult: IOutputResult<TOutput> = {
                 childrenNodes: [], // TODO null ? 
                 currentNode: node,
-                currentResolvedNode: await resolvers.resolveDomNode(node),
+                currentResolvedNode: resolvers.resolveDomNode ? await resolvers.resolveDomNode(node) : null,
                 childrenResolvedNodes: [] // TODO null ? 
             };
             return subResult;
         }
-        
+
         throw new Error("unidentified state");
     }
 }
