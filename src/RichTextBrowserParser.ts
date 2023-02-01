@@ -18,17 +18,17 @@ export class RichTextBrowserParser implements IParser<string> {
     private isRootNode = (domNode: Node): domNode is Document =>
         domNode.nodeType === NodeType.DOCUMENT_NODE
     private isTextNode = (domNode: Node): domNode is Text =>
-        domNode.nodeType === NodeType.TEXT_NODE  
+        domNode.nodeType === NodeType.TEXT_NODE
     private isElementNode = (domNode: Node): domNode is Element =>
         domNode.nodeType === NodeType.ELEMENT_NODE
 
-    private convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): Record<string,string> => {
-        let convertedAttributes: Record<string, string> = {};
-    
+    private convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): { [key: string]: string } => {
+        let convertedAttributes: { [key: string]: string } = {};
+
         for (const attr of domNodeAttributes) {
             convertedAttributes[attr.name] = attr.value;
         }
-    
+
         return convertedAttributes;
     }
 
