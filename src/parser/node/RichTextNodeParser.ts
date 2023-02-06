@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParser, IParseResult } from "../parser-models";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParser, IParseResult } from "../../parser";
 import { NodeParser } from "./NodeParser";
 import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";

@@ -1,6 +1,7 @@
 import { IParserEngine, IDomNode } from "../parser/parser-models";
 import { IOutputResult, IResolver, IResolverMethods, RichTextInput } from "./resolver-models";
 import { RichTextBrowserParser } from "../parser/browser/RichTextBrowserParser";
+import { NodeParser } from "../parser/node";
 
 export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutput> {
     private _parser: IParserEngine;
@@ -9,13 +10,13 @@ export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutp
         this._parser = nodeParser ? nodeParser : new RichTextBrowserParser();
     }
 
-    // TODO Extract resolver types to separate definition, decide if using only one resolution method is viable
+    // TODO decide if using only one resolution method is viable
     async resolveAsync(input: RichTextInput, resolvers?: IResolverMethods<TOutput>)
         : Promise<IOutputResult<TOutput>> {
         const parseResult = this._parser.parse(input.value);
 
         const resolvedChildren = await Promise.all(parseResult.children.flatMap((childNode: IDomNode) => this.resolveAsyncInternal(childNode, resolvers)));
-
+            // TODO provide an option to pass linker method and construct the output in the first tree traversal?
         const result: IOutputResult<TOutput> = {
             childNodes: parseResult.children,
             currentNode: null, // root
@@ -27,7 +28,6 @@ export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutp
     }
 
     private async resolveAsyncInternal(node: IDomNode, resolvers?: IResolverMethods<TOutput>): Promise<IOutputResult<TOutput>> {
-
         if (node.type === 'tag') {
             const resolvedChildren = await Promise.all(node.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
 
@@ -54,3 +54,5 @@ export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutp
         throw new Error("Unidentified state");
     }
 }
+
+const resolver = new RichTextResolver(new NodeParser());

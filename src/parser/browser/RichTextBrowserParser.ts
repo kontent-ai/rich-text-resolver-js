@@ -1,5 +1,5 @@
 import { IDomHtmlNode, IDomNode, IDomTextNode, IParseResult, IParser } from "../parser-models";
-import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/parser-utils";
+import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/";
 import { BrowserParser } from "./BrowserParser";
 
 export class RichTextBrowserParser implements IParser<string> {
