@@ -1,29 +1,19 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode } from "./IDomNode";
-import { IParser } from "./IParser";
-import { NodeParser } from "./utils/NodeParser";
-import { IParseResult } from "./utils/parser-utils";
-import { Node, NodeType, HTMLElement, TextNode } from "node-html-parser";
-
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParser, IParseResult } from "../parser-models";
+import { NodeParser } from "./NodeParser";
+import { Node } from "node-html-parser";
+import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
 
 export class RichTextNodeParser implements IParser<string> {
     private readonly _parser: NodeParser;
+
     constructor() {
         this._parser = new NodeParser();
     }
 
-    private isRootNode = (domNode: Node): domNode is HTMLElement =>
-    domNode.nodeType === NodeType.ELEMENT_NODE && !domNode.parentNode
-
-    private isTextNode = (domNode: Node): domNode is TextNode =>
-        domNode.nodeType === NodeType.TEXT_NODE
-
-    private isElementNode = (domNode: Node): domNode is HTMLElement =>
-        domNode.nodeType === NodeType.ELEMENT_NODE
-
     parse(value: string): IParseResult {
         const node = this._parser.parse(value);
 
-        if (this.isRootNode(node)) {
+        if (isRootNode(node)) {
             return {
                 children: node.childNodes.flatMap((node) => this.parseInternal(node))
             }
@@ -37,7 +27,7 @@ export class RichTextNodeParser implements IParser<string> {
     private parseInternal(node: Node): IDomNode[] {
         const parsedNodes: IDomNode[] = [];
 
-        if (this.isElementNode(node)) {
+        if (isElementNode(node)) {
             const htmlNode: IDomHtmlNode = {
                 tagName: node.tagName.toLowerCase(),
                 attributes: node.attributes,
@@ -48,7 +38,7 @@ export class RichTextNodeParser implements IParser<string> {
             parsedNodes.push(htmlNode);
         }
 
-        else if (this.isTextNode(node)) {
+        else if (isTextNode(node)) {
             const textNode: IDomTextNode = {
                 content: node.text ?? '',
                 type: 'text'

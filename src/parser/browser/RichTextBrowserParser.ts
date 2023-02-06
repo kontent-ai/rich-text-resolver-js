@@ -1,15 +1,16 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode } from "./IDomNode";
-import { IParser } from "./IParser";
-import { convertDomNodeAttributes, IParseResult, isElementNode, isRootNode, isTextNode, NodeType } from "./utils/parser-utils";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParseResult, IParser } from "../parser-models";
+import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/parser-utils";
+import { BrowserParser } from "./BrowserParser";
 
 export class RichTextBrowserParser implements IParser<string> {
-    private readonly _parser: DOMParser;
+    private readonly _parser: BrowserParser;
+    
     constructor() {
-        this._parser = new DOMParser();
+        this._parser = new BrowserParser();
     }
 
-    parse(value: string): IParseResult {
-        const document = this._parser.parseFromString(value, 'text/html');
+    parse(value: string): IParseResult { // TODO possible to unify into a base class, regardless of parser used?
+        const document = this._parser.parse(value);
 
         if (isRootNode(document) && document.body.firstChild) {
             return {

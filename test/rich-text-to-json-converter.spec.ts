@@ -1,7 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { IRichTextInput } from "../src/IRichTextInput";
-import { RichTextBrowserParser } from "../src/RichTextBrowserParser";
-import { RichTextResolver } from "../src/RichTextResolver";
+import { RichTextInput } from "../src/resolver/resolver-models";
+import { RichTextBrowserParser } from "../src/parser/browser/RichTextBrowserParser";
+import { RichTextResolver } from "../src/resolver/RichTextResolver";
 import { RichTextNodeParser } from "../src_old/parsers/RichTextNodeParser";
 import { RichTextHtmlResolver } from "../src_old/resolvers/RichTextHtmlResolver";
 import { RichTextObjectResolver } from "../src_old/resolvers/RichTextObjectResolver";
@@ -175,7 +175,7 @@ Object {
   })
 })
 
-const richText: IRichTextInput = {
+const richText: RichTextInput = {
   value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p><span>text span</span>",
   images: {},
   modular_content: [],

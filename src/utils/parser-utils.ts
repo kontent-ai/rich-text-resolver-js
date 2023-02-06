@@ -1,9 +1,3 @@
-import { IDomNode } from "../IDomNode"
-
-export type IParseResult = {
-    children: IDomNode[]
-}
-
 export enum NodeType {
     ELEMENT_NODE = 1,
     TEXT_NODE = 3,
