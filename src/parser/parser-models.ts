@@ -16,8 +16,8 @@ export interface IDomHtmlNode {
     children: IDomNode[]
 }
 
-export interface IParser<TInput> {
-    parse(value: TInput): {
+export interface IParser {
+    parse(value: string): {
         children: IDomNode[]
     }
 }

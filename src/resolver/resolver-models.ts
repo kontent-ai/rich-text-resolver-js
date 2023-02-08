@@ -7,8 +7,8 @@ export type RichTextInput = {
             image_id?: string,
             description?: string | null,
             url: string,
-            width?: number | undefined,
-            height?: number | undefined
+            width?: number | null, // TODO changed from undefined for easier SDK conversion. potential problems?
+            height?: number | null
         }
     },
     links?: {
@@ -18,24 +18,21 @@ export type RichTextInput = {
             url_slug?: string
         }
     },
-    modular_content?: string[]
+    modular_content?: string[],
+    linked_items?: { [key: string]: {} }
 }
 
-export interface IResolverMethods<TOutput> {
-    resolveDomNode(domNode: IDomNode): Promise<TOutput>;
-}
+// export interface IResolverMethods<TOutput> {
+//     resolveDomNode(domNode: IDomNode): Promise<TOutput>;
+// }
 
-export interface IOutputResult<TOutput> {
-    currentResolvedNode: TOutput | null,
+export interface IOutputResult {
     currentNode: IDomNode | null,
-    childResolvedNodes: IOutputResult<TOutput>[],
     childNodes: IDomNode[]
 }
 
 export interface IResolver<TInput, TOutput> {
-    resolveAsync(input: TInput, resolvers: {
-        resolveDomNode(domNode: IDomNode): Promise<TOutput>
-    }): Promise<IOutputResult<TOutput> | TOutput>
+    resolveAsync(input: TInput, resolver: (parseResult: IOutputResult) => TOutput): Promise<IOutputResult>
 }
 
 export interface ILinkFunction<TOutput> {

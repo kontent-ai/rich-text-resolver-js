@@ -4,26 +4,31 @@ This tool provides an alternative to rich text resolution built into the JS SDK,
 
 ## Installation
 
-TODO
+Install the package via npm
+
+```npm i @kontent-ai/rich-text-resolver```
 
 ***
 
 ## Usage
 
-Resolution is provided via `RichTextResolver<TOutput>` class, where `TOutput` parameter specifies a type (or a union) of the resolved object, such as `string`, `JSX.Element` etc. 
+Resolution is provided via `RichTextResolver<TOutput>` class, where `TOutput` parameter specifies a type (or a union) of the resolved object, such as `string`, `JSX.Element` etc.
 
-> By default, the class uses browser built-in `DOMParser` to parse the rich text HTML. If you intend to resolve in Node.js, you need to create an instance of `NodeParser` included in the package and pass it to the class constructor.
+### Initialization
+By default, the class uses browser built-in `DOMParser` to parse the rich text HTML. If you intend to resolve in Node.js, you need to create an instance of `NodeParser` included in the package and pass it to the class constructor.
 
 An example of initializing Node based resolver for React components:
 
 ```ts
-import { RichTextResolver } from 'kontent-rich-text-to-json-converter';
-import { NodeParser } from 'kontent-rich-text-to-json-converter/parser';
+import { RichTextResolver } from '@kontent-ai/rich-text-resolver';
+import { NodeParser } from '@kontent-ai/rich-text-resolver/parser';
 
-const resolver = new RichTextResolver<JSX.Element>(new NodeParser());
+const resolver = new RichTextResolver<JSX.Element>(new NodeParser()); // leave constructor empty for browser parser
 ```
 
-The resolver exposes single `resolveAsync` method which accepts a structured `RichTextInput` and optionally an object with resolution methods.
+### Resolution
+
+The resolver exposes single `resolveAsync` method which accepts a structured `RichTextInput`.
 
 Structure of the rich text input mirrors the rich text element response from delivery API:
 
@@ -50,27 +55,37 @@ export type RichTextInput = {
 }
 ```
 
-If you use SDK or GraphQL, you'll need to remap the response accordingly and provide at least the required value property, holding the actual HTML representation of the rich text element. 
-
-Assuming we pass the rich text element from SDK response as a prop to our react component, the transformation can look like this:
+The module provides a helper method to map SDK response to a correct input:
 
 ```ts
-    resolver.resolveAsync({
-      value: props.element.value,
-      images: Object.fromEntries(props.element.images.map(image => [image.imageId, {
-        image_id: image.imageId,
-        description: image.description,
-        url: image.url,
-        width: image.width || undefined,
-        height: image.height || undefined
-      }])),
-      links: Object.fromEntries(props.element.links.map(link => [link.linkId, {
-        codename: link.codename,
-        type: link.type,
-        url_slug: link.urlSlug
-      }])),
-      modular_content: props.element.linkedItemCodenames
-    }, {})
+import { RichTextResolver } from '@kontent-ai/rich-text-resolver';
+import { getElementInputFromSdk } from '@kontent-ai/rich-text-resolver/utils'
+.
+.
+.
+resolver.resolveAsync(getElementInputFromSdk(sdkRichTextElement))
+
+```
+
+Alternatively, you can map the input yourself, as in the following example:
+
+```ts
+resolver.resolveAsync({
+    value: props.element.value,
+    images: Object.fromEntries(props.element.images.map(image => [image.imageId, {
+    image_id: image.imageId,
+    description: image.description,
+    url: image.url,
+    width: image.width || null,
+    height: image.height || null
+    }])),
+    links: Object.fromEntries(props.element.links.map(link => [link.linkId, {
+    codename: link.codename,
+    type: link.type,
+    url_slug: link.urlSlug
+    }])),
+    modular_content: props.element.linkedItemCodenames
+})
 ```
 
 The output is a tree, represented by the following interface, where TOutput is again `JSX.Element` in our example:
@@ -84,4 +99,4 @@ export interface IOutputResult<TOutput> {
 }
 ```
 
-TODO
+TODO Examples

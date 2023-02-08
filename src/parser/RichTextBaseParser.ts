@@ -1,7 +1,7 @@
 import { IParser, IParseResult, IParserEngine } from "./parser-models";
 import { isRootNode } from "../utils/";
 
-export abstract class RichTextBaseParser implements IParser<string> {
+export abstract class RichTextBaseParser implements IParser {
     abstract _parser: IParserEngine;
     abstract parseInternal(node: any): any;
 

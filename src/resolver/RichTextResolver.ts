@@ -1,58 +1,23 @@
-import { IParserEngine, IDomNode } from "../parser/parser-models";
-import { IOutputResult, IResolver, IResolverMethods, RichTextInput } from "./resolver-models";
+import { IParserEngine, IDomNode, IParser } from "../parser/parser-models";
+import { IOutputResult, IResolver, RichTextInput } from "./resolver-models";
 import { RichTextBrowserParser } from "../parser/browser/RichTextBrowserParser";
-import { NodeParser } from "../parser/node";
 
 export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutput> {
-    private _parser: IParserEngine;
+    private _parser: IParser;
 
-    constructor(nodeParser?: IParserEngine) {
+    constructor(nodeParser?: IParser) {
         this._parser = nodeParser ? nodeParser : new RichTextBrowserParser();
     }
 
-    // TODO decide if using only one resolution method is viable
-    async resolveAsync(input: RichTextInput, resolvers?: IResolverMethods<TOutput>)
-        : Promise<IOutputResult<TOutput>> {
+    async resolveAsync(input: RichTextInput)
+        : Promise<IOutputResult> {
         const parseResult = this._parser.parse(input.value);
-
-        const resolvedChildren = await Promise.all(parseResult.children.flatMap((childNode: IDomNode) => this.resolveAsyncInternal(childNode, resolvers)));
             // TODO provide an option to pass linker method and construct the output in the first tree traversal?
-        const result: IOutputResult<TOutput> = {
+        const result: IOutputResult = {
             childNodes: parseResult.children,
             currentNode: null, // root
-            currentResolvedNode: null, // root
-            childResolvedNodes: resolvedChildren
         };
 
         return result;
     }
-
-    private async resolveAsyncInternal(node: IDomNode, resolvers?: IResolverMethods<TOutput>): Promise<IOutputResult<TOutput>> {
-        if (node.type === 'tag') {
-            const resolvedChildren = await Promise.all(node.children.flatMap((childNode) => this.resolveAsyncInternal(childNode, resolvers)));
-
-            const subResult: IOutputResult<TOutput> = {
-                childNodes: node.children,
-                currentNode: node,
-                currentResolvedNode: resolvers?.resolveDomNode ? await resolvers.resolveDomNode(node) : null,
-                childResolvedNodes: resolvedChildren
-            };
-
-            return subResult;
-        }
-
-        if (node.type === "text") {
-            const subResult: IOutputResult<TOutput> = {
-                childNodes: [], // TODO null ? 
-                currentNode: node,
-                currentResolvedNode: resolvers?.resolveDomNode ? await resolvers.resolveDomNode(node) : null,
-                childResolvedNodes: [] // TODO null ? 
-            };
-            return subResult;
-        }
-
-        throw new Error("Unidentified state");
-    }
 }
-
-const resolver = new RichTextResolver(new NodeParser());
