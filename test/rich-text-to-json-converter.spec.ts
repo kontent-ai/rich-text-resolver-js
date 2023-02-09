@@ -79,7 +79,7 @@ describe('new rich text parser', () => {
 
 describe('new rich text resolver', () => {
   it('resolve all domnodes', async() => {
-    const resolver = new RichTextResolver<string>();
+    const resolver = new RichTextResolver();
 
     const result = null
 

@@ -1,8 +1,8 @@
-import { IParserEngine, IDomNode, IParser } from "../parser/parser-models";
+import { IParser } from "../parser/parser-models";
 import { IOutputResult, IResolver, RichTextInput } from "./resolver-models";
 import { RichTextBrowserParser } from "../parser/browser/RichTextBrowserParser";
 
-export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutput> {
+export class RichTextResolver implements IResolver<RichTextInput, IOutputResult> {
     private _parser: IParser;
 
     constructor(nodeParser?: IParser) {
@@ -12,7 +12,6 @@ export class RichTextResolver<TOutput> implements IResolver<RichTextInput, TOutp
     async resolveAsync(input: RichTextInput)
         : Promise<IOutputResult> {
         const parseResult = this._parser.parse(input.value);
-            // TODO provide an option to pass linker method and construct the output in the first tree traversal?
         const result: IOutputResult = {
             childNodes: parseResult.children,
             currentNode: null, // root
