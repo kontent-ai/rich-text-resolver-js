@@ -22,17 +22,12 @@ export type RichTextInput = {
     linked_items?: { [key: string]: {} }
 }
 
-// export interface IResolverMethods<TOutput> {
-//     resolveDomNode(domNode: IDomNode): Promise<TOutput>;
-// }
-
 export interface IOutputResult {
-    currentNode: IDomNode | null,
     childNodes: IDomNode[]
 }
 
 export interface IResolver<TInput, TOutput> {
-    resolveAsync(input: TInput, resolver: (parseResult: IOutputResult) => TOutput): Promise<IOutputResult>
+    parse(input: TInput): IOutputResult
 }
 
 export interface ILinkFunction<TOutput> {

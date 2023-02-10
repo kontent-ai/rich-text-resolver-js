@@ -29,7 +29,7 @@ export const isUnPairedElement = (node: IDomNode): node is IDomHtmlNode =>
 
 export const getElementInputFromSdk = (element: SDKRichTextElement): RichTextInput => {
     return {
-        value: element.value,
+        ...element,
         images: Object.fromEntries(
             element.images.map(image => [image.imageId, image])
         ),
@@ -45,18 +45,18 @@ export const getElementInputFromSdk = (element: SDKRichTextElement): RichTextInp
 
 interface SDKRichTextElement { // TODO use typescript magic to simplify this?
     value: string,
-    links: [{
+    links: {
         linkId: string,
         codename: string,
         type: string,
         urlSlug: string
-    }],
-    images: [{
+    }[],
+    images: {
         imageId: string,
         url: string,
-        description: string,
+        description: string | null,
         width: number | null,
         height: number | null
-    }],
-    linkedItems: [any]
+    }[],
+    linkedItems: any[]
 }

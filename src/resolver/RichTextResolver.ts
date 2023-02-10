@@ -9,12 +9,11 @@ export class RichTextResolver implements IResolver<RichTextInput, IOutputResult>
         this._parser = nodeParser ? nodeParser : new RichTextBrowserParser();
     }
 
-    async resolveAsync(input: RichTextInput)
-        : Promise<IOutputResult> {
+    parse(input: RichTextInput)
+        : IOutputResult {
         const parseResult = this._parser.parse(input.value);
         const result: IOutputResult = {
-            childNodes: parseResult.children,
-            currentNode: null, // root
+            childNodes: parseResult.children
         };
 
         return result;
