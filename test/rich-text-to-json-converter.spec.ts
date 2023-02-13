@@ -1,7 +1,5 @@
-import { browserParser, Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextInput } from "../src/resolver/resolver-models";
-import { RichTextBrowserParser } from "../src/parser/browser/RichTextBrowserParser";
-import { RichTextResolver } from "../src/resolver/RichTextResolver";
+import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
+import { RichTextParser } from "../src/resolver/RichTextResolver";
 import { RichTextNodeParser } from "../src/parser/node/RichTextNodeParser"
 import { getElementInputFromSdk } from "../src/utils";
 import { IDomNode } from "../src/parser";
@@ -39,12 +37,12 @@ const dummyRichText: Elements.RichTextElement = {
 
 
 const richTextInput = getElementInputFromSdk(dummyRichText);
-const richTextBrowserResolver = new RichTextResolver();
-const richTextNodeResolver = new RichTextResolver(new RichTextNodeParser());
+const richTextBrowserParser = new RichTextParser();
+const richTextNodeParser = new RichTextParser(new RichTextNodeParser());
 
-describe("Rich text resolver", () => {
+describe("Rich text parser", () => {
   it("converts SDK input, returns parsed tree", () => {
-    const result = richTextBrowserResolver.parse(richTextInput);
+    const result = richTextBrowserParser.parse(richTextInput);
 
     expect(result).toMatchInlineSnapshot(`
 Object {
@@ -103,15 +101,15 @@ Object {
   })
 
   it("browser and node parser output match", () => { 
-    const nodeResult = richTextNodeResolver.parse(richTextInput);
-    const browserResult = richTextBrowserResolver.parse(richTextInput);
+    const nodeResult = richTextNodeParser.parse(richTextInput);
+    const browserResult = richTextBrowserParser.parse(richTextInput);
 
     expect(nodeResult).toEqual(browserResult);
   })
 
   it("parses empty rich text", () => {
     dummyRichText.value = "<p><br></p>"
-    const result = richTextBrowserResolver.parse(getElementInputFromSdk(dummyRichText));
+    const result = richTextBrowserParser.parse(getElementInputFromSdk(dummyRichText));
     expect(result).toMatchInlineSnapshot(`
 Object {
   "childNodes": Array [
@@ -175,7 +173,7 @@ Object {
           return result;
         }
 
-        const parsedTree = richTextBrowserResolver.parse(getElementInputFromSdk(dummyRichText));
+        const parsedTree = richTextBrowserParser.parse(getElementInputFromSdk(dummyRichText));
         const result = parsedTree.childNodes.map(node => resolve(node)).toString();
 
         expect(result).toMatchInlineSnapshot(`

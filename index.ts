@@ -1,1 +1,1 @@
-export { RichTextBrowserParser, RichTextResolver } from "./src"
+export * from "./src";

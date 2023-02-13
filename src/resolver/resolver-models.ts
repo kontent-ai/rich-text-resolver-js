@@ -26,7 +26,7 @@ export interface IOutputResult {
     childNodes: IDomNode[]
 }
 
-export interface IResolver<TInput, TOutput> {
+export interface IRichTextParser<TInput, TOutput> {
     parse(input: TInput): IOutputResult
 }
 

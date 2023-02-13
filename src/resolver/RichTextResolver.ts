@@ -1,8 +1,8 @@
 import { IParser } from "../parser/parser-models";
-import { IOutputResult, IResolver, RichTextInput } from "./resolver-models";
+import { IOutputResult, IRichTextParser, RichTextInput } from "./resolver-models";
 import { RichTextBrowserParser } from "../parser/browser/RichTextBrowserParser";
 
-export class RichTextResolver implements IResolver<RichTextInput, IOutputResult> {
+export class RichTextParser implements IRichTextParser<RichTextInput, IOutputResult> {
     private _parser: IParser;
 
     constructor(nodeParser?: IParser) {
