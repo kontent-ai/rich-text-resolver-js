@@ -1,20 +1,20 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParseResult, IParser, IParserEngine } from "../parser-models";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, IRichTextParser, RichTextInput } from "../parser-models";
 import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/";
 import { BrowserParser } from "./BrowserParser";
 
-export class RichTextBrowserParser implements IParser {
+export class RichTextBrowserParser implements IRichTextParser<RichTextInput, IOutputResult> {
     private readonly _parserEngine: IParserEngine;
     
     constructor() {
         this._parserEngine = new BrowserParser();
     }
 
-    parse(value: string): IParseResult { // TODO possible to unify into a base class, regardless of parser used?
-        const document = this._parserEngine.parse(value);
+    parse(input: RichTextInput): IOutputResult { // TODO possible to unify into a base class, regardless of parser used?
+        const document = this._parserEngine.parse(input.value);
 
         if (isRootNode(document) && document.body.firstChild) {
             return {
-                children: Array.from(document.body.childNodes).flatMap((node) => this.parseInternal(node))
+                childNodes: Array.from(document.body.childNodes).flatMap((node) => this.parseInternal(node))
             }
 
         }

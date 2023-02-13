@@ -1,21 +1,21 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParser, IParserEngine, IParseResult } from "../../parser";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, RichTextInput, IRichTextParser } from "../../parser";
 import { NodeParser } from "./NodeParser";
 import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
 
-export class RichTextNodeParser implements IParser {
+export class RichTextNodeParser implements IRichTextParser<RichTextInput, IOutputResult>  {
     private readonly _parserEngine: IParserEngine;
 
     constructor() {
         this._parserEngine = new NodeParser();
     }
 
-    parse(value: string): IParseResult {
-        const node = this._parserEngine.parse(value);
+    parse(input: RichTextInput): IOutputResult {
+        const node = this._parserEngine.parse(input.value);
 
         if (isRootNode(node)) {
             return {
-                children: node.childNodes.flatMap((node) => this.parseInternal(node))
+                childNodes: node.childNodes.flatMap((node) => this.parseInternal(node))
             }
         }
 

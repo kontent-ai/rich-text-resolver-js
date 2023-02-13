@@ -1,4 +1,4 @@
-# TypeScript rich text resolver for Kontent.ai
+# TypeScript rich text parser for Kontent.ai
 
 This tool provides an alternative to rich text parsing and resolution built into the JS SDK, allowing more control over the resolution process, such as specifying the output type and structure.
 
@@ -12,21 +12,19 @@ Install the package via npm
 
 ## Usage
 
-Module provides a ```RichTextParser``` class to parse rich text HTML value into a simplified JSON tree.
+Module provides two classes to parse rich text HTML into a simplified JSON tree: ```RichTextBrowserParser``` for client-side resolution and ```RichTextNodeParser``` for server-side use with Node.js.
 
-By default, the class uses browser built-in `DOMParser` to parse the rich text HTML. If you intend to resolve in Node.js, you need to create an instance of `RichTextNodeParser` included in the package and pass it to the class constructor.
-
-An example of initializing Node based resolver for React components:
+Both classes are initialized with empty constructor and their use is identical, only difference is the underlying parsing logic.
 
 ```ts
-import { RichTextParser, RichTextNodeParser } from '@pokornyd/kontent-ai-rich-text-parser';
+import { RichTextBrowserParser, RichTextNodeParser } from '@pokornyd/kontent-ai-rich-text-parser';
 
-const parser = new RichTextParser(new RichTextNodeParser()); // leave constructor empty for browser parser
+const parser = new RichTextBrowserParser(); // RichTextNodeParser();
 ```
 
 ### Parsing
 
-The class exposes a single `parse` method which accepts a structured `RichTextInput` object.
+Both classes exposes a single `parse` method which accepts a structured `RichTextInput` object.
 
 Structure of the rich text input mirrors the rich text element response from delivery API:
 
@@ -57,31 +55,35 @@ The module provides a helper method to map SDK response to a correct input:
 
 ```ts
 import { RichTextParser, getElementInputFromSdk } from '@pokornyd/kontent-ai-rich-text-parser';
+import { type IContentItem, type Elements, createDeliveryClient } from '@kontent-ai/delivery-sdk';
 .
 .
 .
-parser.parse(getElementInputFromSdk(sdkRichTextElement))
+const article = (await client.item<Article>('article_codename').toPromise()).data;
+
+const parseResult = parser.parse(getElementInputFromSdk(article.item.elements.richTextElementCodename));
 
 ```
 
-Alternatively, you can map the input yourself, as in the following example:
+Alternatively, you can map the input yourself, as in the following React example:
 
 ```ts
-parser.parse({
+const parseResult = parser.parse({
     value: props.element.value,
     images: Object.fromEntries(props.element.images.map(image => [image.imageId, {
-    image_id: image.imageId,
-    description: image.description,
-    url: image.url,
-    width: image.width || null,
-    height: image.height || null
+        image_id: image.imageId,
+        description: image.description,
+        url: image.url,
+        width: image.width || null,
+        height: image.height || null
     }])),
     links: Object.fromEntries(props.element.links.map(link => [link.linkId, {
-    codename: link.codename,
-    type: link.type,
-    url_slug: link.urlSlug
+        codename: link.codename,
+        type: link.type,
+        url_slug: link.urlSlug
     }])),
-    modular_content: props.element.linkedItemCodenames
+    modular_content: props.element.linkedItemCodenames,
+    linked_items: props.element.linkedItems
 })
 ```
 
@@ -93,7 +95,7 @@ export interface IOutputResult {
 }
 ```
 
-where ```IDomNode``` represents either a IDomHtmlNode (tag) or IDomTextNode (text):
+where ```IDomNode``` represents either a ```IDomHtmlNode``` (tag) or ```IDomTextNode``` (text):
 
 ```ts
 export interface IDomTextNode {
@@ -111,18 +113,20 @@ export interface IDomHtmlNode {
 
 ### Resolution
 
-Resolution is achieved by traversing the output tree returned from ```parse``` method and manipulating it as per contextual requirements. See example resolutions below.
+Resolution is achieved by traversing the output tree returned from ```parse``` method and manipulating it as per contextual requirements. 
+
+To identify each node, you may use helper methods included in the module (``isText``, ``isElement``, ``isLinkedItem``, ``isImage``, ``isItemLink``, ``isUnpairedElement``) as in the below example, or manually, based on the domNode type and attributes. See example usage below:
 
 **HTML string (TypeScript)**
 ```typescript
 const input: RichTextInput = getInput(); // from SDK or otherwise
-const parser = new RichTextParser();
+const parser = new RichTextNodeParser();
 const resolve = (domNode: IDomNode) => {
     let result = '';
-    if (domNode.type === 'text')
+    if (isText(domNode))
         result += domNode.content;
     
-    else if(domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
+    else if(isLinkedItem(domNode)) {
             const linkedItem = linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
 
             if(linkedItem.system.type === 'youtube_video') {
@@ -142,14 +146,26 @@ const resolve = (domNode: IDomNode) => {
             else result += `<div>Resolver for type ${linkedItem.system.type} not implemented.</div>`
         }
 
-        else if (domNode.tagName === 'a' && domNode.attributes['data-item-id']) {
+        else if (isItemLink(domNode)) {
             const link = input.links.find(link => link[domNode.attributes['data-item-id']]);
 
-            result += `<a href="https://website.com/article/${link.url_slug}">${domNode.children?.forEach(childNode => resolve += resolve(childNode))}</a>` // resolve children recursively
+            result += `<a href="https://website.com/article/${link.url_slug}">`;
+            
+            if (domNode.children.length > 0) {
+                domNode.children.forEach((node) => (result += resolve(node))) //resolve nested tags recursively
+            }
+
+            result += `</a>`;
         }
 
         else {
-            resolve += `<${domNode.tagName}>${domNode.children?.forEach(childNode => result += resolve(childNode))}</${domNode.tagName}>`
+            result += `<${domNode.tagName}>`;
+
+            if (domNode.children.length > 0) {
+                domNode.children.forEach(childNode => result += resolve(childNode)); // resolve tags recursively
+            }   
+            
+            result += `</${domNode.tagName}>`;
         }
         
         return result;
@@ -169,10 +185,10 @@ const RichText: React.FC<RichTextProps> = (props) => {
   const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
 
   useEffect(() => {
-    const parser = new RichTextParser();
+    const parser = new RichTextBrowserParser();
     parser.parse(richTextInput) // see example input above
       .then((value) => {
-        const resolve = (domNode: IDomNode): JSX.Element => {
+        const resolve = (domNode: IDomNode, index: number): JSX.Element => {
             if (domNode.type === 'tag') {
                 const childElements = domNode.children.map(node => resolve(node));
 
@@ -182,15 +198,16 @@ const RichText: React.FC<RichTextProps> = (props) => {
 
                     switch (linkedItem?.system.type) {
                         case 'youtube_video': {
-                            return <YoutubeVideo id={linkedItem.elements.videoId.value} />
+                            return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />
                         }
                         default: {
-                            return <div>Resolver for item of type {linkedItem.system.type} not implemented.</div>;
+                            return <div key={index}>Resolver for item of type {linkedItem.system.type} not implemented.</div>;
                         }
                     }
                 }
                 
-                const attributes = { ...domNode.attributes, key: crypto.randomUUID().toString() };
+                const children = childElements.length === 0 ? undefined : childElements;
+                const attributes = { ...domNode.attributes, key: index };
                 const element = React.createElement(domNode.tagName, attributes, children);
 
                 return element;
@@ -198,13 +215,13 @@ const RichText: React.FC<RichTextProps> = (props) => {
 
 
             if (domNode.type === 'text') {
-                return <>{domNode.content}</>
+                return <React.Fragment key={index}>{domNode.content}</React.Fragment>
             }
 
-          throw new Error("Undefined state")
+          throw new Error("Undefined state");
         }
 
-        const result = value.childNodes.map(resolve);
+        const result = value.childNodes.map((node, index) => resolve(node, index));
         setRichTextContent(result);
       });
   }, [props.element]);

@@ -1,6 +1,6 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextParser } from "../src/resolver/RichTextResolver";
-import { RichTextNodeParser } from "../src/parser/node/RichTextNodeParser"
+import { RichTextBrowserParser } from "../src/parser/browser";
+import { RichTextNodeParser } from "../src/parser/node";
 import { getElementInputFromSdk } from "../src/utils";
 import { IDomNode } from "../src/parser";
 
@@ -37,8 +37,8 @@ const dummyRichText: Elements.RichTextElement = {
 
 
 const richTextInput = getElementInputFromSdk(dummyRichText);
-const richTextBrowserParser = new RichTextParser();
-const richTextNodeParser = new RichTextParser(new RichTextNodeParser());
+const richTextBrowserParser = new RichTextBrowserParser();
+const richTextNodeParser = new RichTextNodeParser();
 
 describe("Rich text parser", () => {
   it("converts SDK input, returns parsed tree", () => {
