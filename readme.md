@@ -14,62 +14,69 @@ Install the package via npm
 
 Module provides two classes to parse rich text HTML into a simplified JSON tree: ```RichTextBrowserParser``` for client-side resolution and ```RichTextNodeParser``` for server-side use with Node.js.
 
-Both classes are initialized with empty constructor and their use is identical, only difference is the underlying parsing logic.
+Both classes are initialized with empty constructor and their use is identical, only difference is the underlying parsing logic. Each exposes a single ```parse``` method, which accepts rich text HTML value in string format.
 
 ```ts
-import { RichTextBrowserParser, RichTextNodeParser } from '@pokornyd/kontent-ai-rich-text-parser';
-
 const parser = new RichTextBrowserParser(); // RichTextNodeParser();
+
+const parsedTree = parser.parse(richTextValue);
 ```
 
-### Parsing
-
-Both classes exposes a single `parse` method which accepts a structured `RichTextInput` object.
-
-Structure of the rich text input mirrors the rich text element response from delivery API:
+Result is a simple tree structure, defined by the following interface:
 
 ```ts
-export type RichTextInput = {
-    value: string,
-    images?: {
-        [key: string]: {
-            image_id?: string,
-            description?: string | null,
-            url: string,
-            width?: number | undefined,
-            height?: number | undefined
-        }
-    },
-    links?: {
-        [key: string]: {
-            codename: string,
-            type?: string,
-            url_slug?: string
-        }
-    },
-    modular_content?: string[]
+interface IOutputResult {
+    childNodes: IDomNode[]
 }
 ```
 
-The module provides a helper method to map SDK response to a correct input:
+``IDomNode`` is further extended by ``IDomHtmlNode`` and ``IDomTextNode``, which together define the full HTML tree structure:
 
+![Resolved DOMTree](domtree.jpg)
+
+### Resolution
+
+Resolution is achieved by traversing the output tree returned from ```parse``` method and manipulating it as per contextual requirements. 
+
+To identify each node, you may use helper methods included in the module (``isText``, ``isElement``, ``isLinkedItem``, ``isImage``, ``isItemLink``, ``isUnpairedElement``) as in the below example, or manually, based on the domNode type and attributes. See example usage below:
+
+**HTML string (TypeScript)**
 ```ts
-import { RichTextParser, getElementInputFromSdk } from '@pokornyd/kontent-ai-rich-text-parser';
-import { type IContentItem, type Elements, createDeliveryClient } from '@kontent-ai/delivery-sdk';
-.
-.
-.
-const article = (await client.item<Article>('article_codename').toPromise()).data;
+const parsedTree = new RichTextBrowserParser().parse(richTextValue);
 
-const parseResult = parser.parse(getElementInputFromSdk(article.item.elements.richTextElementCodename));
+const resolve = (domNode: IDomNode): string => {
+    switch (node.type) {
+        case 'tag': {
+            if(isLinkedItem(node))
+                return resolveLinkedItem(node);
+            else if(isImage(node))
+                return resolveImage(node);
+            else if(isItemLink(node))
+                return resolveItemLink(node);
+            else
+                return resolveHtmlElement(node);
+            break;
+        }
 
+        case 'text':
+            return node.content                   
+    
+        default:
+            throw new Error("Invalid input.");
+    }
+}
+
+renderResolvedRichText(resolve);
 ```
 
-Alternatively, you can map the input yourself, as in the following React example:
+**React with context object containing the rich text objects for resolution**
 
 ```ts
-const parseResult = parser.parse({
-    value: props.element.value,
+// assumes element prop comes from JS SDK
+
+const RichText: React.FC<RichTextProps> = (props) => {
+  const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
+  const context: IResolutionContext = {
     images: Object.fromEntries(props.element.images.map(image => [image.imageId, {
         image_id: image.imageId,
         description: image.description,
@@ -82,148 +89,50 @@ const parseResult = parser.parse({
         type: link.type,
         url_slug: link.urlSlug
     }])),
-    modular_content: props.element.linkedItemCodenames,
-    linked_items: props.element.linkedItems
-})
-```
-
-The output is a tree, represented by a simple interface
-
-```ts
-export interface IOutputResult {
-    childNodes: IDomNode[]
-}
-```
-
-where ```IDomNode``` represents either a ```IDomHtmlNode``` (tag) or ```IDomTextNode``` (text):
-
-```ts
-export interface IDomTextNode {
-    type: 'text'
-    content: string
-}
-
-export interface IDomHtmlNode {
-    type: 'tag',
-    tagName: string,
-    attributes: Record<string, string>,
-    children: IDomNode[]
-}
-```
-
-### Resolution
-
-Resolution is achieved by traversing the output tree returned from ```parse``` method and manipulating it as per contextual requirements. 
-
-To identify each node, you may use helper methods included in the module (``isText``, ``isElement``, ``isLinkedItem``, ``isImage``, ``isItemLink``, ``isUnpairedElement``) as in the below example, or manually, based on the domNode type and attributes. See example usage below:
-
-**HTML string (TypeScript)**
-```typescript
-const input: RichTextInput = getInput(); // from SDK or otherwise
-const parser = new RichTextNodeParser();
-const resolve = (domNode: IDomNode) => {
-    let result = '';
-    if (isText(domNode))
-        result += domNode.content;
-    
-    else if(isLinkedItem(domNode)) {
-            const linkedItem = linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
-
-            if(linkedItem.system.type === 'youtube_video') {
-                result += `
-                    <iframe
-                        className="hosted-video__wrapper"
-                        width="560"
-                        height="315"
-                        src="https://www.youtube.com/embed/${linkedItem.elements.videoId.value}"}
-                        frameBorder="0"
-                        allowFullScreen
-                        title={Youtube video ${linkedItem.elements.videoId.value}}
-                    ></iframe>
-                `
-            }
-
-            else result += `<div>Resolver for type ${linkedItem.system.type} not implemented.</div>`
-        }
-
-        else if (isItemLink(domNode)) {
-            const link = input.links.find(link => link[domNode.attributes['data-item-id']]);
-
-            result += `<a href="https://website.com/article/${link.url_slug}">`;
-            
-            if (domNode.children.length > 0) {
-                domNode.children.forEach((node) => (result += resolve(node))) //resolve nested tags recursively
-            }
-
-            result += `</a>`;
-        }
-
-        else {
-            result += `<${domNode.tagName}>`;
-
-            if (domNode.children.length > 0) {
-                domNode.children.forEach(childNode => result += resolve(childNode)); // resolve tags recursively
-            }   
-            
-            result += `</${domNode.tagName}>`;
-        }
-        
-        return result;
-    }
-
-const parsedRichText = parser.parse(richTextInput); // see example input above
-const resolvedHtml = parsedRichText.childNodes.map(node => return resolve(node)).toString();
-
-
-```
-
-**React**
-
-```ts
-const RichText: React.FC<RichTextProps> = (props) => {
-
-  const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
+    modularContent: props.element.linkedItemCodenames,
+    linkedItems: props.element.linkedItems
+  })
 
   useEffect(() => {
-    const parser = new RichTextBrowserParser();
-    parser.parse(richTextInput) // see example input above
-      .then((value) => {
-        const resolve = (domNode: IDomNode, index: number): JSX.Element => {
-            if (domNode.type === 'tag') {
-                const childElements = domNode.children.map(node => resolve(node));
+    const parsedTree = new RichTextNodeParser().parse(richTextValue);
+    const resolve = (domNode: IDomNode, context: IResolutionContext, index: number): JSX.Element => {
+        if (isElement(node)) {
+            const childElements = domNode.children.map(node => resolve(node));
 
-                if (domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
-                    const itemCodeName = domNode.attributes['data-codename'];
-                    const linkedItem = props.element.linkedItems.find(item => item.system.codename === itemCode);
+            if (isUnpairedElement(node)) {
+                const element = React.createElement(domNode.tagName, {...domNode.attributes});
+            }
 
-                    switch (linkedItem?.system.type) {
-                        case 'youtube_video': {
-                            return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />
-                        }
-                        default: {
-                            return <div key={index}>Resolver for item of type {linkedItem.system.type} not implemented.</div>;
-                        }
+            if (isLinkedItem(node)) {
+                const itemCodeName = domNode.attributes['data-codename'];
+                const linkedItem = context.linkedItems.find(item => item.system.codename === itemCodeName);
+
+                switch (linkedItem?.system.type) {
+                    case 'youtube_video': {
+                        return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />;
+                    }
+                    default: {
+                        return <div key={index}>Failed resolving item {linkedItem.system.codename}. Resolver for type {linkedItem.system.type} not implemented.</div>;
                     }
                 }
-                
-                const children = childElements.length === 0 ? undefined : childElements;
-                const attributes = { ...domNode.attributes, key: index };
-                const element = React.createElement(domNode.tagName, attributes, children);
-
-                return element;
             }
+            
+            const attributes = { ...domNode.attributes, key: index };
+            const element = React.createElement(domNode.tagName, attributes, childElements);
 
-
-            if (domNode.type === 'text') {
-                return <React.Fragment key={index}>{domNode.content}</React.Fragment>
-            }
-
-          throw new Error("Undefined state");
+            return element;
         }
 
-        const result = value.childNodes.map((node, index) => resolve(node, index));
-        setRichTextContent(result);
-      });
+
+        if (isText(node)) {
+            return <React.Fragment key={index}>{domNode.content}</React.Fragment>
+        }
+
+        throw new Error("Undefined state");
+    }
+
+    const result = parsedTree.childNodes.map((node, index) => resolve(node, context, index));
+    setRichTextContent(result);
   }, [props.element]);
 
   return (
