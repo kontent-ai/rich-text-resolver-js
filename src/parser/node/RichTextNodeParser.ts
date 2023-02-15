@@ -1,17 +1,17 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, RichTextInput, IRichTextParser } from "../../parser";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, IRichTextParser } from "../../parser";
 import { NodeParser } from "./NodeParser";
 import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
 
-export class RichTextNodeParser implements IRichTextParser<RichTextInput, IOutputResult>  {
+export class RichTextNodeParser implements IRichTextParser<string, IOutputResult>  {
     private readonly _parserEngine: IParserEngine;
 
     constructor() {
         this._parserEngine = new NodeParser();
     }
 
-    parse(input: RichTextInput): IOutputResult {
-        const node = this._parserEngine.parse(input.value);
+    parse(input: string): IOutputResult {
+        const node = this._parserEngine.parse(input);
 
         if (isRootNode(node)) {
             return {

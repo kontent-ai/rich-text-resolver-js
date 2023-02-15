@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, RichTextInput } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -49,37 +49,3 @@ export const isItemLink = (node: IDomNode): node is IDomHtmlNode =>
 export const isUnPairedElement = (node: IDomNode): node is IDomHtmlNode =>
     isElement(node) &&
     ['br', 'img', 'hr', 'meta'].includes(node.tagName);
-
-export const getElementInputFromSdk = (element: SDKRichTextElement): RichTextInput => {
-    return {
-        ...element,
-        images: Object.fromEntries(
-            element.images.map(image => [image.imageId, image])
-        ),
-        links: Object.fromEntries(
-            element.links.map(link => [link.linkId, link])
-        ),
-        modular_content: element.linkedItems.map(item => item.system.codename),
-        linked_items: Object.fromEntries(
-            element.linkedItems.map(item => [item.system.codename, item])
-        )
-    }
-}
-
-interface SDKRichTextElement {
-    value: string,
-    links: {
-        linkId: string,
-        codename: string,
-        type: string,
-        urlSlug: string
-    }[],
-    images: {
-        imageId: string,
-        url: string,
-        description: string | null,
-        width: number | null,
-        height: number | null
-    }[],
-    linkedItems: any[]
-}

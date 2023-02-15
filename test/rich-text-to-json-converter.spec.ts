@@ -1,7 +1,6 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { RichTextBrowserParser } from "../src/parser/browser";
 import { RichTextNodeParser } from "../src/parser/node";
-import { getElementInputFromSdk } from "../src/utils";
 import { IDomNode } from "../src/parser";
 
 const dummyRichText: Elements.RichTextElement = {
@@ -35,14 +34,12 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
-
-const richTextInput = getElementInputFromSdk(dummyRichText);
 const richTextBrowserParser = new RichTextBrowserParser();
 const richTextNodeParser = new RichTextNodeParser();
 
 describe("Rich text parser", () => {
-  it("converts SDK input, returns parsed tree", () => {
-    const result = richTextBrowserParser.parse(richTextInput);
+  it("returns parsed tree", () => {
+    const result = richTextBrowserParser.parse(dummyRichText.value);
 
     expect(result).toMatchInlineSnapshot(`
 Object {
@@ -101,15 +98,15 @@ Object {
   })
 
   it("browser and node parser output match", () => { 
-    const nodeResult = richTextNodeParser.parse(richTextInput);
-    const browserResult = richTextBrowserParser.parse(richTextInput);
+    const nodeResult = richTextNodeParser.parse(dummyRichText.value);
+    const browserResult = richTextBrowserParser.parse(dummyRichText.value);
 
     expect(nodeResult).toEqual(browserResult);
   })
 
   it("parses empty rich text", () => {
     dummyRichText.value = "<p><br></p>"
-    const result = richTextBrowserParser.parse(getElementInputFromSdk(dummyRichText));
+    const result = richTextBrowserParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Object {
   "childNodes": Array [
@@ -173,7 +170,7 @@ Object {
           return result;
         }
 
-        const parsedTree = richTextBrowserParser.parse(getElementInputFromSdk(dummyRichText));
+        const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
         const result = parsedTree.childNodes.map(node => resolve(node)).toString();
 
         expect(result).toMatchInlineSnapshot(`
