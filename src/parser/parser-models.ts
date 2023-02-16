@@ -17,7 +17,7 @@ export interface IParserEngine {
 }
 
 export interface IOutputResult {
-    childNodes: IDomNode[]
+    children: IDomNode[]
 }
 
 export interface IRichTextParser<TInput, TOutput> {

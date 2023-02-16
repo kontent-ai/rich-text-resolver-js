@@ -14,7 +14,7 @@ export class RichTextBrowserParser implements IRichTextParser<string, IOutputRes
 
         if (isRootNode(document) && document.body.firstChild) {
             return {
-                childNodes: Array.from(document.body.childNodes).flatMap((node) => this.parseInternal(node))
+                children: Array.from(document.body.children).flatMap((node) => this.parseInternal(node))
             }
 
         }
@@ -30,7 +30,7 @@ export class RichTextBrowserParser implements IRichTextParser<string, IOutputRes
             const htmlNode: IDomHtmlNode = {
                 tagName: document.tagName.toLowerCase(),
                 attributes: document.hasAttributes() ? convertDomNodeAttributes(document.attributes) : {},
-                children: document.hasChildNodes() ? Array.from(document.childNodes).flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
+                children: document.hasChildNodes() ? Array.from(document.children).flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
                 type: 'tag'
             }
 

@@ -15,7 +15,7 @@ export class RichTextNodeParser implements IRichTextParser<string, IOutputResult
 
         if (isRootNode(node)) {
             return {
-                childNodes: node.childNodes.flatMap((node) => this.parseInternal(node))
+                children: node.childNodes.flatMap((node) => this.parseInternal(node))
             }
         }
 

@@ -26,13 +26,13 @@ Result is a simple tree structure, defined by the following interface:
 
 ```ts
 interface IOutputResult {
-  childNodes: IDomNode[];
+  children: IDomNode[];
 }
 ```
 
 `IDomNode` is further extended by `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
 
-![Resolved DOMTree](domtree.jpg)
+![Resolved DOMTree](./domtree.jpg)
 
 ### Resolution
 
@@ -128,74 +128,60 @@ const resolveLinkedItem = (node: IDomHtmlNode): string => {
 };
 ```
 
-### React with context object containing the rich text objects for resolution
+### React with JS SDK
 
 ```tsx
 // assumes element prop comes from JS SDK
 
-const RichText: React.FC<RichTextProps> = (props) => {
+const RichText: React.FC<RichTextProps> = ({element: Elements.RichTextElement, className: string}) => {
   const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
-  const context: IResolutionContext = {
-    images: Object.fromEntries(props.element.images.map(image => [image.imageId, {
-        image_id: image.imageId,
-        description: image.description,
-        url: image.url,
-        width: image.width || null,
-        height: image.height || null
-    }])),
-    links: Object.fromEntries(props.element.links.map(link => [link.linkId, {
-        codename: link.codename,
-        type: link.type,
-        url_slug: link.urlSlug
-    }])),
-    modularContent: props.element.linkedItemCodenames,
-    linkedItems: props.element.linkedItems
-  })
 
   useEffect(() => {
-    const parsedTree = new RichTextNodeParser().parse(richTextValue);
-    const resolve = (domNode: IDomNode, context: IResolutionContext, index: number): JSX.Element => {
-        if (isElement(node)) {
-            const childElements = domNode.children.map(node => resolve(node));
+    const parsedTree = new RichTextNodeParser().parse(element.value);
+    const resolve = (domNode: IDomNode, index: number): JSX.Element => {
+      switch (domNode.type) {
+        case 'tag': {
+          // traverse tree recursively
+          const resolvedChildElements = domNode.children.map(node => resolve(node, index));
+          // omit children parameter for non-pair elements like <br>
+          if (isUnpairedElement(domNode)) {
+            return React.createElement(domNode.tagName, {...domNode.attributes});
+          }
 
-            if (isUnpairedElement(node)) {
-                const element = React.createElement(domNode.tagName, {...domNode.attributes});
+          if (isLinkedItem(domNode)) {
+            const linkedItem = element.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
+
+            switch (linkedItem?.system.type) {
+              case 'youtube_video': {
+                  return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />;
+              }
+              // resolution for other types
+              default: {
+                  return <div key={index}>Failed resolving item {linkedItem.system.codename}. Resolver for type {linkedItem.system.type} not implemented.</div>;
+              }
             }
+            // if (isImage(domNode)) {...}
+            // if (isLink(domNode)) {...}
+          }
 
-            if (isLinkedItem(node)) {
-                const itemCodeName = domNode.attributes['data-codename'];
-                const linkedItem = context.linkedItems.find(item => item.system.codename === itemCodeName);
-
-                switch (linkedItem?.system.type) {
-                    case 'youtube_video': {
-                        return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />;
-                    }
-                    default: {
-                        return <div key={index}>Failed resolving item {linkedItem.system.codename}. Resolver for type {linkedItem.system.type} not implemented.</div>;
-                    }
-                }
-            }
-
-            const attributes = { ...domNode.attributes, key: index };
-            const element = React.createElement(domNode.tagName, attributes, childElements);
-
-            return element;
+          const attributes = { ...domNode.attributes, key: index };
+          return React.createElement(domNode.tagName, attributes, resolvedChildElements);
         }
 
-
-        if (isText(node)) {
-            return <React.Fragment key={index}>{domNode.content}</React.Fragment>
+        case: 'text': {
+          return <React.Fragment key={index}>{domNode.content}</React.Fragment>
         }
 
-        throw new Error("Undefined state");
+        default: throw new Error("Invalid input.")
+      }
     }
 
-    const result = parsedTree.childNodes.map((node, index) => resolve(node, context, index));
+    const result = parsedTree.children.map((node, index) => resolve(node, index));
     setRichTextContent(result);
-  }, [props.element]);
+  }, [element]);
 
   return (
-    <div className={props.className}>
+    <div className={className}>
       {richTextContent}
     </div>
   );

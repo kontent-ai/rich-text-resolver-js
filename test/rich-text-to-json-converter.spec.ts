@@ -43,7 +43,7 @@ describe("Rich text parser", () => {
 
     expect(result).toMatchInlineSnapshot(`
 Object {
-  "childNodes": Array [
+  "children": Array [
     Object {
       "attributes": Object {
         "class": "test",
@@ -109,7 +109,7 @@ Object {
     const result = richTextBrowserParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Object {
-  "childNodes": Array [
+  "children": Array [
     Object {
       "attributes": Object {},
       "children": Array [
@@ -171,7 +171,7 @@ Object {
         }
 
         const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
-        const result = parsedTree.childNodes.map(node => resolve(node)).toString();
+        const result = parsedTree.children.map(node => resolve(node)).toString();
 
         expect(result).toMatchInlineSnapshot(`
 "<p  class=\\"test\\" id=\\"3\\">
