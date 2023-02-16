@@ -1,22 +1,25 @@
 {
-  "name": "kontent-rich-text-to-json-converter",
-  "version": "1.0.0",
+  "name": "@pokornyd/kontent-ai-rich-text-parser",
+  "version": "0.0.6",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "publishmodule": "npx rimraf dist && npm run build && npm version patch && npm publish --access public",
+    "build": "tsc",
     "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@kontent-ai/delivery-sdk": "^12.4.2",
     "@types/jest": "^28.1.2",
     "jest": "^28.1.1",
     "ts-jest": "^28.0.5",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "jest-environment-jsdom": "^29.3.1"
   },
   "dependencies": {
-    "@kontent-ai/delivery-sdk": "^12.4.2",
-    "jest-environment-jsdom": "^29.3.1",
     "node-html-parser": "^5.3.3"
   }
 }

@@ -1,63 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextNodeParser } from "../src/parsers/RichTextNodeParser";
-import { RichTextHtmlResolver } from "../src/resolvers/RichTextHtmlResolver";
-import { RichTextObjectResolver } from "../src/resolvers/RichTextObjectResolver";
-
-let richTextNodeParser = new RichTextNodeParser();
-let richTextHtmlResolverBrowserParser = new RichTextHtmlResolver({
-  contentItemResolver: (itemCodename, contentItem) => {
-      switch (contentItem?.system.type) {
-          case 'test':
-              return {
-                  resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
-              }       
-          default:
-              return {
-                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
-              }
-
-      }
-  },
-});
-
-let richTextHtmlResolverNodeParser = new RichTextHtmlResolver({
-  contentItemResolver: (itemCodename, contentItem) => {
-      switch (contentItem?.system.type) {
-          case 'test':
-              return {
-                  resolvedContent: `<p>resolved item of type:  ${contentItem?.system.type}</p>`
-              }       
-          default:
-              return {
-                  resolvedContent: `<p>no resolver implemented for type: ${contentItem?.system.type}</p>`
-              }
-
-      }
-  },
-  parser: richTextNodeParser
-});
-
-let richTextObjectResolver = new RichTextObjectResolver({
-  contentItemResolver: (itemCodename, contentItem) => {
-    switch (contentItem?.system.type) {
-      case 'test':
-        return {
-          resolvedContent: {
-            type: contentItem.system.type,
-            codename: contentItem.system.codename
-          }
-        }
-      default:
-        return {
-          resolvedContent: {
-            error: "no resolver implemented for this type"
-          }
-        }
-    }
-  }
-})
-
-
+import { RichTextBrowserParser } from "../src/parser/browser";
+import { RichTextNodeParser } from "../src/parser/node";
+import { IDomNode } from "../src/parser";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>",
@@ -76,27 +20,30 @@ const dummyRichText: Elements.RichTextElement = {
         sitemapLocations: [],
         lastModified: "2022-10-11T11:27:25.4033512Z",
         workflowStep: "published"
-        },
-        elements: {
-          text_element: {
+      },
+      elements: {
+        text_element: {
           type: ElementType.Text,
           name: "text element",
           value: "random text value"
-          }
         }
+      }
     }
   ],
   links: [],
   name: "dummy"
 };
 
-describe("Rich text resolver with Node parser", () => {
+const richTextBrowserParser = new RichTextBrowserParser();
+const richTextNodeParser = new RichTextNodeParser();
+
+describe("Rich text parser", () => {
   it("returns parsed tree", () => {
-    const result = richTextNodeParser.parse(dummyRichText);
+    const result = richTextBrowserParser.parse(dummyRichText.value);
 
     expect(result).toMatchInlineSnapshot(`
 Object {
-  "content": Array [
+  "childNodes": Array [
     Object {
       "attributes": Object {
         "class": "test",
@@ -111,7 +58,7 @@ Object {
             "type": "application/kenticocloud",
           },
           "children": Array [],
-          "name": "object",
+          "tagName": "object",
           "type": "tag",
         },
         Object {
@@ -128,7 +75,7 @@ Object {
               "type": "text",
             },
           ],
-          "name": "a",
+          "tagName": "a",
           "type": "tag",
         },
         Object {
@@ -138,11 +85,11 @@ Object {
         Object {
           "attributes": Object {},
           "children": Array [],
-          "name": "br",
+          "tagName": "br",
           "type": "tag",
         },
       ],
-      "name": "p",
+      "tagName": "p",
       "type": "tag",
     },
   ],
@@ -150,24 +97,93 @@ Object {
 `);
   })
 
-  it("parses empty rich text correctly", () => {
-    dummyRichText.value = `<p><br></p>`;
-    const result = richTextHtmlResolverNodeParser.resolve(dummyRichText);
+  it("browser and node parser output match", () => { 
+    const nodeResult = richTextNodeParser.parse(dummyRichText.value);
+    const browserResult = richTextBrowserParser.parse(dummyRichText.value);
 
-    expect(result).toMatchInlineSnapshot(`"<p><br></p>"`);
+    expect(nodeResult).toEqual(browserResult);
   })
 
-  it("returns HTML resolved rich text", () => {
-    dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
-    const result = richTextHtmlResolverNodeParser.resolve(dummyRichText);
-
-    expect(result).toMatchInlineSnapshot(`"<p class=\\"test\\" id=\\"3\\"><p>resolved item of type:  test</p>before text<a href=\\"mailto:email@abc.test\\">email</a>after text line break <br></p>"`);
+  it("parses empty rich text", () => {
+    dummyRichText.value = "<p><br></p>"
+    const result = richTextBrowserParser.parse(dummyRichText.value);
+    expect(result).toMatchInlineSnapshot(`
+Object {
+  "childNodes": Array [
+    Object {
+      "attributes": Object {},
+      "children": Array [
+        Object {
+          "attributes": Object {},
+          "children": Array [],
+          "tagName": "br",
+          "type": "tag",
+        },
+      ],
+      "tagName": "p",
+      "type": "tag",
+    },
+  ],
+}
+`);
   })
 
-  it("returns the same content in both node and browser", () => {
-    const browserParsedResolution = richTextHtmlResolverBrowserParser.resolve(dummyRichText);
-    const nodeParsedResolution = richTextHtmlResolverNodeParser.resolve(dummyRichText);
+  it("resolves linked item to a string", () => {
+        dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
+          const spreadAttributes = (attributes: Record<string,string>): string => {
+            let convertedAttributes = ``;
+            for (const attribute in attributes) {
+                convertedAttributes += ` ${attribute}="${attributes[attribute]}"`
+            }
+    
+            return convertedAttributes;
+        }
+        
+        const resolve = (domNode: IDomNode): string => {
+          let result = '';
+          if (domNode.type === 'text')
+            result += domNode.content;
 
-    expect(nodeParsedResolution).toEqual(browserParsedResolution);
+          else if(domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
+            const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
+            if(linkedItem?.system.type === 'test') {
+              result += `
+              <div>
+                resolved type: ${linkedItem.system.type}, value of text element: ${linkedItem.elements.text_element.value}
+              </div>
+
+            `
+            }
+
+            else result += `Resolver not implemented.`;
+          }
+
+          else {
+            result += `<${domNode.tagName + ' ' + spreadAttributes(domNode.attributes)}>`;
+
+            if (domNode.children.length > 0) {
+              domNode.children.forEach((node) => (result += resolve(node)));
+            }
+
+            result+= `</${domNode.tagName}>`;
+          }
+          return result;
+        }
+
+        const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
+        const result = parsedTree.childNodes.map(node => resolve(node)).toString();
+
+        expect(result).toMatchInlineSnapshot(`
+"<p  class=\\"test\\" id=\\"3\\">
+              <div>
+                resolved type: test, value of text element: random text value
+              </div>
+
+            before text<a  href=\\"mailto:email@abc.test\\">email</a>after text line break <br ></br></p>"
+`);
   })
+
 })
+
+
+
