@@ -32,7 +32,7 @@ interface IOutputResult {
 
 `IDomNode` is further extended by `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
 
-![Resolved DOMTree](./domtree.jpg)
+![Resolved DOMTree](./media/domtree.jpg)
 
 ### Resolution
 
