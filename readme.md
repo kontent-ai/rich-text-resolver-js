@@ -38,7 +38,7 @@ interface IOutputResult {
 
 Resolution is achieved by traversing the output tree returned from `parse` method and manipulating it as per contextual requirements.
 
-To identify each node, you may use helper methods included in the module (`isText`, `isElement`, `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement`) as in the below example, or manually, based on the domNode type and attributes. See example usage below:
+To identify each node, you may use helper methods included in the module (`isText`, `isElement` (with type guard) and `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement` (boolean)) as in the below example, or manually, based on the domNode type and attributes, see examples:
 
 #### HTML string (TypeScript)
 
