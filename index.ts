@@ -1,1 +1,1 @@
-export { RichTextBrowserParser, RichTextNodeParser, isElement, isUnPairedElement, isImage, isLinkedItem, isItemLink, IDomHtmlNode, IDomNode, IDomTextNode } from "./src";
+export { RichTextBrowserParser, RichTextNodeParser, isElement, isText, isUnPairedElement, isImage, isLinkedItem, isItemLink, IDomHtmlNode, IDomNode, IDomTextNode } from "./src";
