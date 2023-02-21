@@ -30,7 +30,7 @@ export class RichTextBrowserParser implements IRichTextParser<string, IOutputRes
             const htmlNode: IDomHtmlNode = {
                 tagName: document.tagName.toLowerCase(),
                 attributes: document.hasAttributes() ? convertDomNodeAttributes(document.attributes) : {},
-                children: document.hasChildNodes() ? Array.from(document.children).flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
+                children: document.hasChildNodes() ? Array.from(document.childNodes).flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
                 type: 'tag'
             }
 

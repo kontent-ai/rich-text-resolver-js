@@ -1,7 +1,7 @@
 export type IDomNode = IDomHtmlNode | IDomTextNode;
 
 export interface IDomTextNode {
-    type: 'text'
+    type: 'text',
     content: string
 }
 
