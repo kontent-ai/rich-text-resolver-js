@@ -4,15 +4,16 @@ import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
 
 export const parse = (input: string): IOutputResult => {
-  const node = NodeHtmlParser.parse(input);
+    const regex = /\n\s*/g;
+    const node = NodeHtmlParser.parse(input.replaceAll(regex, ''));
 
-  if (!isRootNode(node)) {
-    throw new Error("Cannot parse node that is not a root.");
-  }
+    if (!isRootNode(node)) {
+        throw new Error("Cannot parse node that is not a root.");
+    }
 
-  return {
-    children: node.childNodes.flatMap(parseInternal)
-  }
+    return {
+        children: node.childNodes.flatMap(parseInternal)
+    }
 };
 
 const parseInternal = (node: Node): IDomNode => {

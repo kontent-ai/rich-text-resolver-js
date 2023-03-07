@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextMarkDef, IPortableTextBlock, IPortableTextSpan } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -63,3 +63,38 @@ export const isItemLink = (node: IDomNode): boolean =>
 export const isUnPairedElement = (node: IDomNode): boolean =>
     isElement(node) &&
     ['br', 'img', 'hr', 'meta'].includes(node.tagName);
+
+
+export const createSpan = (
+        guid: string,
+        marks?: string[],
+        text?: string
+    ): IPortableTextSpan => {
+    return {
+        _type: 'span',
+        _key: guid,
+        marks: marks || [],
+        text: text || ''
+    }
+}
+
+export const createBlock = (
+        guid: string, 
+        markDefs?: IPortableTextMarkDef[], 
+        style?: string, 
+        children?: IPortableTextSpan[]
+    ): IPortableTextBlock => {
+    return {
+        _type: 'block',
+        _key: guid,
+        markDefs: markDefs || [],
+        style: style || 'normal',
+        children: children || []
+    }
+}
+
+export enum ProcessedUnit {
+    None,
+    Block,
+    Span
+}

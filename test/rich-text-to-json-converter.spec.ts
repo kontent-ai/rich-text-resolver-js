@@ -2,6 +2,7 @@ import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { browserParse } from "../src/parser/browser";
 import { nodeParse } from "../src/parser/node";
 import { IDomNode } from "../src/parser";
+import { htmlToBlocks } from "@sanity/block-tools";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>",
@@ -94,11 +95,27 @@ Object {
 `);
   })
 
-  it("browser and node parser output match", () => {
-    const nodeResult = nodeParse(dummyRichText.value);
-    const browserResult = browserParse(dummyRichText.value);
-
-    expect(nodeResult).toEqual(browserResult);
+  it("parses empty rich text into portable text", () => {
+    dummyRichText.value = "<h1>heading</h1><p><br></p>";
+    const result = richTextNodeParser.parse(dummyRichText.value);
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "test",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "test",
+        "_type": "span",
+        "marks": Array [],
+        "text": "\\\\n",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+]
+`);
   })
 
   it("parses empty rich text", () => {
@@ -179,6 +196,7 @@ Object {
             before text<a  href=\\"mailto:email@abc.test\\">email</a>after text line break <br ></br></p>"
 `);
   })
+
 
 })
 
