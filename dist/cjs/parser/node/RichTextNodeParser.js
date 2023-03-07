@@ -1,13 +1,15 @@
-import { NodeParser } from "./NodeParser";
-import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
-export class RichTextNodeParser {
-    _parserEngine;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RichTextNodeParser = void 0;
+const NodeParser_1 = require("./NodeParser");
+const rich_text_node_parser_utils_1 = require("../../utils/rich-text-node-parser-utils");
+class RichTextNodeParser {
     constructor() {
-        this._parserEngine = NodeParser;
+        this._parserEngine = NodeParser_1.NodeParser;
     }
     parse(input) {
         const node = this._parserEngine.parse(input);
-        if (isRootNode(node)) {
+        if ((0, rich_text_node_parser_utils_1.isRootNode)(node)) {
             return {
                 children: node.childNodes.flatMap((node) => this.parseInternal(node))
             };
@@ -17,8 +19,9 @@ export class RichTextNodeParser {
         }
     }
     parseInternal(node) {
+        var _a;
         const parsedNodes = [];
-        if (isElementNode(node)) {
+        if ((0, rich_text_node_parser_utils_1.isElementNode)(node)) {
             const htmlNode = {
                 tagName: node.tagName.toLowerCase(),
                 attributes: node.attributes,
@@ -27,9 +30,9 @@ export class RichTextNodeParser {
             };
             parsedNodes.push(htmlNode);
         }
-        else if (isTextNode(node)) {
+        else if ((0, rich_text_node_parser_utils_1.isTextNode)(node)) {
             const textNode = {
-                content: node.text ?? '',
+                content: (_a = node.text) !== null && _a !== void 0 ? _a : '',
                 type: 'text'
             };
             parsedNodes.push(textNode);
@@ -37,3 +40,4 @@ export class RichTextNodeParser {
         return parsedNodes;
     }
 }
+exports.RichTextNodeParser = RichTextNodeParser;

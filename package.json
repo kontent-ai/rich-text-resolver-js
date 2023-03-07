@@ -6,11 +6,14 @@
     "type": "git",
     "url": "https://github.com/pokornyd/rich-text-resolver.git"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esnext/index.js",
+  "types": "dist/cjs/index.d.ts",
   "scripts": {
     "publishmodule": "npx rimraf dist && npm run build && npm version patch && npm publish --access public",
-    "build": "tsc",
+    "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
+    "build:esnext": "tsc -m es6 --outDir dist/esnext",
+    "build": "npm run build:commonjs && npm run build:esnext",
     "test": "jest"
   },
   "author": "",
