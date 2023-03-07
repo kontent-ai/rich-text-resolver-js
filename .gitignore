@@ -93,7 +93,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+#dist
 
 # Gatsby files
 .cache/
@@ -169,4 +169,4 @@ dist
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,node
 
 # dist folder
-dist
+#dist
