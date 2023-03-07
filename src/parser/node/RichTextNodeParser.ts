@@ -7,7 +7,7 @@ export class RichTextNodeParser implements IRichTextParser<string, IOutputResult
     private readonly _parserEngine: IParserEngine;
 
     constructor() {
-        this._parserEngine = NodeParser;
+        this._parserEngine = new NodeParser();
     }
 
     parse(input: string): IOutputResult {
