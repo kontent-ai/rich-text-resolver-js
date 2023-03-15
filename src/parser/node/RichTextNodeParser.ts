@@ -1,8 +1,9 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, IRichTextParser, IPortableTextItem, IPortableTextBlock, IPortableTextSpan } from "../../parser";
+import { IParserEngine, IRichTextParser, IPortableTextItem, IBlockBuffer, IPortableTextMarkDef, IReference } from "../../parser";
 import { NodeParser } from "./NodeParser";
 import { HTMLElement, Node } from "node-html-parser";
-import { isBlock, isElementNode, isLineBreak, isRootNode, isStyleBlock, isTextMark, isTextNode } from "../../utils/rich-text-node-parser-utils";
-import { createBlock, createSpan, isElement, isText, ProcessedUnit } from "../../utils/parser-utils";
+import { isElementNode, isExternalLink, isFigure, isIgnoredElement, isImage, isInternalLink, isLineBreak, isLinkedItem, isListBlock, isListItem, isRootNode, isStyleBlock, isTable, isTableCell, isTextMark, isTextNode } from "../../utils/rich-text-node-parser-utils";
+import { createBlock, createComponentBlock, createImageBlock, createListBlock, createSpan, createTableBlock } from "../../utils/parser-utils";
+import crypto from 'crypto';
 
 export class RichTextNodeParser implements IRichTextParser<string, IPortableTextItem[]>  {
     private readonly _parserEngine: IParserEngine;
@@ -12,7 +13,6 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
     }
 
     parse(input: string): IPortableTextItem[] {
-        // const node = this._parserEngine.parse(input);
         const node = this._parserEngine.parse(input);
         if (isRootNode(node)) {
             return node.childNodes.flatMap((node) => this.parseInternal(node))
@@ -21,118 +21,255 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
         else {
             throw new Error();
         }
-        // if (isRootNode(node)) {
-        //     return {
-        //         children: node.childNodes.flatMap((node) => this.parseInternal(node))
-        //     }
-        // }
-
-        // else {
-        //     throw new Error();
-        // }
     }
 
-    // private processedSpans: IPortableTextSpan[]  = [];
-    // private processedBlocks: IPortableTextBlock[] = [];
-
-    // private finishedBlocks: IPortableTextBlock[]  = [];
-
-    private parseInternal(
-        node: Node, 
-        processedUnit?: IPortableTextBlock | IPortableTextSpan
-        )
-        : 
-        IPortableTextItem[] {
-            
-        let finishedBlocks: IPortableTextItem[] = [];
-
-        // let currentBlockIndex = parsedBlocks.findIndex(block => block._key === this.currentBlockKey);
-        // let currentSpanIndex = parsedBlocks[currentBlockIndex].children.findIndex(span => span._key === this.currentSpanKey);
- 
-
-        if(processedUnit) {
-            switch(processedUnit._type) {
-                case('block'): {
-                    if(isElementNode(node)) {
-                        if(isStyleBlock(node)) {
-                            finishedBlocks.push(processedUnit);
-                            processedUnit = createBlock("test", [], node.tagName.toLowerCase());
-                            node.childNodes.flatMap(node => this.parseInternal(node, processedUnit));
-                        }
-
-                        else if(isTextMark(node)) {
-                            finishedBlocks.push(processedUnit);
-                            processedUnit = createSpan("test", [node.tagName.toLowerCase()])
-                            node.childNodes.flatMap(node => this.parseInternal(node, processedUnit));
-                        }
-                        //TODO: link
-                        else if(isLineBreak(node)) {
-                            finishedBlocks.push(processedUnit);
-                            processedUnit = createSpan("test", [], '\\n');
-                            (<IPortableTextBlock>finishedBlocks[finishedBlocks.length - 1]).children.push(processedUnit);
-                        }
-                        else {
-                            finishedBlocks.push(processedUnit);
-                            processedUnit = createBlock("test");
-                            node.childNodes.flatMap(node => this.parseInternal(node, processedUnit));
-                        }
-
-                    }
-
-                    else if(isTextNode(node)) {
-                        finishedBlocks.push(processedUnit);
-                        processedUnit = createSpan("test", [], node.text);
-                        (<IPortableTextBlock>finishedBlocks[finishedBlocks.length - 1]).children.push(processedUnit);
-                    }
-
-                    
+    private parseInternal(node: Node, buffer?: IBlockBuffer): IPortableTextItem[] {       
+        if(buffer?.element) {
+            if(isElementNode(node)) {
+                if(isTextMark(node)) {
+                    buffer.marks.push(node.rawTagName);
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
                 }
-                default: {}
 
+                else if(isLineBreak(node)) {
+                    const span = createSpan(crypto.randomUUID(), [], '\n');
+                    if('children' in buffer.element) {
+                        buffer.element.children.push(span);
+                    }                   
+                    buffer.finishedBlocks.push(buffer.element);
+                }
+
+                else if(isListBlock(node)) {
+                    if('listItem' in buffer.element) {
+                        buffer.listLevel++;
+                    }
+                    buffer.listType = node.rawTagName === 'ul' ? 'bullet' : 'number';
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isListItem(node)) {
+                    buffer.element = createListBlock(
+                        crypto.randomUUID(), 
+                        buffer.listLevel, 
+                        buffer.listType!
+                    )
+
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isFigure(node)) {
+                    buffer.element = createImageBlock(crypto.randomUUID());
+                    buffer.element.asset._ref = node.attributes['data-image-id'];
+
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if (isImage(node)) {
+                    if('asset' in buffer.element) {
+                        buffer.element.asset!.url = node.attributes['src'];
+                    }
+
+                    buffer.finishedBlocks.push(buffer.element);
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isInternalLink(node)) {
+                    const markDef: IPortableTextMarkDef = {
+                        _type: 'internalLink',
+                        _key: crypto.randomUUID(),
+                        reference: {
+                            _type: 'reference',
+                            _ref: node.attributes['data-item-id']
+                        }
+                    }
+                    buffer.marks.push(markDef._key);
+                    if('markDefs' in buffer.element) {
+                        buffer.element.markDefs.push(markDef);
+                    }
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isExternalLink(node)) {
+                    const markDef: IPortableTextMarkDef = {
+                        _type: "link",
+                        href: node.attributes["href"] ?? "",
+                        target: node.attributes["target"] ?? "",
+                        title: node.attributes["title"] ?? "",
+                        rel: node.attributes["rel"] ?? "",
+                        _key: crypto.randomUUID()
+                    }
+                    buffer.marks.push(markDef._key);
+                    if('markDefs' in buffer.element) {
+                        buffer.element.markDefs.push(markDef);
+                    }
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isTable(node)) {
+                    const numRows = node.childNodes.length;
+                    const numCols = node.firstChild.childNodes.length;
+
+                    buffer.element = createTableBlock(crypto.randomUUID(), numRows, numCols);
+                    const tableBuffer: IBlockBuffer = {
+                        listLevel: 1,
+                        marks: [],
+                        finishedBlocks: []
+                    }
+
+                    const tableChildren = node.childNodes.flatMap(node => this.parseInternal(node, tableBuffer));
+                    buffer.element.childBlocks = tableChildren;
+                    buffer.finishedBlocks.push(buffer.element);
+                }
+
+                else if(isTableCell(node)) {
+                    if(node.firstChild.nodeType === 3) {
+                        buffer.element = createBlock(crypto.randomUUID());
+                    }
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isLinkedItem(node)) {
+                    const itemReference: IReference = {
+                        _type: "reference",
+                        _ref: node.attributes['data-codename']
+                    }
+                    buffer.element = createComponentBlock(crypto.randomUUID(), itemReference);
+                    buffer.finishedBlocks.push(buffer.element);
+                }
+
+                else if(isIgnoredElement(node)) {
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else {
+                    buffer.element = createBlock(crypto.randomUUID(), [], isStyleBlock(<HTMLElement>node) ? (<HTMLElement>node).rawTagName : "normal");
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
             }
+
+            else if(isTextNode(node)) {
+                const span = createSpan(crypto.randomUUID(), buffer.marks, node.text);
+                if('children' in buffer.element) {
+                    buffer.element.children.push(span);
+                }               
+                buffer.finishedBlocks.push(buffer.element);
+                buffer.marks = [];
+            }
+            
         }
 
         else {
-            processedUnit = createBlock("test", [], 'normal');
-            finishedBlocks.push(processedUnit);
-            node.childNodes.flatMap(node => this.parseInternal(node, processedUnit));
+            if(isElementNode(node)) {
+                if(isStyleBlock(node)) {
+                    buffer = {
+                        element: createBlock(crypto.randomUUID(), [], (node).rawTagName),
+                        finishedBlocks: [],
+                        marks: [],
+                        listLevel: 1
+                    }
+
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if (isFigure(node)) {
+                    buffer = {
+                        marks: [],
+                        finishedBlocks: [],
+                        listLevel: 1,
+                        element: createImageBlock(crypto.randomUUID())
+                    }
+                    if('asset' in buffer.element!) {
+                        buffer.element!.asset!._ref = node.attributes['data-image-id'];
+                    }
+
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+    
+                else if(isListBlock(node)) {
+                    buffer = {
+                        marks: [],
+                        finishedBlocks: [],
+                        listLevel: 1,
+                        listType: node.rawTagName === 'ul' ? 'bullet' : 'number',
+                    }
+    
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+    
+                else if(isListItem(node)) {
+                    buffer!.element = createListBlock(
+                        crypto.randomUUID(),
+                        buffer!.listLevel,
+                        buffer!.listType!
+                    )
+
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+
+                else if(isTable(node)) {
+                    const tableBody = node.firstChild as HTMLElement;
+                    const numRows = tableBody.getElementsByTagName('tr').length;
+                    const numCols = tableBody.getElementsByTagName('td').length/numRows;
+
+
+                    buffer = {
+                        element: createTableBlock(crypto.randomUUID(), numRows, numCols),
+                        listLevel: 1,
+                        marks: [],
+                        finishedBlocks: []
+                    }
+                    const tableBuffer: IBlockBuffer = {
+                        element: createBlock(crypto.randomUUID()),
+                        listLevel: 1,
+                        marks: [],
+                        finishedBlocks: []
+                    }
+
+                    const tableChildren = node.childNodes.flatMap(node => this.parseInternal(node, tableBuffer));
+                    if('childBlocks' in buffer.element!)
+                        buffer.element!.childBlocks! = tableChildren;
+                    buffer.finishedBlocks.push(buffer.element!);
+                }
+
+                // else if(isTableCell(node)) {
+                //     if(node.firstChild.nodeType === 3) {
+                //         buffer!.element = createBlock(crypto.randomUUID());
+                //     }
+                //     node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                // }
+                else if(isLinkedItem(node)) {
+                    const itemReference: IReference = {
+                        _type: "reference",
+                        _ref: node.attributes['data-codename']
+                    }
+
+                    buffer = {
+                        element: createComponentBlock(crypto.randomUUID(), itemReference),
+                        listLevel: 1,
+                        marks: [],
+                        finishedBlocks: []
+                    }
+
+                    buffer.finishedBlocks.push(buffer.element!);
+                }
+
+                else if(isIgnoredElement(node)) {
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+    
+                else {
+                    buffer = {
+                        finishedBlocks: [],
+                        element: createBlock(crypto.randomUUID(), [], 'normal'),
+                        marks: [],
+                        listLevel: 1
+                    }
+                    //buffer.finishedBlocks.push(<IPortableTextBlock>(buffer.element));
+                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
+                }
+            }
         }
 
-        return finishedBlocks;
-            // processedSpans.push(createSpan("test"));
-            // while(isElementNode(node) && isStyledNode(node)) {               
-            //     processedSpans[processedSpans.length - 1].marks.push(node.tagName.toLowerCase());
-            //     node = node.firstChild;
-            // }
-
-            // parsedBlocks.push(createBlock("test"));
-        
-
-
-
-
-
-
-        // if (isElementNode(node)) {
-        //     const htmlNode: IDomHtmlNode = {
-        //         tagName: node.tagName.toLowerCase(),
-        //         attributes: node.attributes,
-        //         children: node.childNodes ? node.childNodes.flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
-        //         type: 'tag'
-        //     }
-
-        //     parsedNodes.push(htmlNode);
-        // }
-
-        // else if (isTextNode(node)) {
-        //     const textNode: IDomTextNode = {
-        //         content: node.text ?? '',
-        //         type: 'text'
-        //     }
-
-        //     parsedNodes.push(textNode);
-        // }
-
-        // return parsedNodes;
+        return buffer!.finishedBlocks;
     }
 }
