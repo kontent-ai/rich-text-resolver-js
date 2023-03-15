@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextMarkDef, IPortableTextBlock, IPortableTextSpan } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextComponent, IPortableTextImage, IPortableTextListBlock, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -83,7 +83,7 @@ export const createBlock = (
         markDefs?: IPortableTextMarkDef[], 
         style?: string, 
         children?: IPortableTextSpan[]
-    ): IPortableTextBlock => {
+    ): IPortableTextParagraph => {
     return {
         _type: 'block',
         _key: guid,
@@ -93,8 +93,60 @@ export const createBlock = (
     }
 }
 
+export const createListBlock = (
+        guid: string,
+        level: number,
+        listItem: "number" | "bullet",
+        markDefs?: IPortableTextMarkDef[],
+        style?: string,
+        children?: IPortableTextSpan[],
+
+    ): IPortableTextListBlock => {
+    return {
+        _type: 'block',
+        _key: guid,
+        markDefs: markDefs || [],
+        level: level,
+        listItem: listItem,
+        style: style || 'normal',
+        children: children || []
+    }
+}
+
+export const createImageBlock = (
+        guid: string
+    ): IPortableTextImage => {
+    return {
+        _type: 'image',
+        _key: guid,
+        asset: {
+            _type: 'reference',
+            _ref: '',
+            url: ''
+        }
+    }
+}
+
+export const createTableBlock = (guid: string, rows: number, columns: number): IPortableTextTable => {
+    return {
+        _type: 'table',
+        _key: 'guid',
+        rows: rows,
+        columns: columns,
+        childBlocks: []
+    }
+}
+
 export enum ProcessedUnit {
     None,
     Block,
     Span
+}
+
+export const createComponentBlock = (guid: string, reference: IReference): IPortableTextComponent => {
+    return {
+        _type: 'component',
+        _key: guid,
+        component: reference
+    }
 }

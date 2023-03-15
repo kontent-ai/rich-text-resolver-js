@@ -20,6 +20,7 @@
   "license": "ISC",
   "devDependencies": {
     "@kontent-ai/delivery-sdk": "^12.4.2",
+    "@portabletext/to-html": "^2.0.0",
     "@types/jest": "^28.1.2",
     "jest": "^28.1.1",
     "jest-environment-jsdom": "^29.3.1",

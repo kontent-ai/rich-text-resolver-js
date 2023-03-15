@@ -31,28 +31,37 @@ export interface IPortableTextItem {
     _key: string
 }
 
-export interface IPortableTextBlock extends IPortableTextItem {
+export interface IPortableTextParagraph extends IPortableTextItem {
     _type: 'block',
     markDefs: IPortableTextMarkDef[],
     style: string,
     children: IPortableTextSpan[]
-
 }
 
-export interface IPortableTextMarkDef extends IPortableTextItem {
+export type IPortableTextMarkDef = IPortableTextLink | IPortableTextInternalLink; // add more markdefs
 
-}
-
-export interface IPortableTextLink extends IPortableTextMarkDef {
+export interface IPortableTextLink extends IPortableTextItem {
     _type: 'link',
     href: string,
-    target: string
+    target: string,
+    title: string,
+    rel: string
 }
 
-export interface IPortableTextListBlock extends IPortableTextBlock {
-    listItem: "bullet" | "number",
-    level: number
+export interface IPortableTextInternalLink extends IPortableTextItem {
+    _type: 'internalLink',
+    reference: IReference
 }
+
+export interface IPortableTextListBlock extends IPortableTextItem {
+    listItem: "number" | "bullet",
+    level: number,
+    style: string,
+    markDefs: IPortableTextMarkDef[],
+    children: IPortableTextSpan[],
+}
+
+export type IPortableTextBlock = IPortableTextListBlock | IPortableTextParagraph | IPortableTextImage | IPortableTextTable | IPortableTextComponent;
 
 export interface IPortableTextSpan extends IPortableTextItem {
     _type: 'span',
@@ -60,6 +69,38 @@ export interface IPortableTextSpan extends IPortableTextItem {
     text: string
 }
 
-export interface IPortableText {
-    children: IPortableTextItem[]
+
+export interface IBlockBuffer {
+    element?: IPortableTextBlock,
+    marks: string[],
+    finishedBlocks: IPortableTextBlock[],
+    listLevel: number,
+    listType?: 'number' | 'bullet'
+}
+
+export interface IPortableTextImage extends IPortableTextItem {
+    _type: 'image',
+    asset: IAssetReference
+}
+
+export interface IReference {
+    _type: 'reference',
+    _ref: string
+}
+
+export interface IAssetReference extends IReference {
+    url: string
+}
+
+export interface IPortableTextTable extends IPortableTextItem {
+    _type: 'table',
+    _key: string,
+    rows: number,
+    columns: number,
+    childBlocks: IPortableTextItem[]
+}
+
+export interface IPortableTextComponent extends IPortableTextItem {
+    _type: 'component',
+    component: IReference
 }
