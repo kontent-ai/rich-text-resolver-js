@@ -1,7 +1,5 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextBrowserParser } from "../src/parser/browser";
 import { RichTextNodeParser } from "../src/parser/node";
-import { IDomNode, NodeParser } from "../src/parser";
 import { escapeHTML, toHTML } from '@portabletext/to-html';
 
 jest.mock('crypto', () => {
@@ -41,96 +39,12 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
-const richTextBrowserParser = new RichTextBrowserParser();
 const richTextNodeParser = new RichTextNodeParser();
-const nodeParser = new NodeParser();
 
 describe("Rich text parser", () => {
-  it("returns parsed tree", () => {
-    dummyRichText.value = "<p><br></p><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>link</strong></a><p>heading</p><p><br></p>";
-    const result = richTextBrowserParser.parse(dummyRichText.value);
 
-    expect(result).toMatchInlineSnapshot(`
-Object {
-  "children": Array [
-    Object {
-      "attributes": Object {},
-      "children": Array [
-        Object {
-          "attributes": Object {},
-          "children": Array [],
-          "tagName": "br",
-          "type": "tag",
-        },
-      ],
-      "tagName": "p",
-      "type": "tag",
-    },
-    Object {
-      "attributes": Object {},
-      "children": Array [
-        Object {
-          "content": "text",
-          "type": "text",
-        },
-        Object {
-          "attributes": Object {
-            "data-new-window": "true",
-            "href": "http://google.com",
-            "rel": "noopener noreferrer",
-            "target": "_blank",
-            "title": "linktitle",
-          },
-          "children": Array [
-            Object {
-              "attributes": Object {},
-              "children": Array [
-                Object {
-                  "content": "link",
-                  "type": "text",
-                },
-              ],
-              "tagName": "strong",
-              "type": "tag",
-            },
-          ],
-          "tagName": "a",
-          "type": "tag",
-        },
-      ],
-      "tagName": "p",
-      "type": "tag",
-    },
-    Object {
-      "attributes": Object {},
-      "children": Array [
-        Object {
-          "content": "heading",
-          "type": "text",
-        },
-      ],
-      "tagName": "p",
-      "type": "tag",
-    },
-    Object {
-      "attributes": Object {},
-      "children": Array [
-        Object {
-          "attributes": Object {},
-          "children": Array [],
-          "tagName": "br",
-          "type": "tag",
-        },
-      ],
-      "tagName": "p",
-      "type": "tag",
-    },
-  ],
-}
-`);
-  })
   it("parses empty rich text into portable text", () => {
-    dummyRichText.value= "<p><br></p>";
+    dummyRichText.value = "<p><br></p>";
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Array [
@@ -357,7 +271,7 @@ Array [
 `);
   })
 
-  it("parses lists properly", () => {
+  it("parses lists to portable text properly", () => {
     dummyRichText.value = `<ul><li>bullet<li></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item <a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">bold</a></strong></li></ol>`;
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
@@ -500,7 +414,7 @@ Array [
 `);
   })
 
-  it("parses rich text into portable text", () => {
+  it("parses complex rich text into portable text", () => {
     dummyRichText.value = "<p><br></p><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>link</strong></a></p><h1>heading</h1><p><br></p>";
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
@@ -617,85 +531,6 @@ Array [
 `);
   })
 
-  it("parses empty rich text", () => {
-    dummyRichText.value = "<p><br></p>"
-    const result = richTextBrowserParser.parse(dummyRichText.value);
-    expect(result).toMatchInlineSnapshot(`
-Object {
-  "children": Array [
-    Object {
-      "attributes": Object {},
-      "children": Array [
-        Object {
-          "attributes": Object {},
-          "children": Array [],
-          "tagName": "br",
-          "type": "tag",
-        },
-      ],
-      "tagName": "p",
-      "type": "tag",
-    },
-  ],
-}
-`);
-  })
-
-  it("resolves linked item to a string", () => {
-        dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
-          const spreadAttributes = (attributes: Record<string,string>): string => {
-            let convertedAttributes = ``;
-            for (const attribute in attributes) {
-                convertedAttributes += ` ${attribute}="${attributes[attribute]}"`
-            }
-    
-            return convertedAttributes;
-        }
-        
-        const resolve = (domNode: IDomNode): string => {
-          let result = '';
-          if (domNode.type === 'text')
-            result += domNode.content;
-
-          else if(domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
-            const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
-            if(linkedItem?.system.type === 'test') {
-              result += `
-              <div>
-                resolved type: ${linkedItem.system.type}, value of text element: ${linkedItem.elements.text_element.value}
-              </div>
-
-            `
-            }
-
-            else result += `Resolver not implemented.`;
-          }
-
-          else {
-            result += `<${domNode.tagName + ' ' + spreadAttributes(domNode.attributes)}>`;
-
-            if (domNode.children.length > 0) {
-              domNode.children.forEach((node) => (result += resolve(node)));
-            }
-
-            result+= `</${domNode.tagName}>`;
-          }
-          return result;
-        }
-
-        const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
-        const result = parsedTree.children.map(node => resolve(node)).toString();
-
-        expect(result).toMatchInlineSnapshot(`
-"<p  class=\\"test\\" id=\\"3\\">
-              <div>
-                resolved type: test, value of text element: random text value
-              </div>
-
-            before text<a  href=\\"mailto:email@abc.test\\">email</a>after text line break <br ></br></p>"
-`);
-  })
-
 
 })
 
@@ -707,7 +542,7 @@ describe("HTML converter", () => {
     const result = toHTML(portableText, {
       components: {
         marks: {
-          link: ({children, value}) => {
+          link: ({ children, value }) => {
             return `\<a href=${escapeHTML(value.href)}">${children}</a>`
           }
         }
