@@ -1,6 +1,7 @@
 import { Elements, ElementType, ParsedItemIndexReferenceWrapper } from "@kontent-ai/delivery-sdk"
 import { customResolveIDomHtmlNode, customResolveIDomTextNode, transformIOuputToJson } from "../../src/ivan-vole/json-transformer"
 import { IOutputResult, RichTextBrowserParser } from "../../src/parser"
+import { dummyWithTables } from "./dummy"
 
 const dummy: Elements.RichTextElement  = {
     "images": [
@@ -140,5 +141,98 @@ describe("Json Transfomer Tests", () => {
         )
 
         expect(trasnformed).toEqual(expectedOutput);
+    })
+
+    it("test resolving table", () => {
+        const inputValue = "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
+        const parsed = (new RichTextBrowserParser()).parse(inputValue);
+        
+        const result = transformJsonWithCustomResolvers(parsed);
+        const expectedOutput = JSON.parse(`[{"tag":"tableName","children":[{"tag":"tbody","children":[{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ivan"}]},{"tag":"td","content":[{"text":"Jiri"}]}]},{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ondra"}]},{"tag":"td","content":[{"text":"Dan"}]}]},{"text":"\\n"}]}]}]`)
+        
+          expect(result).toEqual(expectedOutput);
+        })
+
+    it ("test transofrming list", () => {
+        const parsed = (new RichTextBrowserParser()).parse("<ul>\n  <li>Ivan</li>\n  <li>Jiri</li>\n  <li>Dan</li>\n  <li>Ondra\n    <ul>\n      <ul>\n        <li>Rosta</li>\n      </ul>\n      <li>Ondra</li>\n    </ul>\n  </li>\n</ul>");
+        
+        const result = transformJsonWithCustomResolvers(parsed);
+        const expectedOutput = JSON.parse(`[
+  {
+    "tag": "ul",
+    "children": [
+      {
+        "text": "\\n  "
+      },
+      {
+        "tag": "li",
+        "text": "Ivan"
+      },
+      {
+        "text": "\\n  "
+      },
+      {
+        "tag": "li",
+        "text": "Jiri"
+      },
+      {
+        "text": "\\n  "
+      },
+      {
+        "tag": "li",
+        "text": "Dan"
+      },
+      {
+        "text": "\\n  "
+      },
+      {
+        "tag": "li",
+        "text": "Ondra\\n    ",
+        "children": [
+          {
+            "tag": "ul",
+            "children": [
+              {
+                "text": "\\n      "
+              },
+              {
+                "tag": "ul",
+                "children": [
+                  {
+                    "text": "\\n        "
+                  },
+                  {
+                    "tag": "li",
+                    "text": "Rosta"
+                  },
+                  {
+                    "text": "\\n      "
+                  }
+                ]
+              },
+              {
+                "text": "\\n      "
+              },
+              {
+                "tag": "li",
+                "text": "Ondra"
+              },
+              {
+                "text": "\\n    "
+              }
+            ]
+          },
+          {
+            "text": "\\n  "
+          }
+        ]
+      },
+      {
+        "text": "\\n"
+      }
+    ]
+  }
+]`);
+    expect(result).toEqual(expectedOutput)
     })
 })

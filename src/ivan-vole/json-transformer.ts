@@ -48,6 +48,67 @@ export const customResolveIDomHtmlNode = (node: IDomHtmlNode) =>  {
             result = {...result, ...imgObject}
             break;
         }
+        case "table": {
+            const tableObject = {
+                'tag': 'tableName'
+            }
+            result = {...result, ...tableObject}
+            break;
+        }
+        case 'tbody': {
+            const tbodyObject = {
+                'tag': 'tbody'
+            }
+            result = {...result, ...tbodyObject}
+            break;
+        }
+        case 'tr': {
+            const trObject = {
+                'tag': 'tr'
+            }
+            result = {...result, ...trObject};
+            break;
+        }
+        case 'td': {
+            const tdObject = {
+                'tag': 'td',
+                'content': node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
+            };
+            result = {...result, ...tdObject}
+            break;
+        }
+        case 'ol': {
+            const tdObject = {
+                'tag': 'ol'
+            };
+            result = {...result, ...tdObject}
+            break;
+        }
+        case 'ul': {
+            const tdObject = {
+                'tag': 'ul'
+            };
+            result = {...result, ...tdObject}
+            break;
+        }
+        case 'li': {
+            let tdObject = {
+                'tag': 'li',
+                'text': node.children[0].type === 'text' ? node.children[0].content : ""
+            };
+            if (node.children.length > 1){
+                tdObject = {...tdObject, ...{children: node.children.slice(1).map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))}}
+            }
+            return {...result, ...tdObject}
+        }
+        case 'td': {
+            const tdObject = {
+                'tag': 'td',
+                'content': node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
+            };
+            result = {...result, ...tdObject}
+            break;
+        }
         case "object": {
             if(node.attributes['type'] === 'application/kenticocloud'){
                 const linkedItemObject = {
@@ -61,10 +122,11 @@ export const customResolveIDomHtmlNode = (node: IDomHtmlNode) =>  {
 
         }
     }
-
-    result = {...result, ...{
-        children: node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
-    }}
+    if(node.tagName != 'td'){
+        result = {...result, ...{
+            children: node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
+        }}
+    }
 
     return result;
 }
