@@ -9,7 +9,7 @@ jest.mock('crypto', () => {
 });
 
 const dummyRichText: Elements.RichTextElement = {
-  value: "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>",
+  value: "<p>text<strong>bold</strong></p>",
   type: ElementType.RichText,
   images: [],
   linkedItemCodenames: [],
@@ -42,7 +42,6 @@ const dummyRichText: Elements.RichTextElement = {
 const richTextNodeParser = new RichTextNodeParser();
 
 describe("Rich text parser", () => {
-
   it("parses empty rich text into portable text", () => {
     dummyRichText.value = "<p><br></p>";
     const result = richTextNodeParser.parse(dummyRichText.value);
@@ -272,7 +271,7 @@ Array [
   })
 
   it("parses lists to portable text properly", () => {
-    dummyRichText.value = `<ul><li>bullet<li></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item <a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">bold</a></strong></li></ol>`;
+    dummyRichText.value = `<ul><li>bullet<li></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer"><strong>bold</strong></a></li></ol>`;
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Array [
@@ -357,6 +356,7 @@ Array [
         "_type": "span",
         "marks": Array [
           "guid",
+          "strong",
         ],
         "text": "bold",
       },
@@ -392,6 +392,7 @@ Array [
         "_type": "span",
         "marks": Array [
           "guid",
+          "strong",
         ],
         "text": "bold",
       },
@@ -548,7 +549,93 @@ describe("HTML converter", () => {
         }
       }
     });
-    expect(result).toMatchInlineSnapshot(`"<p><br/></p><p>text<a href=http://google.com\\"><strong>link</strong></a></p><p>text<a href=http://google.com\\"><strong>link</strong></a></p><h1>heading</h1><p><br/></p>"`);
+    expect(result).toMatchSnapshot();
+  })
+
+  it("resolves internal link", () => {
+    dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\"><em>item</em></a></p>`
+    const portableText = richTextNodeParser.parse(dummyRichText.value);
+    const result = toHTML(portableText, {
+      components: {
+        marks: {
+          internalLink: ({children, value}) => {
+            return `\<a href=\"https://website.com/${value.reference._ref}">item link</a>`
+          }
+        }
+      }
+    }
+    )
+    expect(result).toMatchSnapshot();
+  })
+
+  it("resolves a linked item", () => {
+    dummyRichText.value = '<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object>'
+    const portableText = richTextNodeParser.parse(dummyRichText.value);
+    const result = toHTML(portableText, {
+      components: {
+        types: {
+          component: ({value}) => {
+            const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
+            switch(linkedItem?.system.type) {
+              case('test'): {
+                return `<p>resolved value of text_element: <strong>${linkedItem?.elements.text_element.value}</strong></p>`;
+              }
+              default: {
+                return `Resolver for type ${linkedItem?.system.type} not implemented.`
+              }
+            }
+          }
+        }
+      }
+    })
+    expect(result).toMatchSnapshot();
+  })
+
+  it("resolves a table", () => {
+    dummyRichText.value = `<p><br></p><table><tbody><tr><td><strong>Emil</strong></td><td>Cyril</td></tr><tr><td><ul><li>Jarda</li><li>Luda</li></ul></td><td>Cyril</td></tr></tbody></table>`;
+    const portableText = richTextNodeParser.parse(dummyRichText.value);
+    const result = toHTML(portableText, {
+      components: {
+        types: {
+          table: ({value}) => {
+            let numCells = value.rows*value.columns;
+            let htmlTable = `<table><tbody><tr>`;
+            // for(let i = 1; i <= value.rows; i++) {
+            //   htmlTable += `<tr>`;
+            //   for(let j = 1; j <= value.columns; j++) {
+            //     toHTML(value.childBlocks[j]);
+            //   }              
+            // }
+            for(let i = 0; i < numCells; i++) {
+              if((value.columns-1)%i === 0) {
+                htmlTable += `</tr><tr>`;
+              }
+              htmlTable += `<td>${toHTML(value.childBlocks[i])}</td>`;
+            }
+            htmlTable += `</tr></tbody></table>`;
+
+            return htmlTable;
+          }
+        }
+      }
+    })
+    expect(result).toMatchSnapshot();
+  })
+
+  it("resolves an asset", () => {
+    dummyRichText.value = `<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" alt=\"\"></figure>`;
+    const portableText = richTextNodeParser.parse(dummyRichText.value);
+    const result = toHTML(portableText, {
+      components: {
+        types: {
+          image: ({value}) => {
+            return `<img src="${value.asset.url}"></img>`;
+          }
+        }
+      }
+    })
+
+    expect(result).toMatchSnapshot();
   })
 })
 
