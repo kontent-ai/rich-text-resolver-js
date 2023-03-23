@@ -1,132 +1,39 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult } from "../parser";
-import { isText } from "../utils";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult } from "../parser"
+import { isText } from "../utils"
 
-export const transformIOuputToJson = (
-    result: IOutputResult,
-    resolveIDomTextNode: (node: IDomTextNode) => object,
-    resolveIDomHtmlNode: (node: IDomHtmlNode) => object,
-) => {
-    return result.children.map(node => transformNode(node, resolveIDomTextNode, resolveIDomHtmlNode))
+export type ResolveIDomTextNodeType = ((node: IDomTextNode) => unknown) | null
+export type ResolveIDomHtmlNodeType = ((node: IDomHtmlNode, traverse: (node: IDomNode) => unknown) => unknown) | null
+
+type CustomResolversType = {
+    resolveIDomTextNode: ResolveIDomTextNodeType
+    resolveIDomHtmlNode: ResolveIDomHtmlNodeType
 }
 
-const transformNode = (
+export type TransformIDomNodeType = (
     node: IDomNode,
-    resolveIDomTextNode: (node: IDomTextNode) => object,
-    resolveIDomHtmlNode: (node: IDomHtmlNode) => object
+    customResolvers: CustomResolversType
+) => unknown;
+
+export const transformToJson = (
+    result: IOutputResult,
+    customResolvers?: CustomResolversType
 ) => {
-    if (isText(node)){
-        return resolveIDomTextNode(node);
-    }
-    return resolveIDomHtmlNode(node);
-}
-
-
-export const customResolveIDomTextNode = (node: IDomTextNode) =>  {
-    return {
-        text: node.content
-    };
-}
-
-export const customResolveIDomHtmlNode = (node: IDomHtmlNode) =>  {
-    let result = {
-        tag: node.tagName
-    };
-    
-    switch(node.tagName) {
-        case 'figure': {
-            const figureObject = {
-                'imageId': node.attributes['data-image-id']
-            };
-            result = {...result, ...figureObject}
-            break;
-        }
-        case "img": {
-            const imgObject = {
-                'src': node.attributes['src'],
-                'alt': node.attributes['alt']
-            }
-            result = {...result, ...imgObject}
-            break;
-        }
-        case "table": {
-            const tableObject = {
-                'tag': 'tableName'
-            }
-            result = {...result, ...tableObject}
-            break;
-        }
-        case 'tbody': {
-            const tbodyObject = {
-                'tag': 'tbody'
-            }
-            result = {...result, ...tbodyObject}
-            break;
-        }
-        case 'tr': {
-            const trObject = {
-                'tag': 'tr'
-            }
-            result = {...result, ...trObject};
-            break;
-        }
-        case 'td': {
-            const tdObject = {
-                'tag': 'td',
-                'content': node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
-            };
-            result = {...result, ...tdObject}
-            break;
-        }
-        case 'ol': {
-            const tdObject = {
-                'tag': 'ol'
-            };
-            result = {...result, ...tdObject}
-            break;
-        }
-        case 'ul': {
-            const tdObject = {
-                'tag': 'ul'
-            };
-            result = {...result, ...tdObject}
-            break;
-        }
-        case 'li': {
-            let tdObject = {
-                'tag': 'li',
-                'text': node.children[0].type === 'text' ? node.children[0].content : ""
-            };
-            if (node.children.length > 1){
-                tdObject = {...tdObject, ...{children: node.children.slice(1).map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))}}
-            }
-            return {...result, ...tdObject}
-        }
-        case 'td': {
-            const tdObject = {
-                'tag': 'td',
-                'content': node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
-            };
-            result = {...result, ...tdObject}
-            break;
-        }
-        case "object": {
-            if(node.attributes['type'] === 'application/kenticocloud'){
-                const linkedItemObject = {
-                    codeName: node.attributes['data-codename']
-                };
-                result = {...result, ...linkedItemObject}
-            }
-            break;
-        }
-        default: {
-
-        }
-    }
-    if(node.tagName != 'td'){
-        result = {...result, ...{
-            children: node.children.map(node => transformNode(node, customResolveIDomTextNode, customResolveIDomHtmlNode))
-        }}
+    if (!customResolvers) {
+        return result.children
     }
 
-    return result;
+    return result.children.map(node => transformIDomNode(node, customResolvers))
 }
+
+const nodeIdentity = (node: IDomNode) => node
+
+const transformIDomNode: TransformIDomNodeType = (
+    node: IDomNode,
+    customResolvers: CustomResolversType
+) => {
+    const {resolveIDomHtmlNode, resolveIDomTextNode} = customResolvers;
+    if (isText(node)) {
+        return resolveIDomTextNode ? resolveIDomTextNode(node) : nodeIdentity(node);
+    }
+    return resolveIDomHtmlNode ? resolveIDomHtmlNode(node, (node) => transformIDomNode(node, customResolvers)) : nodeIdentity(node)
+} 
