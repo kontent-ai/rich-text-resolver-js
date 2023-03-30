@@ -1,6 +1,6 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { RichTextBrowserParser } from "../src/parser/browser";
-import { RichTextNodeParser } from "../src/parser/node";
+import { nodeParse } from "../src/parser/node";
 import { IDomNode } from "../src/parser";
 
 const dummyRichText: Elements.RichTextElement = {
@@ -35,7 +35,6 @@ const dummyRichText: Elements.RichTextElement = {
 };
 
 const richTextBrowserParser = new RichTextBrowserParser();
-const richTextNodeParser = new RichTextNodeParser();
 
 describe("Rich text parser", () => {
   it("returns parsed tree", () => {
@@ -97,8 +96,8 @@ Object {
 `);
   })
 
-  it("browser and node parser output match", () => { 
-    const nodeResult = richTextNodeParser.parse(dummyRichText.value);
+  it("browser and node parser output match", () => {
+    const nodeResult = nodeParse(dummyRichText.value);
     const browserResult = richTextBrowserParser.parse(dummyRichText.value);
 
     expect(nodeResult).toEqual(browserResult);
@@ -129,51 +128,51 @@ Object {
   })
 
   it("resolves linked item to a string", () => {
-        dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
-          const spreadAttributes = (attributes: Record<string,string>): string => {
-            let convertedAttributes = ``;
-            for (const attribute in attributes) {
-                convertedAttributes += ` ${attribute}="${attributes[attribute]}"`
-            }
-    
-            return convertedAttributes;
-        }
-        
-        const resolve = (domNode: IDomNode): string => {
-          let result = '';
-          if (domNode.type === 'text')
-            result += domNode.content;
+    dummyRichText.value = "<p class=\"test\" id=3><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"test_item\"></object>before text<a href=\"mailto:email@abc.test\">email</a>after text line break <br></p>"
+    const spreadAttributes = (attributes: Record<string, string>): string => {
+      let convertedAttributes = ``;
+      for (const attribute in attributes) {
+        convertedAttributes += ` ${attribute}="${attributes[attribute]}"`
+      }
 
-          else if(domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
-            const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
-            if(linkedItem?.system.type === 'test') {
-              result += `
+      return convertedAttributes;
+    }
+
+    const resolve = (domNode: IDomNode): string => {
+      let result = '';
+      if (domNode.type === 'text')
+        result += domNode.content;
+
+      else if (domNode.tagName === 'object' && domNode.attributes['type'] === 'application/kenticocloud') {
+        const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
+        if (linkedItem?.system.type === 'test') {
+          result += `
               <div>
                 resolved type: ${linkedItem.system.type}, value of text element: ${linkedItem.elements.text_element.value}
               </div>
 
             `
-            }
-
-            else result += `Resolver not implemented.`;
-          }
-
-          else {
-            result += `<${domNode.tagName + ' ' + spreadAttributes(domNode.attributes)}>`;
-
-            if (domNode.children.length > 0) {
-              domNode.children.forEach((node) => (result += resolve(node)));
-            }
-
-            result+= `</${domNode.tagName}>`;
-          }
-          return result;
         }
 
-        const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
-        const result = parsedTree.children.map(node => resolve(node)).toString();
+        else result += `Resolver not implemented.`;
+      }
 
-        expect(result).toMatchInlineSnapshot(`
+      else {
+        result += `<${domNode.tagName + ' ' + spreadAttributes(domNode.attributes)}>`;
+
+        if (domNode.children.length > 0) {
+          domNode.children.forEach((node) => (result += resolve(node)));
+        }
+
+        result += `</${domNode.tagName}>`;
+      }
+      return result;
+    }
+
+    const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
+    const result = parsedTree.children.map(node => resolve(node)).toString();
+
+    expect(result).toMatchInlineSnapshot(`
 "<p  class=\\"test\\" id=\\"3\\">
               <div>
                 resolved type: test, value of text element: random text value

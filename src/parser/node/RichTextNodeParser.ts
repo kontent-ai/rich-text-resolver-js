@@ -1,52 +1,37 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IParserEngine, IOutputResult, IRichTextParser } from "../../parser";
-import { NodeParser } from "./NodeParser";
+import * as NodeHtmlParser from 'node-html-parser';
+import { IDomNode, IOutputResult } from "../../parser";
 import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
 
-export class RichTextNodeParser implements IRichTextParser<string, IOutputResult>  {
-    private readonly _parserEngine: IParserEngine;
+export const parse = (input: string): IOutputResult => {
+  const node = NodeHtmlParser.parse(input);
 
-    constructor() {
-        this._parserEngine = new NodeParser();
-    }
+  if (!isRootNode(node)) {
+    throw new Error("Cannot parse node that is not a root.");
+  }
 
-    parse(input: string): IOutputResult {
-        const node = this._parserEngine.parse(input);
+  return {
+    children: node.childNodes.flatMap(parseInternal)
+  }
+};
 
-        if (isRootNode(node)) {
-            return {
-                children: node.childNodes.flatMap((node) => this.parseInternal(node))
-            }
-        }
+const parseInternal = (node: Node): IDomNode => {
+  if (isElementNode(node)) {
+    return {
+      tagName: node.tagName.toLowerCase(),
+      attributes: node.attributes,
+      children: node?.childNodes.flatMap(parseInternal) ?? [],
+      type: 'tag'
+    };
+  }
 
-        else {
-            throw new Error();
-        }
-    }
+  if (isTextNode(node)) {
+    return {
+      content: node.text ?? '',
+      type: 'text'
+    };
+  }
 
-    private parseInternal(node: Node): IDomNode[] {
-        const parsedNodes: IDomNode[] = [];
-
-        if (isElementNode(node)) {
-            const htmlNode: IDomHtmlNode = {
-                tagName: node.tagName.toLowerCase(),
-                attributes: node.attributes,
-                children: node.childNodes ? node.childNodes.flatMap((childNode: Node) => this.parseInternal(childNode)) : [],
-                type: 'tag'
-            }
-
-            parsedNodes.push(htmlNode);
-        }
-
-        else if (isTextNode(node)) {
-            const textNode: IDomTextNode = {
-                content: node.text ?? '',
-                type: 'text'
-            }
-
-            parsedNodes.push(textNode);
-        }
-
-        return parsedNodes;
-    }
+  throw new Error("Unkown node");
 }
+
