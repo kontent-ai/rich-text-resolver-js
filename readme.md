@@ -12,14 +12,14 @@ Install the package via npm
 
 ## Usage
 
-Module provides two classes to parse rich text HTML into a simplified JSON tree: `RichTextBrowserParser` for client-side resolution and `RichTextNodeParser` for server-side use with Node.js.
+Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js.
 
-Both classes are initialized with empty constructor and their use is identical, only difference is the underlying parsing logic. Each exposes a single `parse` method, which accepts rich text HTML value in string format.
+Their use is identical, the only difference is the underlying parsing logic. Each exposes a single `parse` function, which accepts rich text HTML value in string format.
 
 ```ts
-const parser = new RichTextBrowserParser(); // RichTextNodeParser();
+const parsedTree1 = browserParse(richTextValue); // for browsers
 
-const parsedTree = parser.parse(richTextValue);
+const parsedTree2 = nodeParse(richTextValue); // for Node.js
 ```
 
 Result is a simple tree structure, defined by the following interface:
@@ -30,20 +30,20 @@ interface IOutputResult {
 }
 ```
 
-`IDomNode` is further extended by `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
+`IDomNode` is a union of `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
 
 ![Resolved DOMTree](./media/domtree.jpg)
 
 ### Resolution
 
-Resolution is achieved by traversing the output tree returned from `parse` method and manipulating it as per contextual requirements.
+Resolution is achieved by traversing the output tree returned from one of the parse functions and manipulating it as per contextual requirements.
 
-To identify each node, you may use helper methods included in the module (`isText`, `isElement` (with type guard) and `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement` (boolean)) as in the below example, or manually, based on the domNode type and attributes, see examples:
+To identify each node, you may use helper functions included in the module (`isText`, `isElement` (with type guard) and `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement` (boolean)) as in the below example, or manually, based on the domNode type and attributes, see examples:
 
 #### HTML string (TypeScript)
 
 ```ts
-const parsedTree = new RichTextBrowserParser().parse(richTextValue);
+const parsedTree = browserParse(richTextValue);
 
 const resolve = (domNode: IDomNode): string => {
   switch (node.type) {
@@ -133,11 +133,16 @@ const resolveLinkedItem = (node: IDomHtmlNode): string => {
 ```tsx
 // assumes element prop comes from JS SDK
 
-const RichText: React.FC<RichTextProps> = ({element: Elements.RichTextElement, className: string}) => {
+type Props = Readonly<{
+    element: Elements.RichTextElement;
+    className: string;
+}>;
+
+const RichText: React.FC<Props> = ({element, className}) => {
   const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
 
   useEffect(() => {
-    const parsedTree = new RichTextNodeParser().parse(element.value);
+    const parsedTree = browserParse(element.value);
     const resolve = (domNode: IDomNode, index: number): JSX.Element => {
       switch (domNode.type) {
         case 'tag': {
