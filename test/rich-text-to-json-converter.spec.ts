@@ -1,5 +1,5 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { RichTextBrowserParser } from "../src/parser/browser";
+import { browserParse } from "../src/parser/browser";
 import { nodeParse } from "../src/parser/node";
 import { IDomNode } from "../src/parser";
 
@@ -34,11 +34,9 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
-const richTextBrowserParser = new RichTextBrowserParser();
-
 describe("Rich text parser", () => {
   it("returns parsed tree", () => {
-    const result = richTextBrowserParser.parse(dummyRichText.value);
+    const result = browserParse(dummyRichText.value);
 
     expect(result).toMatchInlineSnapshot(`
 Object {
@@ -98,14 +96,14 @@ Object {
 
   it("browser and node parser output match", () => {
     const nodeResult = nodeParse(dummyRichText.value);
-    const browserResult = richTextBrowserParser.parse(dummyRichText.value);
+    const browserResult = browserParse(dummyRichText.value);
 
     expect(nodeResult).toEqual(browserResult);
   })
 
   it("parses empty rich text", () => {
     dummyRichText.value = "<p><br></p>"
-    const result = richTextBrowserParser.parse(dummyRichText.value);
+    const result = browserParse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Object {
   "children": Array [
@@ -169,7 +167,7 @@ Object {
       return result;
     }
 
-    const parsedTree = richTextBrowserParser.parse(dummyRichText.value);
+    const parsedTree = browserParse(dummyRichText.value);
     const result = parsedTree.children.map(node => resolve(node)).toString();
 
     expect(result).toMatchInlineSnapshot(`
