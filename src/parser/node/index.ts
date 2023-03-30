@@ -1,2 +1,3 @@
-export * from './NodeParser';
-export * from './RichTextNodeParser';
+import { parse } from './RichTextNodeParser';
+
+export { parse as nodeParse };
