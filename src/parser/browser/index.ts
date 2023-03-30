@@ -1,2 +1,3 @@
-export * from './BrowserParser';
-export * from './RichTextBrowserParser';
+import { parse } from './RichTextBrowserParser';
+
+export { parse as browserParse };

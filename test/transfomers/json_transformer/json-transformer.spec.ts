@@ -1,6 +1,6 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk"
 import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src/transformers/json_transformer/json-transformer"
-import { IOutputResult, RichTextBrowserParser } from "../../../src/parser"
+import { IOutputResult, browserParse } from "../../../src/parser"
 
 const dummy: Elements.RichTextElement = {
   "images": [
@@ -167,7 +167,7 @@ const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
 
 describe("Json Transfomer Tests", () => {
   it('No custom resolvers provided', () => {
-    const parsed = (new RichTextBrowserParser()).parse(dummy.value);
+    const parsed = browserParse(dummy.value);
     const result = transformToJson(parsed);
 
     expect(result).toEqual(parsed.children);
@@ -227,7 +227,7 @@ describe("Json Transfomer Tests", () => {
   })
 
   it("Test RichText", () => {
-    const parsed = (new RichTextBrowserParser()).parse(dummy.value);
+    const parsed = browserParse(dummy.value);
     const trasnformed = transformJsonWithCustomResolvers(parsed);
 
     const expectedOutput = JSON.parse(`
@@ -267,7 +267,7 @@ describe("Json Transfomer Tests", () => {
 
   it("test resolving table", () => {
     const inputValue = "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
-    const parsed = (new RichTextBrowserParser()).parse(inputValue);
+    const parsed = browserParse(inputValue);
 
     const result = transformJsonWithCustomResolvers(parsed);
     const expectedOutput = JSON.parse(`[{"tag":"tableName","children":[{"tag":"tbody","children":[{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ivan"}]},{"tag":"td","content":[{"text":"Jiri"}]}]},{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ondra"}]},{"tag":"td","content":[{"text":"Dan"}]}]},{"text":"\\n"}]}]}]`)
@@ -276,7 +276,7 @@ describe("Json Transfomer Tests", () => {
   })
 
   it("test transofrming list", () => {
-    const parsed = (new RichTextBrowserParser()).parse("<ul>\n  <li>Ivan</li>\n  <li>Jiri</li>\n  <li>Dan</li>\n  <li>Ondra\n    <ul>\n      <ul>\n        <li>Rosta</li>\n      </ul>\n      <li>Ondra</li>\n    </ul>\n  </li>\n</ul>");
+    const parsed = browserParse("<ul>\n  <li>Ivan</li>\n  <li>Jiri</li>\n  <li>Dan</li>\n  <li>Ondra\n    <ul>\n      <ul>\n        <li>Rosta</li>\n      </ul>\n      <li>Ondra</li>\n    </ul>\n  </li>\n</ul>");
 
     const result = transformJsonWithCustomResolvers(parsed);
     const expectedOutput = JSON.parse(`[
