@@ -13,7 +13,7 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
     }
 
     parse(input: string): IPortableTextItem[] {
-        const node = this._parserEngine.parse(input);
+        const node = this._parserEngine.parse(input.replaceAll('\n', ''));
         if (isRootNode(node)) {
             return node.childNodes.flatMap((node) => this.parseInternal(node))
         }
@@ -23,7 +23,7 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
         }
     }
 
-    private parseInternal(node: Node, buffer?: IBlockBuffer): IPortableTextItem[] {       
+    private parseInternal(node: Node, buffer?: IBlockBuffer): IPortableTextItem[] {
         if(buffer?.element) {
             if(isElementNode(node)) {
                 if(isTextMark(node)) {
@@ -35,7 +35,7 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
                     const span = createSpan(crypto.randomUUID(), [], '\n');
                     if('children' in buffer.element) {
                         buffer.element.children.push(span);
-                    }                   
+                    }                  
                     buffer.finishedBlocks.push(buffer.element);
                 }
 
@@ -92,11 +92,8 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
                 else if(isExternalLink(node)) {
                     const markDef: IPortableTextMarkDef = {
                         _type: "link",
-                        href: node.attributes["href"] ?? "",
-                        target: node.attributes["target"] ?? "",
-                        title: node.attributes["title"] ?? "",
-                        rel: node.attributes["rel"] ?? "",
-                        _key: crypto.randomUUID()
+                        _key: crypto.randomUUID(),
+                        ...node.attributes
                     }
                     buffer.marks.push(markDef._key);
                     if('markDefs' in buffer.element) {

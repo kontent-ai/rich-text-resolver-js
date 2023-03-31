@@ -1,6 +1,10 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { RichTextNodeParser } from "../src/parser/node";
 import { escapeHTML, toHTML } from '@portabletext/to-html';
+import TestRenderer from 'react-test-renderer';
+import { PortableText } from '@portabletext/react';
+import { RichTextBrowserParser } from "../src/parser";
+import { flatten, mergeAllItems, mergeBlocksAndSpans, mergeSpansAndMarks, transform } from "../src/transformer";
 
 jest.mock('crypto', () => {
   return {
@@ -9,7 +13,7 @@ jest.mock('crypto', () => {
 });
 
 const dummyRichText: Elements.RichTextElement = {
-  value: "<p>text<strong>bold</strong></p>",
+  value: "<p>text</p><p><strong>second text</strong></p><p><br></p>",
   type: ElementType.RichText,
   images: [],
   linkedItemCodenames: [],
@@ -39,7 +43,346 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
+const richTextBrowserParser = new RichTextBrowserParser();
 const richTextNodeParser = new RichTextNodeParser();
+
+describe("new transformer", () => {
+  it("converts json to portable text array", () => {
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    //const result = tree.children.flatMap(node => flatten(node, []));
+    const result = tree.children.reduce(flatten, []);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "text",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "mark",
+    "value": "strong",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "second text",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "
+",
+  },
+]
+`);
+  })
+
+  it("combines flattened blocks to a portable text", () => {
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    //const flattened = tree.children.flatMap(node => flatten(node, []));
+    //const result = transform(flattened);
+    const flattened = tree.children.reduce(flatten, []);
+    const result = mergeAllItems(flattened);
+    // const merged = mergeSpansAndMarks(flattened);
+    // const result = mergeBlocksAndSpans(merged);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "text",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+        ],
+        "text": "second text",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+]
+`);
+  })
+
+  it("transforms item links", () => {
+    dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\">text<strong>link to an item</strong></a></p>`
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    const flattened = tree.children.reduce(flatten,[]);
+    const result = mergeAllItems(flattened);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "guid",
+        ],
+        "text": "text",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+          "guid",
+        ],
+        "text": "link to an item",
+      },
+    ],
+    "markDefs": Array [
+      Object {
+        "_key": "guid",
+        "_type": "internalLink",
+        "reference": Object {
+          "_ref": "23f71096-fa89-4f59-a3f9-970e970944ec",
+          "_type": "reference",
+        },
+      },
+    ],
+    "style": "normal",
+  },
+]
+`);
+ 
+  })
+
+  it("transforms nested styles", () => {
+    dummyRichText.value = `<p><strong>all text is bold and last part is </strong><em><strong>also italic and this is also </strong></em><em><strong><sup>superscript</sup></strong></em></p>`
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    const flattened = tree.children.reduce(flatten,[]);
+    const result = mergeAllItems(flattened);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+        ],
+        "text": "all text is bold and last part is ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "em",
+          "strong",
+        ],
+        "text": "also italic and this is also ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "em",
+          "strong",
+          "sup",
+        ],
+        "text": "superscript",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+]
+`);
+  })
+
+  it("transforms lists", () => {
+    dummyRichText.value = `<ul><li>first level bullet</li><li>first level bullet</li><ol><li>nested number in bullet list</li></ol></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong></li></ol>`;
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    const flattened = tree.children.reduce(flatten,[]);
+    const result = mergeAllItems(flattened);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level bullet",
+      },
+    ],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level bullet",
+      },
+    ],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "nested number in bullet list",
+      },
+    ],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level item",
+      },
+    ],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level item",
+      },
+    ],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "second level item",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+        ],
+        "text": "second level item ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+]
+`);
+  })
+})
 
 describe("Rich text parser", () => {
   it("parses empty rich text into portable text", () => {
@@ -67,10 +410,886 @@ Array [
   })
 
   it("parses tables into portable text", () => {
-    dummyRichText.value = `<p><br></p><table><tbody><tr><td><strong>Emil</strong></td><td>Cyril</td></tr><tr><td><ul><li>Jarda</li><li>Luda</li></ul></td><td>Cyril</td></tr></tbody></table>`
+    dummyRichText.value = `<table><tbody><tr><td><figure data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\"><img src=\"https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg\" data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" alt=\"\"></figure></td><td>xcvzxcsddzczx</td><td>fdsafsdaafsf</td></tr><tr><td><ol><li>fdsaf</li><li>fdsafsda</li><li>sdafasdfsa</li><li>f<ol><li>dfafsad<ol><li>fdsfdasewf</li>\n        </ol>\n      </li>\n    </ol>\n  </li>\n</ol>\n</td><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td><td><br></td></tr>\n</tbody></table>\n<h4><em><strong>dufam ze to nerozbijem</strong></em></h4>\n<figure data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\"><img src=\"https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg\" data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" alt=\"\"></figure>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"f876cf42_beb9_01ee_82f5_3ddf5b885633\"></object>`
     const result = richTextNodeParser.parse(dummyRichText.value);
+    //console.log(JSON.stringify(result, undefined, 2));
     expect(result).toMatchInlineSnapshot(`
 Array [
+  Object {
+    "_key": "guid",
+    "_type": "table",
+    "childBlocks": Array [
+      Object {
+        "_key": "guid",
+        "_type": "image",
+        "asset": Object {
+          "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
+          "_type": "reference",
+          "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
+        },
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "xcvzxcsddzczx",
+          },
+        ],
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsafsdaafsf",
+          },
+        ],
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsaf",
+          },
+        ],
+        "level": 1,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsafsda",
+          },
+        ],
+        "level": 1,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "sdafasdfsa",
+          },
+        ],
+        "level": 1,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "f",
+          },
+        ],
+        "level": 1,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "dfafsad",
+          },
+        ],
+        "level": 2,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "block",
+        "children": Array [
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "fdsfdasewf",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "        ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "      ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "    ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "  ",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+          Object {
+            "_key": "guid",
+            "_type": "span",
+            "marks": Array [],
+            "text": "
+",
+          },
+        ],
+        "level": 3,
+        "listItem": "number",
+        "markDefs": Array [],
+        "style": "normal",
+      },
+    ],
+    "columns": 3,
+    "rows": 3,
+  },
   Object {
     "_key": "guid",
     "_type": "block",
@@ -78,97 +1297,32 @@ Array [
       Object {
         "_key": "guid",
         "_type": "span",
-        "marks": Array [],
-        "text": "
-",
+        "marks": Array [
+          "em",
+          "strong",
+        ],
+        "text": "dufam ze to nerozbijem",
       },
     ],
     "markDefs": Array [],
-    "style": "normal",
+    "style": "h4",
   },
   Object {
     "_key": "guid",
-    "_type": "table",
-    "childBlocks": Array [
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [
-              "strong",
-            ],
-            "text": "Emil",
-          },
-        ],
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "Cyril",
-          },
-        ],
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "Jarda",
-          },
-        ],
-        "level": 1,
-        "listItem": "bullet",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "Luda",
-          },
-        ],
-        "level": 1,
-        "listItem": "bullet",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "Cyril",
-          },
-        ],
-        "markDefs": Array [],
-        "style": "normal",
-      },
-    ],
-    "columns": 2,
-    "rows": 2,
+    "_type": "image",
+    "asset": Object {
+      "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
+      "_type": "reference",
+      "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
+    },
+  },
+  Object {
+    "_key": "guid",
+    "_type": "component",
+    "component": Object {
+      "_ref": "f876cf42_beb9_01ee_82f5_3ddf5b885633",
+      "_type": "reference",
+    },
   },
 ]
 `);
@@ -218,7 +1372,7 @@ Array [
 
 
   it("parses internal links to portable text properly", () => {
-    dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\"><strong>link to an item</strong></a></p>`;
+    dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\">text<strong>link to an item</strong></a></p>`;
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Array [
@@ -231,6 +1385,46 @@ Array [
         "_type": "span",
         "marks": Array [
           "guid",
+        ],
+        "text": "text",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+        ],
+        "text": "link to an item",
+      },
+    ],
+    "markDefs": Array [
+      Object {
+        "_key": "guid",
+        "_type": "internalLink",
+        "reference": Object {
+          "_ref": "23f71096-fa89-4f59-a3f9-970e970944ec",
+          "_type": "reference",
+        },
+      },
+    ],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "guid",
+        ],
+        "text": "text",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
           "strong",
         ],
         "text": "link to an item",
@@ -271,7 +1465,7 @@ Array [
   })
 
   it("parses lists to portable text properly", () => {
-    dummyRichText.value = `<ul><li>bullet<li></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer"><strong>bold</strong></a></li></ol>`;
+    dummyRichText.value = `<ul><li>bullet<li><ul><li>second level</li></ul></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer"><strong>bold</strong></a></li></ol>`;
     const result = richTextNodeParser.parse(dummyRichText.value);
     expect(result).toMatchInlineSnapshot(`
 Array [
@@ -287,6 +1481,22 @@ Array [
       },
     ],
     "level": 1,
+    "listItem": "bullet",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "second level",
+      },
+    ],
+    "level": 2,
     "listItem": "bullet",
     "markDefs": Array [],
     "style": "normal",
@@ -367,6 +1577,7 @@ Array [
       Object {
         "_key": "guid",
         "_type": "link",
+        "data-new-window": "true",
         "href": "http://google.com",
         "rel": "noopener noreferrer",
         "target": "_blank",
@@ -403,6 +1614,7 @@ Array [
       Object {
         "_key": "guid",
         "_type": "link",
+        "data-new-window": "true",
         "href": "http://google.com",
         "rel": "noopener noreferrer",
         "target": "_blank",
@@ -459,6 +1671,7 @@ Array [
       Object {
         "_key": "guid",
         "_type": "link",
+        "data-new-window": "true",
         "href": "http://google.com",
         "rel": "noopener noreferrer",
         "target": "_blank",
@@ -491,6 +1704,7 @@ Array [
       Object {
         "_key": "guid",
         "_type": "link",
+        "data-new-window": "true",
         "href": "http://google.com",
         "rel": "noopener noreferrer",
         "target": "_blank",
