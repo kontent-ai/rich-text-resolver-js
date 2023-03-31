@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextComponent, IPortableTextImage, IPortableTextListBlock, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextBlock, IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextStyleMark, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference, IPortableTextMark, IPortableTextExternalLink } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -60,9 +60,33 @@ export const isItemLink = (node: IDomNode): boolean =>
 /**
  * Returns `true` if the node represents an unpaired element (`br, img, hr, meta`)
  */
-export const isUnPairedElement = (node: IDomNode): boolean =>
+export const isUnPairedElement = (node: IDomHtmlNode): boolean =>
     isElement(node) &&
     ['br', 'img', 'hr', 'meta'].includes(node.tagName);
+
+export const isLineBreak = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'br'
+
+export const isStyleBlock = (node: IDomHtmlNode): boolean =>
+    ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName);
+
+export const isTextMark = (node: IDomHtmlNode): boolean =>
+    ['em', 'strong', 'sup', 'sub'].includes(node.tagName)
+
+export const isOrderedListBlock = (node: IDomHtmlNode): boolean =>
+    ['ol'].includes(node.tagName)
+
+export const isUnorderedListBlock = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'ul'
+
+export const isListItem = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'li';
+
+export const isParagraph = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'p';
+
+export const isExternalLink = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'a' && !node.attributes['data-item-id']
 
 
 export const createSpan = (
@@ -130,10 +154,37 @@ export const createImageBlock = (
 export const createTableBlock = (guid: string, rows: number, columns: number): IPortableTextTable => {
     return {
         _type: 'table',
-        _key: 'guid',
+        _key: guid,
         rows: rows,
         columns: columns,
         childBlocks: []
+    }
+}
+
+export const createItemLink = (guid: string, reference: string): IPortableTextInternalLink => {
+    return {
+        _key: guid,
+        _type: 'internalLink',
+        reference: {
+            _type: 'reference',
+            _ref: reference
+        }
+    }
+}
+
+export const createExternalLink = (guid: string, attributes: Record<string,string>): IPortableTextExternalLink => {
+    return {
+        _key: guid,
+        _type: 'link',
+        ...attributes
+    }
+}
+
+export const createMark = (guid: string, value: string, type: 'mark' | 'linkMark'): IPortableTextMark => {
+    return {
+        _type: type,
+        _key: guid,
+        value: value
     }
 }
 
@@ -150,3 +201,9 @@ export const createComponentBlock = (guid: string, reference: IReference): IPort
         component: reference
     }
 }
+
+export const isBlock = (block?: IPortableTextItem): block is IPortableTextParagraph =>
+    block! && block._type === 'block';
+
+export const isSpan = (span?: IPortableTextItem): span is IPortableTextSpan =>
+    span! && span._type === 'span';
