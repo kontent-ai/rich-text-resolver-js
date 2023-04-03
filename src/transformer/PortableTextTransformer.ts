@@ -1,40 +1,62 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult, IPortableTextBlock, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextStyleMark, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextMark, IListBuffer, IPortableTextTable, IPortableTextTableRow } from "../parser"
-import { createBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isBlock, isExternalLink, isImage, isItemLink, isLineBreak, isListBlock, isListItem, isOrderedListBlock, isParagraph, isSpan, isTable, isTableCell, isTableRow, isText, isTextMark, isUnorderedListBlock } from "../utils";
+import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult, IPortableTextBlock, IPortableTextImage, IPortableTextItem, IPortableTextListBlock, IPortableTextParagraph, IPortableTextSpan, IPortableTextMark, IPortableTextTable, IPortableTextTableRow, IPortableTextInternalLink, IPortableTextExternalLink, ListType, IPortableTextComponent, IReference } from "../parser"
+import { createBlock, createComponentBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isElement, isExternalLink, isIgnoredNode, isImage, isItemLink, isLineBreak, isListItem, isOrderedListBlock, isParagraph, isTable, isTableCell, isTableRow, isText, isTextMark, isUnorderedListBlock } from "../utils";
 import crypto from 'crypto';
+import { compose, findLastIndex } from "../utils/common-utils";
+
+type TransformLinkFunction = (node: IDomHtmlNode) => [(IPortableTextExternalLink | IPortableTextInternalLink), IPortableTextMark];
+type TransformElementFunction = (node: IDomHtmlNode) => IPortableTextItem[];
+type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType) => IPortableTextItem[];
+type TransformTextFunction = (node: IDomTextNode) => IPortableTextSpan;
+
+const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+const markElements = ['strong', 'em', 'sub', 'sup'];
+const ignoredElements = ['img', 'tbody', 'ol', 'ul'];
+
+export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
+    const flattened = flatten(parsedTree.children, 0);
+    return composeAndMerge(flattened);
+}
 
 export const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     let marks: string[] = [];
     let links: string[] = [];
 
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
-        if(item._type === 'mark') {
-            marks.push(item.value);
+        switch (item._type) {
+            case 'internalLink':
+            case 'link':
+                const lastBlockIndex = findLastIndex(mergedItems, item => item._type === 'block');
+                const updatedBlock = mergedItems[lastBlockIndex];
+                if ('markDefs' in updatedBlock) {
+                    updatedBlock.markDefs.push(item);
+                    mergedItems[lastBlockIndex] = updatedBlock;
+                } else {
+                    const newBlock = createBlock(crypto.randomUUID());
+                    newBlock.markDefs.push(item);
+                }
+                break;
+            case 'mark':
+                marks.push(item.value);
+                break;
+            case 'linkMark':
+                links.push(item.value);
+                break;
+            case 'span':
+                item.marks = [...marks, ...links];
+                mergedItems.push(item);
+                marks = [];
+                break;
+            default:
+                links = [];
+                mergedItems.push(item);
         }
-        else if(item._type === 'linkMark') {
-            links.push(item.value);
-        }
-        else if(item._type === 'internalLink' || item._type === 'link') { // TODO don't pop if it's not a block
-            const previousBlock = mergedItems.pop() as IPortableTextParagraph || createBlock(crypto.randomUUID()); //create new block if no previous exists
-            previousBlock.markDefs.push(item);
-            mergedItems.push(previousBlock);
-        }
-        else if(item._type === 'span') {
-            item.marks = [...marks, ...links];
-            mergedItems.push(item);
-            marks = [];
-        }
-        else {
-            links = [];
-            mergedItems.push(item);
-        }
-
         return mergedItems;
     },[])
 
     return mergedItems;
 }
 
-export const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
+const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'span') {
             const previousBlock = mergedItems.pop() as IPortableTextParagraph;
@@ -43,6 +65,7 @@ export const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortabl
         } else {
             mergedItems.push(item);
         }
+
         return mergedItems;
     },[])
 
@@ -85,10 +108,10 @@ const mergeRowsAndCells = (itemsToMerge: IPortableTextItem[]): IPortableTextItem
 const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item, index, array) => {
         if (item._type === 'cell') {
-            for(let i = 0; i < item.childBlocksCount; i++) {
+            for(let i = 1; i <= item.childBlocksCount; i++) {
                 item.content.push(array[index + i] as IPortableTextBlock);
-                array.splice(index + i, 1);
             }
+            array.splice(index, item.childBlocksCount);
             mergedItems.push(item);
         } else {
             mergedItems.push(item);
@@ -100,170 +123,160 @@ const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
     return mergedItems;
 }
 
-const compose = <T>(firstFunction: (argument: T) => T, ...functions: Array<(argument: T) => T>) =>
-    functions.reduce((previousFunction, nextFunction) => value => previousFunction(nextFunction(value)), firstFunction);
+const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
 
-export const mergeAllItems = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
-
-export const flatten = (parseResult: IOutputResult): IPortableTextItem[] => {
-    return parseResult.children.flatMap(node => transformNode(node));
-}
-
-const transformNode = (node: IDomNode, level?: number, listType?: 'number' | 'bullet'): IPortableTextItem[] => {
+const transformNode = (node: IDomNode, depth: number, listType?: ListType): IPortableTextItem[] => {
     if(isText(node)) {
-        return [transformText(node)]
+        return [transformText(node)];
     } else {
-        return transformElement(node, level, listType);
+        return transformElement(node, depth, listType);
     }
 }
+  
+const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPortableTextItem[] => {
+    return nodes.reduce((finishedItems: IPortableTextItem[], node: IDomNode) => {
+        let transformedNode: IPortableTextItem[] | null = null;
+        let children: IDomNode[] = [];
+        let transformedChildren: IPortableTextItem[] = [];
+        let currentListType = listType;
+      
+        if (isElement(node)) {
+            children = node.children;
+            if (isUnorderedListBlock(node)) {
+                currentListType = 'bullet';
+            }
 
-const transformElement = (node: IDomHtmlNode, level?: number, listType?: 'number' | 'bullet'): IPortableTextItem[] => {
-    if (isParagraph(node)) {
-        return transformBlock(node)
-    }
+            if (isOrderedListBlock(node)) {
+                currentListType = 'number';
+            }
+        }
+        
+        transformedNode = transformNode(node, depth, currentListType);
+  
+        if (transformedNode) {
+            transformedChildren = flatten(children, depth + 1, currentListType);
+            finishedItems.push(...transformedNode, ...transformedChildren);
+        }
+        return finishedItems;
+    }, []);
+};
 
-    if (isTextMark(node)) {
-        return transformTextMark(node)
-    }
+const transformElement = (node: IDomHtmlNode, depth: number, listType?: ListType): IPortableTextItem[] => {
+    const transformerFunction = transformMap[node.tagName] || transformMap.default;
 
-    if (isListBlock(node)) {
-        return transformListBlock(node, level);
-    }
-
-    if (isItemLink(node)) {
-        return transformInternalLink(node);
-    }
-
-    if (isExternalLink(node)) {
-        return transformExternalLink(node);
-    }
-
-    if (isListItem(node)) {
-        return transformListItem(node, level!, listType!);
-    }
-
-    if (isLineBreak(node)) {
-        return [transformLineBreak()];
-    }
-
-    if (isImage(node)) {
-        return [transformImage(node)];
-    }
-
-    if (isTable(node)) {
-        return transformTable(node);
-    }
-
-    if (isTableRow(node)) {
-        return transformTableRow(node);
-    }
-
-    if (isTableCell(node)) {
-        return transformTableCell(node);
-    }
-
-    throw new Error(`No renderer exists for HTML tag: ${node.tagName}`);
+    return transformerFunction(node, depth, listType!);
 }
 
-const transformListBlock = (node: IDomHtmlNode, level = 0): IPortableTextItem[] => {
-    level++;
-    const listType = node.tagName === 'ul' ? 'bullet' : 'number';
-    const transformedSubtree = node.children.flatMap(node => transformNode(node, level, listType));
+const transformTextMark: TransformElementFunction = (node: IDomHtmlNode): IPortableTextMark[] =>
+    [createMark(crypto.randomUUID(), node.tagName, 'mark')];
 
-    return transformedSubtree;
-}
 
-const transformTextMark = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createMark(crypto.randomUUID(), node.tagName, 'mark')];
+const transformLineBreak: TransformElementFunction = (): IPortableTextSpan[] =>
+    [createSpan(crypto.randomUUID(), [], '\n')];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
+const transformListItem: TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType): IPortableTextListBlock[] =>
+   [createListBlock(crypto.randomUUID(), depth, listType!)];
 
-    return transformedSubtree;
-}
-
-const transformLineBreak = (): IPortableTextSpan => {
-    const span = createSpan(crypto.randomUUID(), [], '\n')
-
-    return span;
-}
-
-const transformListItem = (node: IDomHtmlNode, level: number, listType: 'number' | 'bullet'): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createListBlock(crypto.randomUUID(), level, listType)];
-
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, level, listType)))
-    
-    return transformedSubtree;
-}
-
-const transformImage = (node: IDomHtmlNode): IPortableTextImage => {
+const transformImage: TransformElementFunction = (node: IDomHtmlNode): IPortableTextImage[] => {
     const block = createImageBlock(crypto.randomUUID());
     const imageTag = node.children[0] as IDomHtmlNode;
 
     block.asset._ref = node.attributes['data-image-id'];
     block.asset.url = imageTag.attributes['src'];
     
-    return block;
+    return [block];
 }
 
-const transformInternalLink = (node: IDomHtmlNode): IPortableTextItem[] => {
+const transformLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink | IPortableTextInternalLink, IPortableTextMark] => {
+    if(isExternalLink(node)) {
+        return transformExternalLink(node);
+    } else {
+        return transformInternalLink(node);
+    }
+}
+
+const transformInternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextInternalLink, IPortableTextMark] => {
     const link = createItemLink(crypto.randomUUID(), node.attributes['data-item-id']);
     const mark = createMark(crypto.randomUUID(), link._key, 'linkMark');
-    const transformedSubtree: IPortableTextItem[] = [link, mark];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
-
-    return transformedSubtree;
+    return [link, mark];
 }
 
-const transformTable = (node: IDomHtmlNode): IPortableTextItem[] => {
+const transformExternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink, IPortableTextMark] => {
+    const link = createExternalLink(crypto.randomUUID(), node.attributes)
+    const mark = createMark(crypto.randomUUID(), link._key, "linkMark");
+
+    return [link, mark];
+}
+
+const transformTable: TransformElementFunction = (node: IDomHtmlNode): IPortableTextTable[] => {
     const tableBody = node.children[0] as IDomHtmlNode;
     const tableRow = tableBody.children[0] as IDomHtmlNode;
     const numCols = tableRow.children.length;
-    const transformedSubtree: IPortableTextItem[] = [createTable(crypto.randomUUID(), numCols)];
-
-    tableBody.children.flatMap(node => transformedSubtree.push(...transformNode(node)));
-
-    return transformedSubtree;
+    
+    return [createTable(crypto.randomUUID(), numCols)];
 }
 
-const transformTableRow = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createTableRow(crypto.randomUUID())];
+const transformTableRow: TransformElementFunction = (): IPortableTextTableRow[] =>
+    [createTableRow(crypto.randomUUID())];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
-    return transformedSubtree;
+const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPortableTextItem[] => {
+    const cellContent: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), node.children.length)];
+
+    if(node.children[0].type === 'text' || node.children[0].tagName === 'br')
+        cellContent.push(createBlock(crypto.randomUUID())); // because of cell/paragraph inconsistency
+
+    return cellContent;
 }
 
-const transformTableCell = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), node.children.length)];
+const transformItem: TransformElementFunction = (node: IDomHtmlNode): IPortableTextItem[] => {
+    const itemReference: IReference = {
+        _type: 'reference',
+        _ref: node.attributes['data-codename']
+    }
 
-    if(node.children[0].type !== 'tag' || node.children[0].tagName === 'br')
-        transformedSubtree.push(createBlock(crypto.randomUUID())); // because of cell/paragraph inconsistency
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
-
-    return transformedSubtree;
-}
- 
-const transformExternalLink = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const link = createExternalLink(crypto.randomUUID(), node.attributes);
-    const mark = createMark(crypto.randomUUID(), link._key, "linkMark");
-    const transformedSubtree: IPortableTextItem[] = [link, mark];
-
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
-
-    return transformedSubtree;
+    return [createComponentBlock(crypto.randomUUID(), itemReference)];
 }
 
-const transformText = (node: IDomTextNode): IPortableTextSpan => {
-    const span = createSpan(crypto.randomUUID(), [], node.content);
+const transformText: TransformTextFunction = (node: IDomTextNode): IPortableTextSpan =>
+    createSpan(crypto.randomUUID(), [], node.content);
 
-    return span;
-}
+const transformBlock: TransformElementFunction = (node: IDomHtmlNode): IPortableTextBlock[] => 
+    [createBlock(crypto.randomUUID(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
-const transformBlock = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createBlock(crypto.randomUUID())];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
+const ignoreElement: TransformElementFunction = (node: IDomHtmlNode) => [];
 
-    return transformedSubtree;
+const transformMap: Record<string, TransformElementFunction | TransformListItemFunction> = {
+    ...blockElements.reduce(
+        (acc, tagName) => ({
+            ...acc,
+            [tagName]: transformBlock,
+        }),{}
+    ),
+    ...markElements.reduce(
+        (acc, tagName) => ({
+            ...acc,
+            [tagName]: transformTextMark,
+        }), {}
+    ),
+    ...ignoredElements.reduce(
+        (acc, tagName) => ({
+            ...acc,
+            [tagName]: ignoreElement,
+        }), {}
+    ),
+    'a': transformLink,
+    'li': transformListItem,
+    'table': transformTable,
+    'tr': transformTableRow,
+    'td': transformTableCell,
+    'br': transformLineBreak,
+    'figure': transformImage,
+    'object': transformItem,
+    default: (node: IDomHtmlNode) => {
+        console.log(`No transformer implemented for tag "${node.tagName}"`);
+        return [];
+    }
 }
