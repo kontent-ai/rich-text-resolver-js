@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextBlock, IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextStyleMark, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference, IPortableTextMark, IPortableTextExternalLink, IPortableTextTableRow, IPortableTextTableCell } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference, IPortableTextMark, IPortableTextExternalLink, IPortableTextTableRow, IPortableTextTableCell } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -50,14 +50,6 @@ export const isImage = (node: IDomNode): boolean =>
     node.attributes['data-image-id'] ? true : false;
 
 /**
- * Returns `true` if the node is a link to a content item.
- */
-export const isItemLink = (node: IDomNode): boolean =>
-    isElement(node) &&
-    node.tagName === 'a' &&
-    node.attributes['data-item-id'] ? true : false;
-
-/**
  * Returns `true` if the node represents an unpaired element (`br, img, hr, meta`)
  */
 export const isUnPairedElement = (node: IDomHtmlNode): boolean =>
@@ -89,7 +81,16 @@ export const isParagraph = (node: IDomHtmlNode): boolean =>
     node.tagName === 'p';
 
 export const isExternalLink = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'a' && !node.attributes['data-item-id']
+    isAnchor(node) && !node.attributes['data-item-id']
+
+export const isAnchor = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'a'
+
+/**
+ * Returns `true` if the node is a link to a content item.
+ */
+export const isItemLink = (node: IDomHtmlNode): boolean =>
+    isAnchor(node) && !isExternalLink(node);
 
 export const isTable = (node: IDomHtmlNode): boolean =>
     node.tagName === 'table'
@@ -101,7 +102,7 @@ export const isTableCell = (node: IDomHtmlNode): boolean =>
     node.tagName === 'td'
 
 export const isIgnoredNode = (node: IDomHtmlNode): boolean =>
-    ['tbody'].includes(node.tagName)
+    ['tbody','img'].includes(node.tagName)
 
 export const createSpan = (
         guid: string,

@@ -10,7 +10,6 @@ export interface IDomHtmlNode {
     tagName: string,
     attributes: Record<string, string>,
     children: IDomNode[],
-    parent?: IDomHtmlNode
 }
 
 export interface IParserEngine {
@@ -25,9 +24,6 @@ export interface IRichTextParser<TInput, TOutput> {
     parse(input: TInput): TOutput
 }
 
-/// portable text section
-
-
 export interface IPortableTextParagraph  {
     _type: 'block',
     _key: string,
@@ -35,6 +31,8 @@ export interface IPortableTextParagraph  {
     style: string,
     children: IPortableTextSpan[]
 }
+
+export type ListType = 'number' | 'bullet';
 
 export type IPortableTextMarkDef = IPortableTextExternalLink | IPortableTextInternalLink; // add more markdefs
 
@@ -75,13 +73,7 @@ export interface IBlockBuffer {
     marks: string[],
     finishedBlocks: IPortableTextBlock[],
     listLevel: number,
-    listType?: 'number' | 'bullet'
-}
-
-export interface IListBuffer {
-    level: number,
-    type: 'number' | 'bullet',
-    isNested: boolean
+    listType?: ListType
 }
 
 export interface IPortableTextImage {
@@ -138,81 +130,3 @@ export interface IPortableTextLinkMark {
 }
 
 export type IPortableTextMark = IPortableTextLinkMark | IPortableTextStyleMark
-
-export class ListNode<T> {
-    next: ListNode<T> | null = null;
-    prev: ListNode<T> | null = null;
-    constructor(public data: T) {};
-}
-
-export interface IDoublyLinkedList<T> {
-    append(data: T): ListNode<T>;
-    prepend(data: T): ListNode<T>;
-    deleteNode(node: ListNode<T>): void;
-    size(): number;
-    search(comparator: (data: T) => boolean): ListNode<T> | null;
-}
-
-export class DoublyLinkedList<T> implements IDoublyLinkedList<T> {
-    private head: ListNode<T> | null = null;
-
-    public append(data: T): ListNode<T> {
-        const listNode = new ListNode(data);
-        if(!this.head) {
-            this.head = listNode;
-        } else {
-            const getLast = (node: ListNode<T>): ListNode<T> => {
-                return listNode.next ? getLast(listNode.next) : node;
-            };
-
-            const lastListNode = getLast(this.head);
-            listNode.prev = lastListNode;
-            lastListNode.next = listNode;
-        }
-        return listNode;
-    }
-
-    public prepend(data: T): ListNode<T> {
-        const listNode = new ListNode(data);
-        if(!this.head) {
-            this.head = listNode;
-        } else {
-            this.head.prev = listNode;
-            listNode.next = this.head;
-            this.head = listNode;
-        }
-        return listNode;
-    }
-
-    public deleteNode(listNode: ListNode<T>): void {
-        if (!listNode.prev) {
-            this.head = listNode.next;
-        } else {
-            const prevNode = listNode.prev;
-            prevNode.next = listNode.next;
-        }
-    }
-
-    public traverse(): Array<T> {
-        const array: T[] = [];
-        if(!this.head) {
-            return array;
-        }
-
-        const addToArray = (listNode: ListNode<T>): T[] => {
-            array.push(listNode.data);
-            return listNode.next ? addToArray(listNode.next) : array;
-        };
-
-        return addToArray(this.head);
-    }
-
-    size(): number {
-        throw new Error("Method not implemented.");
-    }
-
-    search(comparator: (data: T) => boolean): ListNode<T> | null {
-        throw new Error("Method not implemented.");
-    }
-    
-}
