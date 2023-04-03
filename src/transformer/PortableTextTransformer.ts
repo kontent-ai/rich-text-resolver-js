@@ -35,7 +35,7 @@ export const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortable
 }
 
 export const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
-    const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item, index) => {
+    const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'span') {
             const previousBlock = mergedItems.pop() as IPortableTextParagraph;
             previousBlock.children.push(item);
@@ -50,7 +50,7 @@ export const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortabl
 }
 
 const mergeTablesAndRows = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
-    const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item, index) => {
+    const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'row') {
             const tableBlock = mergedItems.pop() as IPortableTextTable;
             tableBlock.rows.push(item);
@@ -106,46 +106,40 @@ const compose = <T>(firstFunction: (argument: T) => T, ...functions: Array<(argu
 export const mergeAllItems = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
 
 export const flatten = (parseResult: IOutputResult): IPortableTextItem[] => {
-    const listBuffer: IListBuffer = {
-        level: 0,
-        type: 'number',
-        isNested: false
-    }
-
-    return parseResult.children.flatMap(node => transformNode(node, listBuffer));
+    return parseResult.children.flatMap(node => transformNode(node));
 }
 
-const transformNode = (node: IDomNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformNode = (node: IDomNode, level?: number, listType?: 'number' | 'bullet'): IPortableTextItem[] => {
     if(isText(node)) {
         return [transformText(node)]
     } else {
-        return transformElement(node, listBuffer);
+        return transformElement(node, level, listType);
     }
 }
 
-const transformElement = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformElement = (node: IDomHtmlNode, level?: number, listType?: 'number' | 'bullet'): IPortableTextItem[] => {
     if (isParagraph(node)) {
-        return transformBlock(node, listBuffer)
+        return transformBlock(node)
     }
 
     if (isTextMark(node)) {
-        return transformTextMark(node, listBuffer)
+        return transformTextMark(node)
     }
 
     if (isListBlock(node)) {
-        return transformListBlock(node, listBuffer);
+        return transformListBlock(node, level);
     }
 
     if (isItemLink(node)) {
-        return transformInternalLink(node, listBuffer);
+        return transformInternalLink(node);
     }
 
     if (isExternalLink(node)) {
-        return transformExternalLink(node, listBuffer);
+        return transformExternalLink(node);
     }
 
     if (isListItem(node)) {
-        return transformListItem(node, listBuffer);
+        return transformListItem(node, level!, listType!);
     }
 
     if (isLineBreak(node)) {
@@ -157,33 +151,32 @@ const transformElement = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortabl
     }
 
     if (isTable(node)) {
-        return transformTable(node, listBuffer);
+        return transformTable(node);
     }
 
     if (isTableRow(node)) {
-        return transformTableRow(node, listBuffer);
+        return transformTableRow(node);
     }
 
     if (isTableCell(node)) {
-        return transformTableCell(node, listBuffer);
+        return transformTableCell(node);
     }
 
     throw new Error(`No renderer exists for HTML tag: ${node.tagName}`);
 }
 
-const transformListBlock = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
-    const tempBuffer = listBuffer;
-    tempBuffer.type = node.tagName === 'ol' ? 'number' : 'bullet';
-    tempBuffer.level++;
-
-    const transformedSubtree = node.children.flatMap(node => transformListItem(<IDomHtmlNode>node, tempBuffer));
+const transformListBlock = (node: IDomHtmlNode, level = 0): IPortableTextItem[] => {
+    level++;
+    const listType = node.tagName === 'ul' ? 'bullet' : 'number';
+    const transformedSubtree = node.children.flatMap(node => transformNode(node, level, listType));
 
     return transformedSubtree;
 }
 
-const transformTextMark = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformTextMark = (node: IDomHtmlNode): IPortableTextItem[] => {
     const transformedSubtree: IPortableTextItem[] = [createMark(crypto.randomUUID(), node.tagName, 'mark')];
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }
@@ -194,9 +187,10 @@ const transformLineBreak = (): IPortableTextSpan => {
     return span;
 }
 
-const transformListItem = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
-    const transformedSubtree: IPortableTextItem[] = [createListBlock(crypto.randomUUID(), listBuffer.level, listBuffer.type)];
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+const transformListItem = (node: IDomHtmlNode, level: number, listType: 'number' | 'bullet'): IPortableTextItem[] => {
+    const transformedSubtree: IPortableTextItem[] = [createListBlock(crypto.randomUUID(), level, listType)];
+
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, level, listType)))
     
     return transformedSubtree;
 }
@@ -211,50 +205,51 @@ const transformImage = (node: IDomHtmlNode): IPortableTextImage => {
     return block;
 }
 
-const transformInternalLink = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformInternalLink = (node: IDomHtmlNode): IPortableTextItem[] => {
     const link = createItemLink(crypto.randomUUID(), node.attributes['data-item-id']);
     const mark = createMark(crypto.randomUUID(), link._key, 'linkMark');
     const transformedSubtree: IPortableTextItem[] = [link, mark];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }
 
-const transformTable = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformTable = (node: IDomHtmlNode): IPortableTextItem[] => {
     const tableBody = node.children[0] as IDomHtmlNode;
     const tableRow = tableBody.children[0] as IDomHtmlNode;
     const numCols = tableRow.children.length;
     const transformedSubtree: IPortableTextItem[] = [createTable(crypto.randomUUID(), numCols)];
 
-    tableBody.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)));
+    tableBody.children.flatMap(node => transformedSubtree.push(...transformNode(node)));
 
     return transformedSubtree;
 }
 
-const transformTableRow = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformTableRow = (node: IDomHtmlNode): IPortableTextItem[] => {
     const transformedSubtree: IPortableTextItem[] = [createTableRow(crypto.randomUUID())];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }
 
-const transformTableCell = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformTableCell = (node: IDomHtmlNode): IPortableTextItem[] => {
     const transformedSubtree: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), node.children.length)];
+
     if(node.children[0].type !== 'tag' || node.children[0].tagName === 'br')
         transformedSubtree.push(createBlock(crypto.randomUUID())); // because of cell/paragraph inconsistency
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }
  
-const transformExternalLink = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformExternalLink = (node: IDomHtmlNode): IPortableTextItem[] => {
     const link = createExternalLink(crypto.randomUUID(), node.attributes);
     const mark = createMark(crypto.randomUUID(), link._key, "linkMark");
     const transformedSubtree: IPortableTextItem[] = [link, mark];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }
@@ -265,10 +260,10 @@ const transformText = (node: IDomTextNode): IPortableTextSpan => {
     return span;
 }
 
-const transformBlock = (node: IDomHtmlNode, listBuffer: IListBuffer): IPortableTextItem[] => {
+const transformBlock = (node: IDomHtmlNode): IPortableTextItem[] => {
     const transformedSubtree: IPortableTextItem[] = [createBlock(crypto.randomUUID())];
 
-    node.children.flatMap(node => transformedSubtree.push(...transformNode(node, listBuffer)))
+    node.children.flatMap(node => transformedSubtree.push(...transformNode(node)))
 
     return transformedSubtree;
 }

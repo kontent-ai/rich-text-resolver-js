@@ -101,7 +101,7 @@ Array [
   })
 
   it("transforms tables", () => {
-    dummyRichText.value = `<table><tbody>\n<tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><br></td><td><br></td></tr>\n<tr><td><br></td><td><br></td><td><br></td></tr>\n<tr><td><br></td><td><br></td><td><br></td></tr>\n</tbody></table>`
+    dummyRichText.value = `<table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><p>text</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><p>text</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table>`
     const tree = richTextBrowserParser.parse(dummyRichText.value);
     const flattened = flatten(tree);
     const result = mergeAllItems(flattened);
@@ -320,45 +320,22 @@ Array [
   it("transforms lists", () => {
     dummyRichText.value = `<ul><li>first level bullet</li><li>first level bullet</li><ol><li>nested number in bullet list</li></ol></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong></li></ol>`;
     const tree = richTextBrowserParser.parse(dummyRichText.value);
-    const result = flatten(tree);
-    //const result = mergeAllItems(flattened);
+    const flattened = flatten(tree);
+    const result = mergeAllItems(flattened);
 
     expect(result).toMatchInlineSnapshot(`
 Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [],
-    "level": 1,
-    "listItem": "bullet",
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "first level bullet",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
-    "level": 1,
-    "listItem": "bullet",
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "first level bullet",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level bullet",
+      },
+    ],
     "level": 1,
     "listItem": "bullet",
     "markDefs": Array [],
@@ -367,7 +344,14 @@ Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [],
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level bullet",
+      },
+    ],
     "level": 1,
     "listItem": "bullet",
     "markDefs": Array [],
@@ -375,44 +359,15 @@ Array [
   },
   Object {
     "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "nested number in bullet list",
-  },
-  Object {
-    "_key": "guid",
     "_type": "block",
-    "children": Array [],
-    "level": 2,
-    "listItem": "number",
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "first level item",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
-    "level": 2,
-    "listItem": "number",
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "first level item",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "nested number in bullet list",
+      },
+    ],
     "level": 2,
     "listItem": "number",
     "markDefs": Array [],
@@ -421,22 +376,46 @@ Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [],
-    "level": 2,
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level item",
+      },
+    ],
+    "level": 1,
     "listItem": "number",
     "markDefs": Array [],
     "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "second level item",
   },
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [],
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "first level item",
+      },
+    ],
+    "level": 1,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "second level item",
+      },
+    ],
     "level": 2,
     "listItem": "number",
     "markDefs": Array [],
@@ -444,14 +423,58 @@ Array [
   },
   Object {
     "_key": "guid",
-    "_type": "mark",
-    "value": "strong",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "strong",
+        ],
+        "text": "second level item ",
+      },
+    ],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+]
+`);
+  })
+
+  it("transforms images", () => {
+    dummyRichText.value = `<figure data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\"><img src=\"https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg\" data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" alt=\"\"></figure><p><em>text in a paragraph</em></p>`;
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    const flattened = flatten(tree);
+    const result = mergeAllItems(flattened);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
+  Object {
+    "_key": "guid",
+    "_type": "image",
+    "asset": Object {
+      "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
+      "_type": "reference",
+      "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
+    },
   },
   Object {
     "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "second level item ",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [
+          "em",
+        ],
+        "text": "text in a paragraph",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
   },
 ]
 `);
