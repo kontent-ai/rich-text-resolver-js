@@ -189,7 +189,7 @@ export const createTable = (guid: string, numColumns: number): IPortableTextTabl
     return {
         _key: guid,
         _type: 'table',
-        numColumns: 3,
+        numColumns: numColumns,
         rows: []
     }
 }

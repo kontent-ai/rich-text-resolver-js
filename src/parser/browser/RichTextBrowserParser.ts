@@ -10,7 +10,8 @@ export class RichTextBrowserParser implements IRichTextParser<string, IOutputRes
     }
 
     parse(input: string): IOutputResult {
-        const document = this._parserEngine.parse(input.replaceAll('\n', ''));
+        const regex = /\n\s*/g;
+        const document = this._parserEngine.parse(input.replaceAll(regex, ''));
 
         if (isRootNode(document) && document.body.firstChild) {
             return {
