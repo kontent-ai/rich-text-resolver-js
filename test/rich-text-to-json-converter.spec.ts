@@ -4,7 +4,7 @@ import { escapeHTML, toHTML } from '@portabletext/to-html';
 import TestRenderer from 'react-test-renderer';
 import { PortableText } from '@portabletext/react';
 import { RichTextBrowserParser } from "../src/parser";
-import { flatten, mergeAllItems, mergeBlocksAndSpans, mergeSpansAndMarks, transform } from "../src/transformer";
+import { flatten, mergeAllItems, mergeBlocksAndSpans, mergeSpansAndMarks } from "../src/transformer";
 
 jest.mock('crypto', () => {
   return {
@@ -13,7 +13,7 @@ jest.mock('crypto', () => {
 });
 
 const dummyRichText: Elements.RichTextElement = {
-  value: "<p>text</p><p><strong>second text</strong></p><p><br></p>",
+  value: "<p>text</p>",
   type: ElementType.RichText,
   images: [],
   linkedItemCodenames: [],
@@ -50,7 +50,7 @@ describe("new transformer", () => {
   it("converts json to portable text array", () => {
     const tree = richTextBrowserParser.parse(dummyRichText.value);
     //const result = tree.children.flatMap(node => flatten(node, []));
-    const result = tree.children.reduce(flatten, []);
+    const result = flatten(tree);
 
     expect(result).toMatchInlineSnapshot(`
 Array [
@@ -67,38 +67,6 @@ Array [
     "marks": Array [],
     "text": "text",
   },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "mark",
-    "value": "strong",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "second text",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [],
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "span",
-    "marks": Array [],
-    "text": "
-",
-  },
 ]
 `);
   })
@@ -107,7 +75,7 @@ Array [
     const tree = richTextBrowserParser.parse(dummyRichText.value);
     //const flattened = tree.children.flatMap(node => flatten(node, []));
     //const result = transform(flattened);
-    const flattened = tree.children.reduce(flatten, []);
+    const flattened = flatten(tree);
     const result = mergeAllItems(flattened);
     // const merged = mergeSpansAndMarks(flattened);
     // const result = mergeBlocksAndSpans(merged);
@@ -128,36 +96,128 @@ Array [
     "markDefs": Array [],
     "style": "normal",
   },
+]
+`);
+  })
+
+  it("transforms tables", () => {
+    dummyRichText.value = `<table><tbody>\n<tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><br></td><td><br></td></tr>\n<tr><td><br></td><td><br></td><td><br></td></tr>\n<tr><td><br></td><td><br></td><td><br></td></tr>\n</tbody></table>`
+    const tree = richTextBrowserParser.parse(dummyRichText.value);
+    const flattened = flatten(tree);
+    const result = mergeAllItems(flattened);
+
+    expect(result).toMatchInlineSnapshot(`
+Array [
   Object {
     "_key": "guid",
-    "_type": "block",
-    "children": Array [
+    "_type": "table",
+    "numColumns": 3,
+    "rows": Array [
       Object {
         "_key": "guid",
-        "_type": "span",
-        "marks": Array [
-          "strong",
+        "_type": "row",
+        "cells": Array [
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 2,
+            "content": Array [
+              [Circular],
+              Object {
+                "_key": "guid",
+                "_type": "block",
+                "children": Array [
+                  Object {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": Array [],
+                    "text": "paragraph 2",
+                  },
+                ],
+                "markDefs": Array [],
+                "style": "normal",
+              },
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
         ],
-        "text": "second text",
       },
-    ],
-    "markDefs": Array [],
-    "style": "normal",
-  },
-  Object {
-    "_key": "guid",
-    "_type": "block",
-    "children": Array [
       Object {
         "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "
-",
+        "_type": "row",
+        "cells": Array [
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+        ],
+      },
+      Object {
+        "_key": "guid",
+        "_type": "row",
+        "cells": Array [
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+          Object {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": Array [
+              [Circular],
+            ],
+          },
+        ],
       },
     ],
-    "markDefs": Array [],
-    "style": "normal",
   },
 ]
 `);
@@ -166,7 +226,7 @@ Array [
   it("transforms item links", () => {
     dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\">text<strong>link to an item</strong></a></p>`
     const tree = richTextBrowserParser.parse(dummyRichText.value);
-    const flattened = tree.children.reduce(flatten,[]);
+    const flattened = flatten(tree);
     const result = mergeAllItems(flattened);
 
     expect(result).toMatchInlineSnapshot(`
@@ -213,7 +273,7 @@ Array [
   it("transforms nested styles", () => {
     dummyRichText.value = `<p><strong>all text is bold and last part is </strong><em><strong>also italic and this is also </strong></em><em><strong><sup>superscript</sup></strong></em></p>`
     const tree = richTextBrowserParser.parse(dummyRichText.value);
-    const flattened = tree.children.reduce(flatten,[]);
+    const flattened = flatten(tree);
     const result = mergeAllItems(flattened);
 
     expect(result).toMatchInlineSnapshot(`
@@ -260,22 +320,45 @@ Array [
   it("transforms lists", () => {
     dummyRichText.value = `<ul><li>first level bullet</li><li>first level bullet</li><ol><li>nested number in bullet list</li></ol></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong></li></ol>`;
     const tree = richTextBrowserParser.parse(dummyRichText.value);
-    const flattened = tree.children.reduce(flatten,[]);
-    const result = mergeAllItems(flattened);
+    const result = flatten(tree);
+    //const result = mergeAllItems(flattened);
 
     expect(result).toMatchInlineSnapshot(`
 Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "first level bullet",
-      },
-    ],
+    "children": Array [],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "first level bullet",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
+    "level": 1,
+    "listItem": "bullet",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "first level bullet",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
     "level": 1,
     "listItem": "bullet",
     "markDefs": Array [],
@@ -284,14 +367,7 @@ Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "first level bullet",
-      },
-    ],
+    "children": Array [],
     "level": 1,
     "listItem": "bullet",
     "markDefs": Array [],
@@ -299,15 +375,44 @@ Array [
   },
   Object {
     "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "nested number in bullet list",
+  },
+  Object {
+    "_key": "guid",
     "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "nested number in bullet list",
-      },
-    ],
+    "children": Array [],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "first level item",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "first level item",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [],
     "level": 2,
     "listItem": "number",
     "markDefs": Array [],
@@ -316,14 +421,7 @@ Array [
   Object {
     "_key": "guid",
     "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "first level item",
-      },
-    ],
+    "children": Array [],
     "level": 2,
     "listItem": "number",
     "markDefs": Array [],
@@ -331,15 +429,14 @@ Array [
   },
   Object {
     "_key": "guid",
+    "_type": "span",
+    "marks": Array [],
+    "text": "second level item",
+  },
+  Object {
+    "_key": "guid",
     "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "first level item",
-      },
-    ],
+    "children": Array [],
     "level": 2,
     "listItem": "number",
     "markDefs": Array [],
@@ -347,37 +444,14 @@ Array [
   },
   Object {
     "_key": "guid",
-    "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [],
-        "text": "second level item",
-      },
-    ],
-    "level": 3,
-    "listItem": "number",
-    "markDefs": Array [],
-    "style": "normal",
+    "_type": "mark",
+    "value": "strong",
   },
   Object {
     "_key": "guid",
-    "_type": "block",
-    "children": Array [
-      Object {
-        "_key": "guid",
-        "_type": "span",
-        "marks": Array [
-          "strong",
-        ],
-        "text": "second level item ",
-      },
-    ],
-    "level": 3,
-    "listItem": "number",
-    "markDefs": Array [],
-    "style": "normal",
+    "_type": "span",
+    "marks": Array [],
+    "text": "second level item ",
   },
 ]
 `);
@@ -417,878 +491,395 @@ Array [
 Array [
   Object {
     "_key": "guid",
-    "_type": "table",
-    "childBlocks": Array [
+    "_type": "image",
+    "asset": Object {
+      "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
+      "_type": "reference",
+      "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
+    },
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
       Object {
         "_key": "guid",
-        "_type": "image",
-        "asset": Object {
-          "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
-          "_type": "reference",
-          "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
-        },
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "xcvzxcsddzczx",
-          },
-        ],
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsafsdaafsf",
-          },
-        ],
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsaf",
-          },
-        ],
-        "level": 1,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsafsda",
-          },
-        ],
-        "level": 1,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "sdafasdfsa",
-          },
-        ],
-        "level": 1,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "f",
-          },
-        ],
-        "level": 1,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "dfafsad",
-          },
-        ],
-        "level": 2,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
-      },
-      Object {
-        "_key": "guid",
-        "_type": "block",
-        "children": Array [
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "fdsfdasewf",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "        ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "      ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "    ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "  ",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-          Object {
-            "_key": "guid",
-            "_type": "span",
-            "marks": Array [],
-            "text": "
-",
-          },
-        ],
-        "level": 3,
-        "listItem": "number",
-        "markDefs": Array [],
-        "style": "normal",
+        "_type": "span",
+        "marks": Array [],
+        "text": "xcvzxcsddzczx",
       },
     ],
-    "columns": 3,
-    "rows": 3,
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsafsdaafsf",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsaf",
+      },
+    ],
+    "level": 1,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsafsda",
+      },
+    ],
+    "level": 1,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "sdafasdfsa",
+      },
+    ],
+    "level": 1,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "f",
+      },
+    ],
+    "level": 1,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "dfafsad",
+      },
+    ],
+    "level": 2,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsfdasewf",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "        ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "      ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "    ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "  ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsfdasewf",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "        ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "      ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "    ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "  ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsfdasewf",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "        ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "      ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "    ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "  ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsfdasewf",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "        ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "      ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "    ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "  ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "fdsfdasewf",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "        ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "      ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "    ",
+      },
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "  ",
+      },
+    ],
+    "level": 3,
+    "listItem": "number",
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
+  },
+  Object {
+    "_key": "guid",
+    "_type": "block",
+    "children": Array [
+      Object {
+        "_key": "guid",
+        "_type": "span",
+        "marks": Array [],
+        "text": "
+",
+      },
+    ],
+    "markDefs": Array [],
+    "style": "normal",
   },
   Object {
     "_key": "guid",

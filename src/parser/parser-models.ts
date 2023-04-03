@@ -27,10 +27,6 @@ export interface IRichTextParser<TInput, TOutput> {
 
 /// portable text section
 
-// export interface IPortableTextItem {
-//     _type: string,
-//     _key: string
-// }
 
 export interface IPortableTextParagraph  {
     _type: 'block',
@@ -65,7 +61,7 @@ export interface IPortableTextListBlock  {
 
 export type IPortableTextItem = IPortableTextBlock | IPortableTextSpan | IPortableTextInternalLink | IPortableTextExternalLink;
 
-export type IPortableTextBlock = IPortableTextListBlock | IPortableTextParagraph | IPortableTextImage | IPortableTextTable | IPortableTextComponent | IPortableTextMark;
+export type IPortableTextBlock = IPortableTextListBlock | IPortableTextParagraph | IPortableTextImage | IPortableTextComponent | IPortableTextMark | IPortableTextTable | IPortableTextTableCell | IPortableTextTableRow;
 
 export interface IPortableTextSpan  {
     _key: string,
@@ -73,7 +69,6 @@ export interface IPortableTextSpan  {
     marks: string[],
     text: string
 }
-
 
 export interface IBlockBuffer {
     element?: IPortableTextBlock,
@@ -107,9 +102,21 @@ export interface IAssetReference extends IReference {
 export interface IPortableTextTable {
     _type: 'table',
     _key: string,
-    rows: number,
-    columns: number,
-    childBlocks: IPortableTextItem[]
+    numColumns: number,
+    rows: IPortableTextTableRow[],
+}
+
+export interface IPortableTextTableRow {
+    _key: string,
+    _type: 'row',
+    cells: IPortableTextTableCell[]
+}
+
+export interface IPortableTextTableCell {
+    _key: string,
+    _type: 'cell',
+    childBlocksCount: number,
+    content: IPortableTextBlock[]
 }
 
 export interface IPortableTextComponent {

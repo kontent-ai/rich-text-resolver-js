@@ -102,29 +102,6 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
                     node.childNodes.flatMap(node => this.parseInternal(node, buffer));
                 }
 
-                else if(isTable(node)) {
-                    const numRows = node.childNodes.length;
-                    const numCols = node.firstChild.childNodes.length;
-
-                    buffer.element = createTableBlock(crypto.randomUUID(), numRows, numCols);
-                    const tableBuffer: IBlockBuffer = {
-                        listLevel: 1,
-                        marks: [],
-                        finishedBlocks: []
-                    }
-
-                    const tableChildren = node.childNodes.flatMap(node => this.parseInternal(node, tableBuffer));
-                    buffer.element.childBlocks = tableChildren;
-                    buffer.finishedBlocks.push(buffer.element);
-                }
-
-                else if(isTableCell(node)) {
-                    if(node.firstChild.nodeType === 3) {
-                        buffer.element = createBlock(crypto.randomUUID());
-                    }
-                    node.childNodes.flatMap(node => this.parseInternal(node, buffer));
-                }
-
                 else if(isLinkedItem(node)) {
                     const itemReference: IReference = {
                         _type: "reference",
@@ -201,31 +178,6 @@ export class RichTextNodeParser implements IRichTextParser<string, IPortableText
                     )
 
                     node.childNodes.flatMap(node => this.parseInternal(node, buffer));
-                }
-
-                else if(isTable(node)) {
-                    const tableBody = node.firstChild as HTMLElement;
-                    const numRows = tableBody.getElementsByTagName('tr').length;
-                    const numCols = tableBody.getElementsByTagName('td').length/numRows;
-
-
-                    buffer = {
-                        element: createTableBlock(crypto.randomUUID(), numRows, numCols),
-                        listLevel: 1,
-                        marks: [],
-                        finishedBlocks: []
-                    }
-                    const tableBuffer: IBlockBuffer = {
-                        element: createBlock(crypto.randomUUID()),
-                        listLevel: 1,
-                        marks: [],
-                        finishedBlocks: []
-                    }
-
-                    const tableChildren = node.childNodes.flatMap(node => this.parseInternal(node, tableBuffer));
-                    if('childBlocks' in buffer.element!)
-                        buffer.element!.childBlocks! = tableChildren;
-                    buffer.finishedBlocks.push(buffer.element!);
                 }
 
                 // else if(isTableCell(node)) {

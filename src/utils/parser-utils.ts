@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextBlock, IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextStyleMark, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference, IPortableTextMark, IPortableTextExternalLink } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IPortableTextBlock, IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextItem, IPortableTextListBlock, IPortableTextStyleMark, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextSpan, IPortableTextTable, IReference, IPortableTextMark, IPortableTextExternalLink, IPortableTextTableRow, IPortableTextTableCell } from "../parser/parser-models"
 
 export enum NodeType {
     ELEMENT_NODE = 1,
@@ -76,6 +76,9 @@ export const isTextMark = (node: IDomHtmlNode): boolean =>
 export const isOrderedListBlock = (node: IDomHtmlNode): boolean =>
     ['ol'].includes(node.tagName)
 
+export const isListBlock = (node: IDomHtmlNode): boolean =>
+    ['ol','ul'].includes(node.tagName);
+
 export const isUnorderedListBlock = (node: IDomHtmlNode): boolean =>
     node.tagName === 'ul'
 
@@ -88,6 +91,17 @@ export const isParagraph = (node: IDomHtmlNode): boolean =>
 export const isExternalLink = (node: IDomHtmlNode): boolean =>
     node.tagName === 'a' && !node.attributes['data-item-id']
 
+export const isTable = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'table'
+
+export const isTableRow = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'tr'
+
+export const isTableCell = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'td'
+
+export const isIgnoredNode = (node: IDomHtmlNode): boolean =>
+    ['tbody'].includes(node.tagName)
 
 export const createSpan = (
         guid: string,
@@ -151,13 +165,12 @@ export const createImageBlock = (
     }
 }
 
-export const createTableBlock = (guid: string, rows: number, columns: number): IPortableTextTable => {
+export const createTableBlock = (guid: string, columns: number): IPortableTextTable => {
     return {
         _type: 'table',
         _key: guid,
-        rows: rows,
-        columns: columns,
-        childBlocks: []
+        numColumns: columns,
+        rows: []
     }
 }
 
@@ -169,6 +182,32 @@ export const createItemLink = (guid: string, reference: string): IPortableTextIn
             _type: 'reference',
             _ref: reference
         }
+    }
+}
+
+export const createTable = (guid: string, numColumns: number): IPortableTextTable => {
+    return {
+        _key: guid,
+        _type: 'table',
+        numColumns: 3,
+        rows: []
+    }
+}
+
+export const createTableRow = (guid: string): IPortableTextTableRow => {
+    return {
+        _key: guid,
+        _type: 'row',
+        cells: []
+    }
+}
+
+export const createTableCell = (guid: string, childCount: number): IPortableTextTableCell => {
+    return {
+        _key: guid,
+        _type: 'cell',
+        content: [],
+        childBlocksCount: childCount
     }
 }
 
