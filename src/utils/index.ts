@@ -1,2 +1,1 @@
-export * from './parser-utils';
-export * from './common-utils';
+export * from './browser-parser-utils';

@@ -24,16 +24,48 @@ export const isTextNode = (domNode: Node): domNode is Text =>
 
 export const isElementNode = (domNode: Node): domNode is Element =>
     domNode.nodeType === NodeType.ELEMENT_NODE
+
+export const isOrderedListBlock = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'ol';
+
+export const isUnorderedListBlock = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'ul';
+
+export const isListItem = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'li';
+
+export const isExternalLink = (node: IDomHtmlNode): boolean =>
+    isAnchor(node) && !node.attributes['data-item-id'];
+
+export const isAnchor = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'a';
+
+    export const compose = <T>(firstFunction: (argument: T) => T, ...functions: Array<(argument: T) => T>) =>
+    functions.reduce((previousFunction, nextFunction) => value => previousFunction(nextFunction(value)), firstFunction);
+
+export const findLastIndex = <T>(arr: T[], predicate: (value: T) => boolean): number => {
+    for (let i = arr.length - 1; i >= 0; i--) {
+        if (predicate(arr[i])) {
+        return i;
+        }
+    }
+    return -1;
+}
+
+export type OmitKey<T, K> = Pick<T, Exclude<keyof T, K>>;
+
 /**
  * Returns `true` for text nodes and type guards the node as `IDomTextNode`.
  */ 
 export const isText = (node: IDomNode): node is IDomTextNode =>
     node.type === 'text';
+    
 /**
  * Returns `true` for HTML nodes and type guards the node as `IDomHtmlNode`.
  */ 
 export const isElement = (node: IDomNode): node is IDomHtmlNode =>
     node.type === 'tag';
+
 /**
  * Returns `true` if the node is a linked item node (`<object></object>`).
  */ 
@@ -50,59 +82,10 @@ export const isImage = (node: IDomNode): boolean =>
     node.attributes['data-image-id'] ? true : false;
 
 /**
- * Returns `true` if the node represents an unpaired element (`br, img, hr, meta`)
- */
-export const isUnPairedElement = (node: IDomHtmlNode): boolean =>
-    isElement(node) &&
-    ['br', 'img', 'hr', 'meta'].includes(node.tagName);
-
-export const isLineBreak = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'br'
-
-export const isStyleBlock = (node: IDomHtmlNode): boolean =>
-    ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(node.tagName);
-
-export const isTextMark = (node: IDomHtmlNode): boolean =>
-    ['em', 'strong', 'sup', 'sub'].includes(node.tagName)
-
-export const isOrderedListBlock = (node: IDomHtmlNode): boolean =>
-    ['ol'].includes(node.tagName)
-
-export const isListBlock = (node: IDomHtmlNode): boolean =>
-    ['ol','ul'].includes(node.tagName);
-
-export const isUnorderedListBlock = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'ul'
-
-export const isListItem = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'li';
-
-export const isParagraph = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'p';
-
-export const isExternalLink = (node: IDomHtmlNode): boolean =>
-    isAnchor(node) && !node.attributes['data-item-id']
-
-export const isAnchor = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'a'
-
-/**
  * Returns `true` if the node is a link to a content item.
  */
 export const isItemLink = (node: IDomHtmlNode): boolean =>
     isAnchor(node) && !isExternalLink(node);
-
-export const isTable = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'table'
-
-export const isTableRow = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'tr'
-
-export const isTableCell = (node: IDomHtmlNode): boolean =>
-    node.tagName === 'td'
-
-export const isIgnoredNode = (node: IDomHtmlNode): boolean =>
-    ['tbody','img'].includes(node.tagName)
 
 export const createSpan = (
         guid: string,
@@ -228,12 +211,6 @@ export const createMark = (guid: string, value: string, type: 'mark' | 'linkMark
     }
 }
 
-export enum ProcessedUnit {
-    None,
-    Block,
-    Span
-}
-
 export const createComponentBlock = (guid: string, reference: IReference): IPortableTextComponent => {
     return {
         _type: 'component',
@@ -247,3 +224,5 @@ export const isBlock = (block?: IPortableTextItem): block is IPortableTextParagr
 
 export const isSpan = (span?: IPortableTextItem): span is IPortableTextSpan =>
     span! && span._type === 'span';
+
+export const getAllNewLineAndWhiteSpace = /\n\s*/g;

@@ -1,11 +1,11 @@
 import * as NodeHtmlParser from 'node-html-parser';
 import { IDomNode, IOutputResult } from "../../parser";
 import { Node } from "node-html-parser";
-import { isElementNode, isRootNode, isTextNode } from "../../utils/rich-text-node-parser-utils";
+import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils";
+import { getAllNewLineAndWhiteSpace } from '../../utils';
 
 export const parse = (input: string): IOutputResult => {
-    const regex = /\n\s*/g;
-    const node = NodeHtmlParser.parse(input.replaceAll(regex, ''));
+    const node = NodeHtmlParser.parse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));
 
     if (!isRootNode(node)) {
         throw new Error("Cannot parse node that is not a root.");

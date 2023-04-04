@@ -270,7 +270,60 @@ describe("Json Transfomer Tests", () => {
     const parsed = browserParse(inputValue);
 
     const result = transformJsonWithCustomResolvers(parsed);
-    const expectedOutput = JSON.parse(`[{"tag":"tableName","children":[{"tag":"tbody","children":[{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ivan"}]},{"tag":"td","content":[{"text":"Jiri"}]}]},{"text":"\\n  "},{"tag":"tr","children":[{"tag":"td","content":[{"text":"Ondra"}]},{"tag":"td","content":[{"text":"Dan"}]}]},{"text":"\\n"}]}]}]`)
+    const expectedOutput = JSON.parse(`[
+      {
+         "tag":"tableName",
+         "children":[
+            {
+               "tag":"tbody",
+               "children":[
+                  {
+                     "tag":"tr",
+                     "children":[
+                        {
+                           "tag":"td",
+                           "content":[
+                              {
+                                 "text":"Ivan"
+                              }
+                           ]
+                        },
+                        {
+                           "tag":"td",
+                           "content":[
+                              {
+                                 "text":"Jiri"
+                              }
+                           ]
+                        }
+                     ]
+                  },
+                  {
+                     "tag":"tr",
+                     "children":[
+                        {
+                           "tag":"td",
+                           "content":[
+                              {
+                                 "text":"Ondra"
+                              }
+                           ]
+                        },
+                        {
+                           "tag":"td",
+                           "content":[
+                              {
+                                 "text":"Dan"
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]`)
 
     expect(result).toEqual(expectedOutput);
   })
@@ -280,81 +333,48 @@ describe("Json Transfomer Tests", () => {
 
     const result = transformJsonWithCustomResolvers(parsed);
     const expectedOutput = JSON.parse(`[
-  {
-    "tag": "ul",
-    "children": [
       {
-        "text": "\\n  "
-      },
-      {
-        "tag": "li",
-        "text": "Ivan"
-      },
-      {
-        "text": "\\n  "
-      },
-      {
-        "tag": "li",
-        "text": "Jiri"
-      },
-      {
-        "text": "\\n  "
-      },
-      {
-        "tag": "li",
-        "text": "Dan"
-      },
-      {
-        "text": "\\n  "
-      },
-      {
-        "tag": "li",
-        "text": "Ondra\\n    ",
-        "children": [
-          {
-            "tag": "ul",
-            "children": [
-              {
-                "text": "\\n      "
-              },
-              {
-                "tag": "ul",
-                "children": [
+         "tag":"ul",
+         "children":[
+            {
+               "tag":"li",
+               "text":"Ivan"
+            },
+            {
+               "tag":"li",
+               "text":"Jiri"
+            },
+            {
+               "tag":"li",
+               "text":"Dan"
+            },
+            {
+               "tag":"li",
+               "text":"Ondra",
+               "children":[
                   {
-                    "text": "\\n        "
-                  },
-                  {
-                    "tag": "li",
-                    "text": "Rosta"
-                  },
-                  {
-                    "text": "\\n      "
+                     "tag":"ul",
+                     "children":[
+                        {
+                           "tag":"ul",
+                           "children":[
+                              {
+                                 "tag":"li",
+                                 "text":"Rosta"
+                              }
+                           ]
+                        },
+                        {
+                           "tag":"li",
+                           "text":"Ondra"
+                        }
+                     ]
                   }
-                ]
-              },
-              {
-                "text": "\\n      "
-              },
-              {
-                "tag": "li",
-                "text": "Ondra"
-              },
-              {
-                "text": "\\n    "
-              }
-            ]
-          },
-          {
-            "text": "\\n  "
-          }
-        ]
-      },
-      {
-        "text": "\\n"
+               ]
+            }
+         ]
       }
-    ]
-  }
-]`);
+   ]`);
     expect(result).toEqual(expectedOutput)
   })
 })

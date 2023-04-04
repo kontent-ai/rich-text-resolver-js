@@ -2,7 +2,7 @@ import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 import { PortableText } from '@portabletext/react';
-import { nodeParse, transform } from '../../src';
+import { IPortableTextComponent, nodeParse, transform } from '../../src';
 
 const dummyRichText: Elements.RichTextElement = {
     value: "<p>some text in a paragraph</p>",
@@ -47,5 +47,35 @@ describe("portable text React resolver", () => {
   some text in a paragraph
 </p>
 `);
+    })
+
+    it("renders a resolved item link", () => {
+      // const myPortableTextComponents = {
+      //   types: {
+      //     image: ({value}) => <img src={value.imageUrl} />,
+      //     callToAction: ({value, isInline}) =>
+      //       isInline ? (
+      //         <a href={value.url}>{value.text}</a>
+      //       ) : (
+      //         <div className="callToAction">{value.text}</div>
+      //       ),
+      //   },
+      
+      //   marks: {
+      //     link: ({children, value}) => {
+      //       const rel = !value.href.startsWith('/') ? 'noreferrer noopener' : undefined
+      //       return (
+      //         <a href={value.href} rel={rel}>
+      //           {children}
+      //         </a>
+      //       )
+      //     },
+      //   },
+      // }
+      
+      // const YourComponent = (props) => {
+      //   return <PortableText value={props.value} components={myPortableTextComponents} />
+      // }
+      // expect(tree).toMatchInlineSnapshot();
     })
   })

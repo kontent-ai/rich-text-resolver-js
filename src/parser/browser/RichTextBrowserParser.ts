@@ -1,8 +1,8 @@
 import { IDomNode, IOutputResult } from "../parser-models";
-import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/";
+import { convertDomNodeAttributes, getAllNewLineAndWhiteSpace, isElementNode, isRootNode, isTextNode } from "../../utils/";
 
 export const parse = (input: string): IOutputResult => {
-  const document = browserParse(input);
+  const document = browserParse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));
 
   if (isRootNode(document) && document.body.firstChild) {
     return {
