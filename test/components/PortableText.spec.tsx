@@ -1,8 +1,8 @@
 import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { RichTextNodeParser } from '../../src/parser';
 import { PortableText } from '@portabletext/react';
+import { nodeParse, transform } from '../../src';
 
 const dummyRichText: Elements.RichTextElement = {
     value: "<p>some text in a paragraph</p>",
@@ -35,11 +35,10 @@ const dummyRichText: Elements.RichTextElement = {
     name: "dummy"
   };
 
-const richTextNodeParser = new RichTextNodeParser();
-
 describe("portable text React resolver", () => {
     it("renders simple HTML", () => {
-      const portableText = richTextNodeParser.parse(dummyRichText.value);
+      const jsonTree = nodeParse(dummyRichText.value);
+      const portableText = transform(jsonTree);
       const renderer = TestRenderer.create(<PortableText value={portableText}/>)
     
       let tree = renderer.toJSON();
