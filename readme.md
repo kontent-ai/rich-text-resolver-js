@@ -35,7 +35,7 @@ Resolution is described in each corresponding repository. You can also find exam
 
 ### Custom blocks
 
-Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should be defined with a unique `_key` and `_type` property, which identifies the custom block for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
+Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
 
 <details><summary>
 Table
@@ -196,7 +196,7 @@ React, using `@portabletext/react` package.
 
 ```tsx
 import { PortableText, toPlainText } from '@portabletext/react';
-import { nodeParse, resolveTable, transform } from '../../src';
+import { nodeParse, resolveTable, transform } from '@pokornyd/kontent-ai-rich-text-parser';
 
 const richTextValue = '<rich text html>';
 const linkedItems = ['<array of linked items>'];
