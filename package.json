@@ -1,6 +1,6 @@
 {
   "name": "@pokornyd/kontent-ai-rich-text-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TypeScript transformer of Kontent.ai rich text content into Portable text.",
   "repository": {
     "type": "git",

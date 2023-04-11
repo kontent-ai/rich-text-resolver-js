@@ -19,7 +19,7 @@ Parsed output can then be passed to a `transform` function, which converts the J
 
 Full specification of portable text format can be found in [the corresponding repository](https://github.com/portabletext/portabletext).
 
->💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](src/transformers/json_transformer/readme.md) docs for further information.
+>💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](src/transformers/json_transformer/index.md) docs for further information.
 
 
 ### Resolution
