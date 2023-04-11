@@ -37,7 +37,9 @@ Resolution is described in each corresponding repository. You can also find exam
 
 Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
 
-### Table
+<details><summary>
+Table
+</summary>
 
 ```typescript
 export interface IPortableTextBaseItem {
@@ -63,8 +65,11 @@ export interface IPortableTextTableCell extends IPortableTextBaseItem {
 }
 
 ```
+</details>
 
-### Component/linked item
+<details><summary>
+Component/linked item
+</summary>
 
 ```typescript
 export interface IPortableTextBaseItem {
@@ -83,8 +88,11 @@ export interface IReference {
 }
 
 ```
+</details>
 
-### Item link
+<details><summary>
+Item link
+</summary>
 
 ```typescript
 export interface IPortableTextBaseItem {
@@ -103,7 +111,12 @@ export interface IReference {
 }
 
 ```
-### Image
+</details>
+
+<details><summary>
+Image
+</summary>
+
 ```typescript
 export interface IPortableTextBaseItem {
     _key: string,
@@ -125,6 +138,8 @@ export interface IPortableTextImage extends IPortableTextBaseItem {
 }
 
 ```
+</details>
+<br>
 
 >💡 For table resolution, you may use `resolveTable` helper function. It accepts two arguments -- custom block of type `table` and a method to transform content of its cells into valid HTML. See below for usage examples. Alternatively, you can iterate over the table structure and resolve it as per your requirements (e.g. if you want to add CSS classes to its elements)
 
