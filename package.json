@@ -10,7 +10,9 @@
   "module": "dist/esnext/index.js",
   "types": "dist/cjs/index.d.ts",
   "scripts": {
-    "publishmodule": "npx rimraf dist && npm run build && npm version patch && npm publish --access public",
+    "publish:patch": "npx rimraf dist && npm run build && npm version patch && npm publish --access public",
+    "publish:minor": "npx rimraf dist && npm run build && npm version minor && npm publish --access public",
+    "publish:major": "npx rimraf dist && npm run build && npm version major && npm publish --access public",
     "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
     "build": "npm run build:commonjs && npm run build:esnext",
