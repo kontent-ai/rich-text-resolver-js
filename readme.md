@@ -1,6 +1,6 @@
-# TypeScript rich text parser for Kontent.ai
+# Kontent.ai portable text transformer
 
-This tool provides an alternative to rich text parsing and resolution built into the JS SDK, allowing more control over the resolution process, such as specifying the output type and structure.
+This package provides you with tools to transform rich text element value from Kontent.ai into [portable text standard](https://github.com/portabletext/portabletext).
 
 ## Installation
 
@@ -12,183 +12,234 @@ Install the package via npm
 
 ## Usage
 
-Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js.
+Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js. Their use is identical, the only difference is the underlying parsing logic.
 
-Their use is identical, the only difference is the underlying parsing logic. Each exposes a single `parse` function, which accepts rich text HTML value in string format.
 
-```ts
-const parsedTree1 = browserParse(richTextValue); // for browsers
+Parsed output can then be passed to a `transform` function, which converts the JSON tree into portable text blocks.
 
-const parsedTree2 = nodeParse(richTextValue); // for Node.js
-```
+Full specification of portable text format can be found in [the corresponding repository](https://github.com/portabletext/portabletext).
 
-Result is a simple tree structure, defined by the following interface:
+>💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](src/transformers/json_transformer/readme.md) docs for further information.
 
-```ts
-interface IOutputResult {
-  children: IDomNode[];
-}
-```
-
-`IDomNode` is a union of `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
-
-![Resolved DOMTree](./media/domtree.jpg)
 
 ### Resolution
 
-Resolution is achieved by traversing the output tree returned from one of the parse functions and manipulating it as per contextual requirements.
+Portable text supports majority of popular languages and frameworks. 
 
-To identify each node, you may use helper functions included in the module (`isText`, `isElement` (with type guard) and `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement` (boolean)) as in the below example, or manually, based on the domNode type and attributes, see examples:
+- React: [react-portabletext](https://github.com/portabletext/react-portabletext)
+- HTML: [to-html](https://github.com/portabletext/to-html)
+- Svelte: [svelte-portabletext](https://github.com/portabletext/svelte-portabletext)
+- Vue: [sanity-blocks-vue-component](https://github.com/rdunk/sanity-blocks-vue-component)
 
-#### HTML string (TypeScript)
+Resolution is described in each corresponding repository. You can also find example resolution below.
+
+### Custom blocks
+
+Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should be defined with a unique `_key` and `_type` property, which identifies the custom block for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
+
+<details><summary>
+Table
+</summary>
+
+```typescript
+export interface IPortableTextBaseItem {
+    _key: string,
+    _type: string
+}
+
+export interface IPortableTextTable extends IPortableTextBaseItem {
+    _type: 'table',
+    numColumns: number,
+    rows: IPortableTextTableRow[],
+}
+
+export interface IPortableTextTableRow extends IPortableTextBaseItem {
+    _type: 'row',
+    cells: IPortableTextTableCell[]
+}
+
+export interface IPortableTextTableCell extends IPortableTextBaseItem {
+    _type: 'cell',
+    childBlocksCount: number,
+    content: IPortableTextBlock[]
+}
+
+```
+</details>
+
+<details><summary>
+Component/linked item
+</summary>
+
+```typescript
+export interface IPortableTextBaseItem {
+    _key: string,
+    _type: string
+}
+
+export interface IPortableTextComponent extends IPortableTextBaseItem {
+    _type: 'component',
+    component: IReference
+}
+
+export interface IReference {
+    _type: 'reference',
+    _ref: string
+}
+
+```
+</details>
+
+<details><summary>
+Item link
+</summary>
+
+```typescript
+export interface IPortableTextBaseItem {
+    _key: string,
+    _type: string
+}
+
+export interface IPortableTextInternalLink extends IPortableTextBaseItem {
+    _type: 'internalLink',
+    reference: IReference
+}
+
+export interface IReference {
+    _type: 'reference',
+    _ref: string
+}
+
+```
+</details>
+
+<details><summary>
+Image
+</summary>
+
+```typescript
+export interface IPortableTextBaseItem {
+    _key: string,
+    _type: string
+}
+
+export interface IReference {
+    _type: 'reference',
+    _ref: string
+}
+
+export interface IAssetReference extends IReference {
+    url: string
+}
+
+export interface IPortableTextImage extends IPortableTextBaseItem {
+    _type: 'image',
+    asset: IAssetReference
+}
+
+```
+</details>
+<br>
+
+>💡 For table resolution, you may use `resolveTable` helper function. It accepts two arguments -- custom block of type `table` and a method to transform content of its cells into valid HTML. See below for usage examples. Alternatively, you can iterate over the table structure and resolve it as per your requirements (e.g. if you want to add CSS classes to its elements)
+
+## Examples
+
+HTML resolution using `@portabletext/to-html` package.
 
 ```ts
-const parsedTree = browserParse(richTextValue);
+import { escapeHTML, PortableTextOptions, toHTML } from '@portabletext/to-html';
+import { browserParse, transform, resolveTable } from '@pokornyd/kontent-ai-rich-text-parser';
 
-const resolve = (domNode: IDomNode): string => {
-  switch (node.type) {
-    case "tag": {
-      if (isLinkedItem(node)) {
-        return resolveLinkedItem(node);
-      } else if (isImage(node)) {
-        return resolveImage(node);
-      } else if (isItemLink(node)) {
-        return resolveItemLink(node);
-      } else {
-        // Recursively calls `resolve` for node's children
-        return resolveHtmlElement(node);
+const richTextValue = '<rich text html>';
+const linkedItems = ['<array of linked items>'];
+const parsedTree = browserParse(richTextValue);
+const portableText = transform(parsedTree);
+
+const portableTextComponents: PortableTextOptions = {
+  components: {
+    types: {
+      image: ({value}) => {
+        return `<img src="${value.asset.url}"></img>`;
+      },
+      component: ({value}) => {
+        const linkedItem = linkedItems.find(item => item.system.codename === value.component._ref);
+        switch(linkedItem?.system.type) {
+          case('component_type_codename'): {
+            return `<p>resolved value of text_element: ${linkedItem?.elements.text_element.value}</p>`;
+          }
+          default: {
+            return `Resolver for type ${linkedItem?.system.type} not implemented.`
+          }
+        }
+      },
+      table: ({value}) => {
+        const tableHtml = resolveTable(value, toHTML); // helper method for resolving tables
+        return tableHtml;
+      }
+    },
+    marks: {
+      internalLink: ({children, value}) => {
+        return `\<a href=\"https://website.com/${value.reference._ref}">${children}</a>`
+      },
+      link: ({ children, value }) => {
+        return `\<a href=${value?.href} target=${target} rel=${value?.rel} title=${value?.title} data-new-window=${value['data-new-window']}>${children}</a>`
       }
     }
-
-    case "text":
-      return node.content;
-
-    default:
-      throw new Error("Invalid input.");
   }
-};
+}
 
-const resolvedHtml = parsedTree.children.map(resolve).join("");
+const resolvedHtml = toHTML(portableText, portableTextComponents);
 ```
 
-##### Helper resolution methods
-
-Resolution method implementation varies based on the use cases. This is just a showcase to present how to get information for node specific data.
-
-```ts
-const resolveHtmlElement = (node: IDomHtmlNode): string => {
-  const attributes = Object.entries(node.attributes)
-    .map(([key, value]) => `${key}="${value}"`)
-    .join(" ");
-  const openingTag = `<${node.tagName} ${attributes}>`;
-  const closingTag = `</${node.tagName}>`;
-
-  // Recursively calls `resolve` for node's children
-  return `${openingTag}${node.children.map(link).join("")}${closingTag}`;
-};
-```
-
-[Image attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Images-in-rich-text) contain just the information parsed from HTML. Image context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getImage` method.
-
-```ts
-resolveImage = (node: IDomHtmlNode): string => {
-  const imageId = node.attributes["data-asset-id"];
-
-  const image = getImage(imageId);
-  return `<img src=${image.url}/>`;
-};
-```
-
-[Link attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Links-in-rich-text) contain just the information parsed from HTML. Link context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getLink` method.
-
-```ts
-const resolveItemLink = (node: IDomHtmlNode): string => {
-  const linkId = node.attributes["data-item-id"];
-
-  const link = getLink(linkId);
-
-  return `<a href="${resolveLink(link)}">${node.children.map(link).join()}</a>`;
-};
-```
-
-[Linked item attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Content-items-and-components-in-rich-text) contain just the information parsed from HTML. Linked item context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getLinkedContentItem` method.
-
-```ts
-const resolveLinkedItem = (node: IDomHtmlNode): string => {
-  const itemCodeName = node.attributes["data-codename"];
-
-  const item = getLinkedContentItem(itemCodeName);
-  switch (item.system.type) {
-    case "quote":
-      return `<quote>${item.elements.quote_text.value}</quote>`;
-    //  ...
-    default:
-      return `<strong>UNSUPPORTED CONTENT ITEM</strong>`;
-  }
-};
-```
-
-### React with JS SDK
+React, using `@portabletext/react` package.
 
 ```tsx
-// assumes element prop comes from JS SDK
+import { PortableText, toPlainText } from '@portabletext/react';
+import { nodeParse, resolveTable, transform } from '../../src';
 
-type Props = Readonly<{
-    element: Elements.RichTextElement;
-    className: string;
-}>;
+const richTextValue = '<rich text html>';
+const linkedItems = ['<array of linked items>'];
+const parsedTree = browserParse(richTextValue);
+const portableText = transform(parsedTree);
 
-const RichText: React.FC<Props> = ({element, className}) => {
-  const [richTextContent, setRichTextContent] = useState<JSX.Element[] | null>(null);
+interface IMyComponentProps {
+  value: IPortableTextItem[];
+  components: any;
+}
 
-  useEffect(() => {
-    const parsedTree = browserParse(element.value);
-    const resolve = (domNode: IDomNode, index: number): JSX.Element => {
-      switch (domNode.type) {
-        case 'tag': {
-          // traverse tree recursively
-          const resolvedChildElements = domNode.children.map(node => resolve(node, index));
-          // omit children parameter for non-pair elements like <br>
-          if (isUnpairedElement(domNode)) {
-            return React.createElement(domNode.tagName, {...domNode.attributes});
-          }
-
-          if (isLinkedItem(domNode)) {
-            const linkedItem = element.linkedItems.find(item => item.system.codename === domNode.attributes['data-codename']);
-
-            switch (linkedItem?.system.type) {
-              case 'youtube_video': {
-                  return <YoutubeVideo key={index} id={linkedItem.elements.videoId.value} />;
-              }
-              // resolution for other types
-              default: {
-                  return <div key={index}>Failed resolving item {linkedItem.system.codename}. Resolver for type {linkedItem.system.type} not implemented.</div>;
-              }
-            }
-            // if (isImage(domNode)) {...}
-            // if (isLink(domNode)) {...}
-          }
-
-          const attributes = { ...domNode.attributes, key: index };
-          return React.createElement(domNode.tagName, attributes, resolvedChildElements);
-        }
-
-        case: 'text': {
-          return <React.Fragment key={index}>{domNode.content}</React.Fragment>
-        }
-
-        default: throw new Error("Invalid input.")
-      }
+const portableTextComponents = {
+  types: {
+    component: (block: any) => {
+      const item = linkedItems.find(item => item.system.codename === block.value.component._ref);
+      return <div>{item?.elements.text_element.value}</div>;
+    },
+    table: ({ value }: any) => {
+      let tableString = resolveTable(value, toPlainText);
+      return <>{tableString}</>;
     }
+  },
+  marks: {
+    link: ({ value, children }: any) => {
+      const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
+      return (
+        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value['data-new-window']}>
+          {children}
+        </a>
+      )
+    },
+    internalLink: ({ value, children }: any) => {
+      const item = linkedItems.find(item => item.system.id === value.reference._ref);
+      return (
+        <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
+          {children}
+        </a>
+      )
+    }
+  }
+}
 
-    const result = parsedTree.children.map((node, index) => resolve(node, index));
-    setRichTextContent(result);
-  }, [element]);
-
-  return (
-    <div className={className}>
-      {richTextContent}
-    </div>
-  );
-};
+export const MyComponent = ({value, components}: IMyComponentProps) => {
+  return <PortableText value={value} components={components} />
+}
 ```

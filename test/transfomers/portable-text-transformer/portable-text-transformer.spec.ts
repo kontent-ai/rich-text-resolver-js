@@ -98,7 +98,7 @@ describe("portable text transformer", () => {
   })
 
   it("transforms external links", () => {
-    dummyRichText.value = `<p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\">this is a<strong>strong</strong>link</a></p>`
+    dummyRichText.value = `<h2><strong>Kontent supports portable text!</strong></h2>\n<p>For more information, check out the related <a href=\"https://github.com/portabletext/portabletext\" data-new-window=\"true\" title=\"Portable text repo\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>GitHub repository.</strong></a></p>`
     const tree = nodeParse(dummyRichText.value);
     const result = transform(tree);
 

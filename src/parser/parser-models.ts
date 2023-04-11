@@ -1,12 +1,9 @@
-import { OmitKey } from "../utils";
-
 export type IPortableTextItem = IPortableTextBlock | IPortableTextSpan | IPortableTextInternalLink | IPortableTextExternalLink;
 export type IPortableTextMark = IPortableTextLinkMark | IPortableTextStyleMark;
 export type IPortableTextBlock = IPortableTextListBlock | IPortableTextParagraph | IPortableTextImage | IPortableTextComponent | IPortableTextMark | IPortableTextTable | IPortableTextTableCell | IPortableTextTableRow;
 export type IPortableTextMarkDef = IPortableTextExternalLink | IPortableTextInternalLink;
 export type IDomNode = IDomHtmlNode | IDomTextNode;
 export type ListType = 'number' | 'bullet';
-export type LinkAttributes = OmitKey<Record<string, string>, 'markDefs'>;
 export interface IDomTextNode {
     type: 'text',
     content: string

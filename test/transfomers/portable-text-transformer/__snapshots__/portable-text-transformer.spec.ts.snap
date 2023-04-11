@@ -455,16 +455,24 @@ exports[`portable text transformer transforms external links 1`] = `
       {
         "_key": "guid",
         "_type": "span",
-        "marks": [],
-        "text": "text",
+        "marks": [
+          "strong",
+        ],
+        "text": "Kontent supports portable text!",
       },
+    ],
+    "markDefs": [],
+    "style": "h2",
+  },
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
       {
         "_key": "guid",
         "_type": "span",
-        "marks": [
-          "guid",
-        ],
-        "text": "this is a",
+        "marks": [],
+        "text": "For more information, check out the related ",
       },
       {
         "_key": "guid",
@@ -473,15 +481,7 @@ exports[`portable text transformer transforms external links 1`] = `
           "strong",
           "guid",
         ],
-        "text": "strong",
-      },
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [
-          "guid",
-        ],
-        "text": "link",
+        "text": "GitHub repository.",
       },
     ],
     "markDefs": [
@@ -489,10 +489,10 @@ exports[`portable text transformer transforms external links 1`] = `
         "_key": "guid",
         "_type": "link",
         "data-new-window": "true",
-        "href": "http://google.com",
+        "href": "https://github.com/portabletext/portabletext",
         "rel": "noopener noreferrer",
         "target": "_blank",
-        "title": "linktitle",
+        "title": "Portable text repo",
       },
     ],
     "style": "normal",
