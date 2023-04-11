@@ -1,6 +1,6 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { escapeHTML, toHTML } from '@portabletext/to-html';
-import { nodeParse, transform } from "../src";
+import { escapeHTML, PortableTextOptions, toHTML } from '@portabletext/to-html';
+import { nodeParse, resolveTable, transform } from "../../../src";
 
 jest.mock('crypto', () => {
   return {
@@ -9,7 +9,7 @@ jest.mock('crypto', () => {
 });
 
 const dummyRichText: Elements.RichTextElement = {
-  value: "<p>text</p>",
+  value: "<p><br></p>",
   type: ElementType.RichText,
   images: [],
   linkedItemCodenames: [],
@@ -39,15 +39,41 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
+const portableTextComponents: PortableTextOptions = {
+  components: {
+    types: {
+      image: ({value}) => {
+        return `<img src="${value.asset.url}"></img>`;
+      },
+      component: ({value}) => {
+        const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
+        switch(linkedItem?.system.type) {
+          case('test'): {
+            return `<p>resolved value of text_element: <strong>${linkedItem?.elements.text_element.value}</strong></p>`;
+          }
+          default: {
+            return `Resolver for type ${linkedItem?.system.type} not implemented.`
+          }
+        }
+      },
+      table: ({value}) => {
+        const tableHtml = resolveTable(value, toHTML);
+        return tableHtml;
+      }
+    },
+    marks: {
+      internalLink: ({children, value}) => {
+        return `\<a href=\"https://website.com/${value.reference._ref}">${children}</a>`
+      },
+      link: ({ children, value }) => {
+        return `\<a href=${escapeHTML(value.href)}">${children}</a>`
+      }
+    }
+  }
+}
+
 describe("portable text transformer", () => {
-  it("converts json to portable text array", () => {
-    const tree = nodeParse(dummyRichText.value);
-    const result = transform(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("combines flattened blocks to a portable text", () => {
+  it("transforms empty rich text", () => {
     const tree = nodeParse(dummyRichText.value);
     const result = transform(tree);
 
@@ -55,7 +81,7 @@ describe("portable text transformer", () => {
   })
 
   it("transforms tables", () => {
-    dummyRichText.value = `<p>some text and <strong>strong text</strong></p><table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><p>text</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><p>text</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table>`
+    dummyRichText.value = `<table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><ul>\n  <li>bulit</li>\n</ul>\n</td><td><a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\">this is a<strong>strong</strong>link</a></td></tr>\n<tr><td><h1><strong>nadpis</strong></h1></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><p>text</p></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table>`
     const tree = nodeParse(dummyRichText.value);
     const result = transform(tree);
 
@@ -103,16 +129,24 @@ describe("portable text transformer", () => {
     expect(result).toMatchSnapshot();
   })
 
-  it("parses complex rich text into portable text", () => {
-    dummyRichText.value = "<p><br></p><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>link</strong></a></p><h1>heading</h1><p><br></p>";
+  it("transforms complex rich text into portable text", () => {
+    dummyRichText.value = "<table><tbody><tr><td><ul><li>list item</li><ol><li>nested list item</li></ol></ul></td></tr></tbody></table><table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><ul>\n  <li>list item\n     </li>\n</ul>\n</td><td><a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\">this is a<strong>strong</strong>link</a></td></tr>\n<tr><td><h1><strong>nadpis</strong></h1></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><em>italic text</em></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\">normal and<strong>bold</strong>link</a></p><h1>heading</h1><object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object>";
     const tree = nodeParse(dummyRichText.value);
     const result = transform(tree);
 
     expect(result).toMatchSnapshot();
   })
 
-  it("parses linked items/components", () => {
+  it("transforms linked items/components", () => {
     dummyRichText.value = "<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object>";
+    const tree = nodeParse(dummyRichText.value);
+    const result = transform(tree);
+
+    expect(result).toMatchSnapshot();
+  })
+
+  it("ignores unknown html tags", () => {
+    dummyRichText.value = "<p>text in a paragraph</p><div>text in a div, which doesnt exist in kontent RTE</div>"
     const tree = nodeParse(dummyRichText.value);
     const result = transform(tree);
 
@@ -125,15 +159,8 @@ describe("HTML converter", () => {
     dummyRichText.value = '<p><br></p><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>link</strong></a></p><h1>heading</h1><p><br></p>';
     const tree = nodeParse(dummyRichText.value);
     const portableText = transform(tree);
-    const result = toHTML(portableText, {
-      components: {
-        marks: {
-          link: ({ children, value }) => {
-            return `\<a href=${escapeHTML(value.href)}">${children}</a>`
-          }
-        }
-      }
-    });
+    const result = toHTML(portableText, portableTextComponents);
+
     expect(result).toMatchSnapshot();
   })
 
@@ -141,16 +168,8 @@ describe("HTML converter", () => {
     dummyRichText.value = `<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\"><em>item</em></a></p>`
     const tree = nodeParse(dummyRichText.value);
     const portableText = transform(tree);
-    const result = toHTML(portableText, {
-      components: {
-        marks: {
-          internalLink: ({children, value}) => {
-            return `\<a href=\"https://website.com/${value.reference._ref}">item link</a>`
-          }
-        }
-      }
-    }
-    )
+    const result = toHTML(portableText, portableTextComponents);
+
     expect(result).toMatchSnapshot();
   })
 
@@ -158,46 +177,26 @@ describe("HTML converter", () => {
     dummyRichText.value = '<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object><p>text after component</p>'
     const tree = nodeParse(dummyRichText.value);
     const portableText = transform(tree);
-    const result = toHTML(portableText, {
-      components: {
-        types: {
-          component: ({value}) => {
-            const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
-            switch(linkedItem?.system.type) {
-              case('test'): {
-                return `<p>resolved value of text_element: <strong>${linkedItem?.elements.text_element.value}</strong></p>`;
-              }
-              default: {
-                return `Resolver for type ${linkedItem?.system.type} not implemented.`
-              }
-            }
-          }
-        }
-      }
-    })
+    const result = toHTML(portableText, portableTextComponents);
+    
     expect(result).toMatchSnapshot();
   })
 
   it("resolves a table", () => {
+    dummyRichText.value = "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
+    const jsonTree = nodeParse(dummyRichText.value);
+    const portableText = transform(jsonTree);
+    const result = toHTML(portableText, portableTextComponents);
 
+    expect(result).toMatchSnapshot();
   })
 
   it("resolves an asset", () => {
     dummyRichText.value = `<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" alt=\"\"></figure>`;
     const tree = nodeParse(dummyRichText.value);
     const portableText = transform(tree);
-    const result = toHTML(portableText, {
-      components: {
-        types: {
-          image: ({value}) => {
-            return `<img src="${value.asset.url}"></img>`;
-          }
-        }
-      }
-    })
+    const result = toHTML(portableText, portableTextComponents)
 
     expect(result).toMatchSnapshot();
   })
 })
-
-

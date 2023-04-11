@@ -1,7 +1,7 @@
 import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult, IPortableTextBlock, IPortableTextImage, IPortableTextItem, IPortableTextListBlock, IPortableTextParagraph, IPortableTextSpan, IPortableTextMark, IPortableTextTable, IPortableTextTableRow, IPortableTextInternalLink, IPortableTextExternalLink, ListType, IReference } from "../../parser"
-import { createBlock, createComponentBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isElement, isExternalLink, isOrderedListBlock, isText, isUnorderedListBlock } from "../../utils";
+import { createBlock, createComponentBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isElement, isExternalLink, isListBlock, isOrderedListBlock, isText, isUnorderedListBlock } from "../../utils";
 import crypto from 'crypto';
-import { compose, findLastIndex } from "../../utils/browser-parser-utils";
+import { compose, findLastIndex } from "../../utils/";
 
 type TransformLinkFunction = (node: IDomHtmlNode) => [(IPortableTextExternalLink | IPortableTextInternalLink), IPortableTextMark];
 type TransformElementFunction = (node: IDomHtmlNode) => IPortableTextItem[];
@@ -9,7 +9,7 @@ type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: L
 type TransformTextFunction = (node: IDomTextNode) => IPortableTextSpan;
 
 const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-const markElements = ['strong', 'em', 'sub', 'sup'];
+const markElements = ['strong', 'em', 'sub', 'sup', 'code'];
 const ignoredElements = ['img', 'tbody', 'ol', 'ul'];
 
 export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
@@ -17,7 +17,7 @@ export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
     return composeAndMerge(flattened);
 }
 
-export const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
+const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     let marks: string[] = [];
     let links: string[] = [];
 
@@ -51,7 +51,7 @@ export const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortable
                 mergedItems.push(item);
         }
         return mergedItems;
-    },[])
+    }, [])
 
     return mergedItems;
 }
@@ -67,7 +67,7 @@ const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
         }
 
         return mergedItems;
-    },[])
+    }, [])
 
     return mergedItems;
 }
@@ -82,9 +82,8 @@ const mergeTablesAndRows = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
             mergedItems.push(item);
         }
 
-
         return mergedItems;
-    },[])
+    }, [])
 
     return mergedItems;
 }
@@ -100,7 +99,7 @@ const mergeRowsAndCells = (itemsToMerge: IPortableTextItem[]): IPortableTextItem
         }
 
         return mergedItems;
-    },[])
+    }, [])
 
     return mergedItems;
 }
@@ -108,7 +107,7 @@ const mergeRowsAndCells = (itemsToMerge: IPortableTextItem[]): IPortableTextItem
 const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item, index, array) => {
         if (item._type === 'cell') {
-            for(let i = 1; i <= item.childBlocksCount; i++) {
+            for (let i = 1; i <= item.childBlocksCount; i++) {
                 item.content.push(array[index + i] as IPortableTextBlock);
             }
             array.splice(index, item.childBlocksCount);
@@ -118,35 +117,38 @@ const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
         }
 
         return mergedItems;
-    },[])
+    }, [])
 
     return mergedItems;
 }
 
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
-  
+
 const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPortableTextItem[] => {
     return nodes.reduce((finishedItems: IPortableTextItem[], node: IDomNode) => {
         let transformedNode: IPortableTextItem[] | null = null;
         let children: IDomNode[] = [];
         let transformedChildren: IPortableTextItem[] = [];
         let currentListType = listType;
-      
+        let listDepthIncrement = 0;
+
         if (isElement(node)) {
             children = node.children;
             if (isUnorderedListBlock(node)) {
                 currentListType = 'bullet';
+                listDepthIncrement = 1;
             }
 
             if (isOrderedListBlock(node)) {
                 currentListType = 'number';
+                listDepthIncrement = 1;
             }
         }
-        
+
         transformedNode = transformNode(node, depth, currentListType);
-  
+
         if (transformedNode) {
-            transformedChildren = flatten(children, depth + 1, currentListType);
+            transformedChildren = flatten(children, depth + listDepthIncrement, currentListType);
             finishedItems.push(...transformedNode, ...transformedChildren);
         }
         return finishedItems;
@@ -154,7 +156,7 @@ const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPo
 };
 
 const transformNode = (node: IDomNode, depth: number, listType?: ListType): IPortableTextItem[] => {
-    if(isText(node)) {
+    if (isText(node)) {
         return [transformText(node)];
     } else {
         return transformElement(node, depth, listType);
@@ -173,14 +175,39 @@ const transformImage: TransformElementFunction = (node: IDomHtmlNode): IPortable
 
     block.asset._ref = node.attributes['data-image-id'];
     block.asset.url = imageTag.attributes['src'];
-    
+
     return [block];
 }
 
 const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPortableTextItem[] => {
-    const cellContent: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), node.children.length)];
+    let listDepth = 0;
+    let listNode: IDomNode | undefined;
+    const setListDepth = (node: IDomHtmlNode): void => {
+        if (listDepth === 0) {
+            listNode = node.children.find(childNode =>
+                childNode.type === 'tag' &&
+                isListBlock(childNode)
+            )
+        }
 
-    if(node.children[0].type === 'text' || node.children[0].tagName === 'br')
+        if (listNode && listNode.type === 'tag') {
+            let childListNode = listNode.children.find(childNode =>
+                childNode.type === 'tag' &&
+                isListBlock(childNode)
+            )
+            
+            if (childListNode && childListNode.type === 'tag') {
+                listNode = childListNode;
+                listDepth++;
+                setListDepth(listNode);
+            }
+        }
+    }
+    setListDepth(node);
+    const childBlocksCount = node.children.length + listDepth;
+    const cellContent: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), childBlocksCount)];
+
+    if (node.children[0].type === 'text' || ['br','a','strong','em','sup','sub','code'].includes(node.children[0].tagName)) // create block if cell first child isn't one
         cellContent.push(createBlock(crypto.randomUUID()));
 
     return cellContent;
@@ -196,7 +223,7 @@ const transformItem: TransformElementFunction = (node: IDomHtmlNode): IPortableT
 }
 
 const transformLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink | IPortableTextInternalLink, IPortableTextMark] => {
-    if(isExternalLink(node)) {
+    if (isExternalLink(node)) {
         return transformExternalLink(node);
     } else {
         return transformInternalLink(node);
@@ -221,10 +248,9 @@ const transformTable: TransformElementFunction = (node: IDomHtmlNode): IPortable
     const tableBody = node.children[0] as IDomHtmlNode;
     const tableRow = tableBody.children[0] as IDomHtmlNode;
     const numCols = tableRow.children.length;
-    
+
     return [createTable(crypto.randomUUID(), numCols)];
 }
-
 
 const transformTableRow: TransformElementFunction = (): IPortableTextTableRow[] =>
     [createTableRow(crypto.randomUUID())];
@@ -232,7 +258,7 @@ const transformTableRow: TransformElementFunction = (): IPortableTextTableRow[] 
 const transformText: TransformTextFunction = (node: IDomTextNode): IPortableTextSpan =>
     createSpan(crypto.randomUUID(), [], node.content);
 
-const transformBlock: TransformElementFunction = (node: IDomHtmlNode): IPortableTextBlock[] => 
+const transformBlock: TransformElementFunction = (node: IDomHtmlNode): IPortableTextBlock[] =>
     [createBlock(crypto.randomUUID(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node: IDomHtmlNode): IPortableTextMark[] =>
@@ -244,7 +270,6 @@ const transformLineBreak: TransformElementFunction = (): IPortableTextSpan[] =>
 const transformListItem: TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType): IPortableTextListBlock[] =>
     [createListBlock(crypto.randomUUID(), depth, listType!)];
 
-
 const ignoreElement: TransformElementFunction = (node: IDomHtmlNode) => [];
 
 const transformMap: Record<string, TransformElementFunction | TransformListItemFunction> = {
@@ -252,7 +277,7 @@ const transformMap: Record<string, TransformElementFunction | TransformListItemF
         (acc, tagName) => ({
             ...acc,
             [tagName]: transformBlock,
-        }),{}
+        }), {}
     ),
     ...markElements.reduce(
         (acc, tagName) => ({

@@ -228,7 +228,7 @@ describe("Json Transfomer Tests", () => {
 
   it("Test RichText", () => {
     const parsed = browserParse(dummy.value);
-    const trasnformed = transformJsonWithCustomResolvers(parsed);
+    const transformed = transformJsonWithCustomResolvers(parsed);
 
     const expectedOutput = JSON.parse(`
         [
@@ -262,7 +262,7 @@ describe("Json Transfomer Tests", () => {
          ]`
     )
 
-    expect(trasnformed).toEqual(expectedOutput);
+    expect(transformed).toEqual(expectedOutput);
   })
 
   it("test resolving table", () => {

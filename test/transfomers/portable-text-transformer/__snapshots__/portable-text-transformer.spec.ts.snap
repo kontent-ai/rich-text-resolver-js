@@ -4,11 +4,13 @@ exports[`HTML converter builds basic portable text into HTML 1`] = `"<p><br/></p
 
 exports[`HTML converter resolves a linked item 1`] = `"<p>resolved value of text_element: <strong>random text value</strong></p><p>text after component</p>"`;
 
+exports[`HTML converter resolves a table 1`] = `"<table><tbody><tr><td><p>Ivan</p></td><td><p>Jiri</p></td></tr><tr><td><p>Ondra</p></td><td><p>Dan</p></td></tr></tbody></table>"`;
+
 exports[`HTML converter resolves an asset 1`] = `"<img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg"></img>"`;
 
-exports[`HTML converter resolves internal link 1`] = `"<p><a href="https://website.com/23f71096-fa89-4f59-a3f9-970e970944ec">item link</a></p>"`;
+exports[`HTML converter resolves internal link 1`] = `"<p><a href="https://website.com/23f71096-fa89-4f59-a3f9-970e970944ec"><em>item</em></a></p>"`;
 
-exports[`portable text transformer combines flattened blocks to a portable text 1`] = `
+exports[`portable text transformer ignores unknown html tags 1`] = `
 [
   {
     "_key": "guid",
@@ -18,7 +20,13 @@ exports[`portable text transformer combines flattened blocks to a portable text 
         "_key": "guid",
         "_type": "span",
         "marks": [],
-        "text": "text",
+        "text": "text in a paragraph",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "text in a div, which doesnt exist in kontent RTE",
       },
     ],
     "markDefs": [],
@@ -27,41 +35,322 @@ exports[`portable text transformer combines flattened blocks to a portable text 
 ]
 `;
 
-exports[`portable text transformer converts json to portable text array 1`] = `
+exports[`portable text transformer transforms complex rich text into portable text 1`] = `
 [
   {
     "_key": "guid",
-    "_type": "block",
-    "children": [
+    "_type": "table",
+    "numColumns": 1,
+    "rows": [
       {
         "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "text",
+        "_type": "row",
+        "cells": [
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 2,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "list item",
+                  },
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal",
+              },
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "nested list item",
+                  },
+                ],
+                "level": 2,
+                "listItem": "number",
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+        ],
       },
     ],
-    "markDefs": [],
-    "style": "normal",
   },
-]
-`;
-
-exports[`portable text transformer parses complex rich text into portable text 1`] = `
-[
   {
     "_key": "guid",
-    "_type": "block",
-    "children": [
+    "_type": "table",
+    "numColumns": 3,
+    "rows": [
       {
         "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "
-",
+        "_type": "row",
+        "cells": [
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 2,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "paragraph 1",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "paragraph 2",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "list item",
+                  },
+                ],
+                "level": 1,
+                "listItem": "bullet",
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "guid",
+                    ],
+                    "text": "this is a",
+                  },
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "strong",
+                      "guid",
+                    ],
+                    "text": "strong",
+                  },
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "guid",
+                    ],
+                    "text": "link",
+                  },
+                ],
+                "markDefs": [
+                  {
+                    "_key": "guid",
+                    "_type": "link",
+                    "data-new-window": "true",
+                    "href": "http://google.com",
+                    "rel": "noopener noreferrer",
+                    "target": "_blank",
+                    "title": "linktitle",
+                  },
+                ],
+                "style": "normal",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        "_key": "guid",
+        "_type": "row",
+        "cells": [
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "strong",
+                    ],
+                    "text": "nadpis",
+                  },
+                ],
+                "markDefs": [],
+                "style": "h1",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "text",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "text",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+        ],
+      },
+      {
+        "_key": "guid",
+        "_type": "row",
+        "cells": [
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "em",
+                    ],
+                    "text": "italic text",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "text",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "childBlocksCount": 1,
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "text",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+        ],
       },
     ],
-    "markDefs": [],
-    "style": "normal",
   },
   {
     "_key": "guid",
@@ -77,7 +366,23 @@ exports[`portable text transformer parses complex rich text into portable text 1
         "_key": "guid",
         "_type": "span",
         "marks": [
+          "guid",
+        ],
+        "text": "normal and",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
           "strong",
+          "guid",
+        ],
+        "text": "bold",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
           "guid",
         ],
         "text": "link",
@@ -112,6 +417,19 @@ exports[`portable text transformer parses complex rich text into portable text 1
   },
   {
     "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "test_item",
+      "_type": "reference",
+    },
+  },
+]
+`;
+
+exports[`portable text transformer transforms empty rich text 1`] = `
+[
+  {
+    "_key": "guid",
     "_type": "block",
     "children": [
       {
@@ -124,19 +442,6 @@ exports[`portable text transformer parses complex rich text into portable text 1
     ],
     "markDefs": [],
     "style": "normal",
-  },
-]
-`;
-
-exports[`portable text transformer parses linked items/components 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "component",
-    "component": {
-      "_ref": "test_item",
-      "_type": "reference",
-    },
   },
 ]
 `;
@@ -260,6 +565,19 @@ exports[`portable text transformer transforms item links 1`] = `
       },
     ],
     "style": "normal",
+  },
+]
+`;
+
+exports[`portable text transformer transforms linked items/components 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "test_item",
+      "_type": "reference",
+    },
   },
 ]
 `;
@@ -427,28 +745,6 @@ exports[`portable text transformer transforms tables 1`] = `
 [
   {
     "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "some text and ",
-      },
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [
-          "strong",
-        ],
-        "text": "strong text",
-      },
-    ],
-    "markDefs": [],
-    "style": "normal",
-  },
-  {
-    "_key": "guid",
     "_type": "table",
     "numColumns": 3,
     "rows": [
@@ -504,9 +800,11 @@ exports[`portable text transformer transforms tables 1`] = `
                     "_key": "guid",
                     "_type": "span",
                     "marks": [],
-                    "text": "text",
+                    "text": "bulit",
                   },
                 ],
+                "level": 1,
+                "listItem": "bullet",
                 "markDefs": [],
                 "style": "normal",
               },
@@ -524,11 +822,40 @@ exports[`portable text transformer transforms tables 1`] = `
                   {
                     "_key": "guid",
                     "_type": "span",
-                    "marks": [],
-                    "text": "text",
+                    "marks": [
+                      "guid",
+                    ],
+                    "text": "this is a",
+                  },
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "strong",
+                      "guid",
+                    ],
+                    "text": "strong",
+                  },
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [
+                      "guid",
+                    ],
+                    "text": "link",
                   },
                 ],
-                "markDefs": [],
+                "markDefs": [
+                  {
+                    "_key": "guid",
+                    "_type": "link",
+                    "data-new-window": "true",
+                    "href": "http://google.com",
+                    "rel": "noopener noreferrer",
+                    "target": "_blank",
+                    "title": "linktitle",
+                  },
+                ],
                 "style": "normal",
               },
             ],
@@ -551,12 +878,14 @@ exports[`portable text transformer transforms tables 1`] = `
                   {
                     "_key": "guid",
                     "_type": "span",
-                    "marks": [],
-                    "text": "text",
+                    "marks": [
+                      "strong",
+                    ],
+                    "text": "nadpis",
                   },
                 ],
                 "markDefs": [],
-                "style": "normal",
+                "style": "h1",
               },
             ],
           },
