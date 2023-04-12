@@ -1,7 +1,7 @@
 import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult, IPortableTextBlock, IPortableTextImage, IPortableTextItem, IPortableTextListBlock, IPortableTextParagraph, IPortableTextSpan, IPortableTextMark, IPortableTextTable, IPortableTextTableRow, IPortableTextInternalLink, IPortableTextExternalLink, ListType, IReference } from "../../parser"
 import { createBlock, createComponentBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isElement, isExternalLink, isListBlock, isOrderedListBlock, isText, isUnorderedListBlock } from "../../utils";
-import crypto from 'crypto';
 import { compose, findLastIndex } from "../../utils/";
+import ShortUniqueId from "short-unique-id";
 
 type TransformLinkFunction = (node: IDomHtmlNode) => [(IPortableTextExternalLink | IPortableTextInternalLink), IPortableTextMark];
 type TransformElementFunction = (node: IDomHtmlNode) => IPortableTextItem[];
@@ -11,6 +11,7 @@ type TransformTextFunction = (node: IDomTextNode) => IPortableTextSpan;
 const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 const markElements = ['strong', 'em', 'sub', 'sup', 'code'];
 const ignoredElements = ['img', 'tbody', 'ol', 'ul'];
+const uid = new ShortUniqueId({ length: 16});
 
 export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
     const flattened = flatten(parsedTree.children, 0);
@@ -31,7 +32,7 @@ const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
                     updatedBlock.markDefs.push(item);
                     mergedItems[lastBlockIndex] = updatedBlock;
                 } else {
-                    const newBlock = createBlock(crypto.randomUUID());
+                    const newBlock = createBlock(uid().toString());
                     newBlock.markDefs.push(item);
                 }
                 break;
@@ -170,7 +171,7 @@ const transformElement = (node: IDomHtmlNode, depth: number, listType?: ListType
 }
 
 const transformImage: TransformElementFunction = (node: IDomHtmlNode): IPortableTextImage[] => {
-    const block = createImageBlock(crypto.randomUUID());
+    const block = createImageBlock(uid().toString());
     const imageTag = node.children[0] as IDomHtmlNode;
 
     block.asset._ref = node.attributes['data-image-id'];
@@ -205,10 +206,10 @@ const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPort
     }
     setListDepth(node);
     const childBlocksCount = node.children.length + listDepth;
-    const cellContent: IPortableTextItem[] = [createTableCell(crypto.randomUUID(), childBlocksCount)];
+    const cellContent: IPortableTextItem[] = [createTableCell(uid().toString(), childBlocksCount)];
 
     if (node.children[0].type === 'text' || ['br','a','strong','em','sup','sub','code'].includes(node.children[0].tagName)) // create block if cell first child isn't one
-        cellContent.push(createBlock(crypto.randomUUID()));
+        cellContent.push(createBlock(uid().toString()));
 
     return cellContent;
 }
@@ -219,7 +220,7 @@ const transformItem: TransformElementFunction = (node: IDomHtmlNode): IPortableT
         _ref: node.attributes['data-codename']
     }
 
-    return [createComponentBlock(crypto.randomUUID(), itemReference)];
+    return [createComponentBlock(uid().toString(), itemReference)];
 }
 
 const transformLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink | IPortableTextInternalLink, IPortableTextMark] => {
@@ -231,15 +232,15 @@ const transformLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTex
 }
 
 const transformInternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextInternalLink, IPortableTextMark] => {
-    const link = createItemLink(crypto.randomUUID(), node.attributes['data-item-id']);
-    const mark = createMark(crypto.randomUUID(), link._key, 'linkMark');
+    const link = createItemLink(uid().toString(), node.attributes['data-item-id']);
+    const mark = createMark(uid().toString(), link._key, 'linkMark');
 
     return [link, mark];
 }
 
 const transformExternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink, IPortableTextMark] => {
-    const link = createExternalLink(crypto.randomUUID(), node.attributes)
-    const mark = createMark(crypto.randomUUID(), link._key, "linkMark");
+    const link = createExternalLink(uid().toString(), node.attributes)
+    const mark = createMark(uid().toString(), link._key, "linkMark");
 
     return [link, mark];
 }
@@ -249,26 +250,26 @@ const transformTable: TransformElementFunction = (node: IDomHtmlNode): IPortable
     const tableRow = tableBody.children[0] as IDomHtmlNode;
     const numCols = tableRow.children.length;
 
-    return [createTable(crypto.randomUUID(), numCols)];
+    return [createTable(uid().toString(), numCols)];
 }
 
 const transformTableRow: TransformElementFunction = (): IPortableTextTableRow[] =>
-    [createTableRow(crypto.randomUUID())];
+    [createTableRow(uid().toString())];
 
 const transformText: TransformTextFunction = (node: IDomTextNode): IPortableTextSpan =>
-    createSpan(crypto.randomUUID(), [], node.content);
+    createSpan(uid().toString(), [], node.content);
 
 const transformBlock: TransformElementFunction = (node: IDomHtmlNode): IPortableTextBlock[] =>
-    [createBlock(crypto.randomUUID(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
+    [createBlock(uid().toString(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node: IDomHtmlNode): IPortableTextMark[] =>
-    [createMark(crypto.randomUUID(), node.tagName, 'mark')];
+    [createMark(uid().toString(), node.tagName, 'mark')];
 
 const transformLineBreak: TransformElementFunction = (): IPortableTextSpan[] =>
-    [createSpan(crypto.randomUUID(), [], '\n')];
+    [createSpan(uid().toString(), [], '\n')];
 
 const transformListItem: TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType): IPortableTextListBlock[] =>
-    [createListBlock(crypto.randomUUID(), depth, listType!)];
+    [createListBlock(uid().toString(), depth, listType!)];
 
 const ignoreElement: TransformElementFunction = (node: IDomHtmlNode) => [];
 

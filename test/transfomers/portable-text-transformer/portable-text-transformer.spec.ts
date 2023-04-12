@@ -2,11 +2,12 @@ import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { escapeHTML, PortableTextOptions, toHTML } from '@portabletext/to-html';
 import { nodeParse, resolveTable, transform } from "../../../src";
 
-jest.mock('crypto', () => {
-  return {
-    randomUUID: jest.fn(() => 'guid')
-  }
+jest.mock('short-unique-id', () => {
+  return jest.fn().mockImplementation(() => {
+    return () => 'guid';
+  });
 });
+
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p><br></p>",
