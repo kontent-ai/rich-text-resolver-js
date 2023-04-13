@@ -11,9 +11,9 @@ type TransformTextFunction = (node: IDomTextNode) => IPortableTextSpan;
 const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 const markElements = ['strong', 'em', 'sub', 'sup', 'code'];
 const ignoredElements = ['img', 'tbody', 'ol', 'ul'];
-const uid = new ShortUniqueId({ length: 16});
+const uid = new ShortUniqueId({ length: 16 });
 
-export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
+export const transformToPortableText = (parsedTree: IOutputResult): IPortableTextItem[] => {
     const flattened = flatten(parsedTree.children, 0);
     return composeAndMerge(flattened);
 }
@@ -21,6 +21,7 @@ export const transform = (parsedTree: IOutputResult): IPortableTextItem[] => {
 const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     let marks: string[] = [];
     let links: string[] = [];
+    let linkChildCount = 0;
 
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
         switch (item._type) {
@@ -41,8 +42,14 @@ const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
                 break;
             case 'linkMark':
                 links.push(item.value);
+                linkChildCount = item.childCount;
                 break;
             case 'span':
+                if (linkChildCount === 0) {
+                    links = [];
+                } else {
+                    linkChildCount--;
+                }
                 item.marks = [...marks, ...links];
                 mergedItems.push(item);
                 marks = [];
@@ -50,12 +57,13 @@ const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
             default:
                 links = [];
                 mergedItems.push(item);
+                break;
         }
         return mergedItems;
-    }, [])
+    }, []);
 
     return mergedItems;
-}
+};
 
 const mergeBlocksAndSpans = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
@@ -125,7 +133,7 @@ const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
 
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
 
-const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPortableTextItem[] => {
+export const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPortableTextItem[] => {
     return nodes.reduce((finishedItems: IPortableTextItem[], node: IDomNode) => {
         let transformedNode: IPortableTextItem[] | null = null;
         let children: IDomNode[] = [];
@@ -196,7 +204,7 @@ const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPort
                 childNode.type === 'tag' &&
                 isListBlock(childNode)
             )
-            
+
             if (childListNode && childListNode.type === 'tag') {
                 listNode = childListNode;
                 listDepth++;
@@ -208,7 +216,7 @@ const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPort
     const childBlocksCount = node.children.length + listDepth;
     const cellContent: IPortableTextItem[] = [createTableCell(uid().toString(), childBlocksCount)];
 
-    if (node.children[0].type === 'text' || ['br','a','strong','em','sup','sub','code'].includes(node.children[0].tagName)) // create block if cell first child isn't one
+    if (node.children[0].type === 'text' || ['br', 'a', 'strong', 'em', 'sup', 'sub', 'code'].includes(node.children[0].tagName)) // create block if cell first child isn't one
         cellContent.push(createBlock(uid().toString()));
 
     return cellContent;
@@ -233,14 +241,14 @@ const transformLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTex
 
 const transformInternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextInternalLink, IPortableTextMark] => {
     const link = createItemLink(uid().toString(), node.attributes['data-item-id']);
-    const mark = createMark(uid().toString(), link._key, 'linkMark');
+    const mark = createMark(uid().toString(), link._key, 'linkMark', node.children.length);
 
     return [link, mark];
 }
 
 const transformExternalLink: TransformLinkFunction = (node: IDomHtmlNode): [IPortableTextExternalLink, IPortableTextMark] => {
     const link = createExternalLink(uid().toString(), node.attributes)
-    const mark = createMark(uid().toString(), link._key, "linkMark");
+    const mark = createMark(uid().toString(), link._key, "linkMark", node.children.length);
 
     return [link, mark];
 }
@@ -263,7 +271,7 @@ const transformBlock: TransformElementFunction = (node: IDomHtmlNode): IPortable
     [createBlock(uid().toString(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node: IDomHtmlNode): IPortableTextMark[] =>
-    [createMark(uid().toString(), node.tagName, 'mark')];
+    [createMark(uid().toString(), node.tagName, 'mark', node.children.length)];
 
 const transformLineBreak: TransformElementFunction = (): IPortableTextSpan[] =>
     [createSpan(uid().toString(), [], '\n')];

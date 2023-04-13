@@ -10,6 +10,84 @@ exports[`HTML converter resolves an asset 1`] = `"<img src="https://assets-us-01
 
 exports[`HTML converter resolves internal link 1`] = `"<p><a href="https://website.com/23f71096-fa89-4f59-a3f9-970e970944ec"><em>item</em></a></p>"`;
 
+exports[`portable text transformer doesn't create duplicates for nested spans 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "text",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "strong",
+        ],
+        "text": "bold",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+]
+`;
+
+exports[`portable text transformer doesn't extend link mark to adjacent spans 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "The coffee drinking culture has been evolving for hundreds and thousands of years. It has never been ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "so rich as ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "strong",
+          "guid",
+        ],
+        "text": "today",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": ". How do you make sense of different types of coffee, what do the particular names in beverage menus mean and what beverage to choose for which occasion in your favorite café?",
+      },
+    ],
+    "markDefs": [
+      {
+        "_key": "guid",
+        "_type": "internalLink",
+        "reference": {
+          "_ref": "3120ec15-a4a2-47ec-8ccd-c85ac8ac5ba5",
+          "_type": "reference",
+        },
+      },
+    ],
+    "style": "normal",
+  },
+]
+`;
+
 exports[`portable text transformer ignores unknown html tags 1`] = `
 [
   {

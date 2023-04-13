@@ -116,11 +116,12 @@ export const createExternalLink = (guid: string, attributes: Record<string, stri
     }
 }
 
-export const createMark = (guid: string, value: string, type: 'mark' | 'linkMark'): IPortableTextMark => {
+export const createMark = (guid: string, value: string, type: 'mark' | 'linkMark', childCount: number): IPortableTextMark => {
     return {
         _type: type,
         _key: guid,
-        value: value
+        value: value,
+        childCount: childCount
     }
 }
 

@@ -99,5 +99,6 @@ export interface IPortableTextStyleMark extends IPortableTextBaseItem  {
 
 export interface IPortableTextLinkMark extends IPortableTextBaseItem {
     _type: 'linkMark',
-    value: string
+    value: string,
+    childCount: number
 }
