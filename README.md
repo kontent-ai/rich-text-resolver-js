@@ -15,7 +15,7 @@ Install the package via npm
 Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js. Their use is identical, the only difference is the underlying parsing logic.
 
 
-Parsed output can then be passed to a `transform` function, which converts the JSON tree into portable text blocks.
+Parsed output can then be passed to a `transformToPortableText` function, which converts the JSON tree into portable text blocks.
 
 Full specification of portable text format can be found in [the corresponding repository](https://github.com/portabletext/portabletext).
 
@@ -149,12 +149,12 @@ HTML resolution using `@portabletext/to-html` package.
 
 ```ts
 import { escapeHTML, PortableTextOptions, toHTML } from '@portabletext/to-html';
-import { browserParse, transform, resolveTable } from '@pokornyd/kontent-ai-rich-text-parser';
+import { browserParse, transformToPortableText, resolveTable } from '@pokornyd/kontent-ai-rich-text-parser';
 
 const richTextValue = '<rich text html>';
 const linkedItems = ['<array of linked items>'];
 const parsedTree = browserParse(richTextValue);
-const portableText = transform(parsedTree);
+const portableText = transformToPortableText(parsedTree);
 
 const portableTextComponents: PortableTextOptions = {
   components: {
@@ -196,12 +196,12 @@ React, using `@portabletext/react` package.
 
 ```tsx
 import { PortableText, toPlainText } from '@portabletext/react';
-import { nodeParse, resolveTable, transform } from '@pokornyd/kontent-ai-rich-text-parser';
+import { nodeParse, resolveTable, transformToPortableText } from '@pokornyd/kontent-ai-rich-text-parser';
 
 const richTextValue = '<rich text html>';
 const linkedItems = ['<array of linked items>'];
 const parsedTree = browserParse(richTextValue);
-const portableText = transform(parsedTree);
+const portableText = transformToPortableText(parsedTree);
 
 interface IMyComponentProps {
   value: IPortableTextItem[];
