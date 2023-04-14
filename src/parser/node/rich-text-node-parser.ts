@@ -1,5 +1,5 @@
 import * as NodeHtmlParser from 'node-html-parser';
-import { IDomNode, IOutputResult } from "../../parser";
+import { IDomNode, IOutputResult } from "..";
 import { Node } from "node-html-parser";
 import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils";
 import { getAllNewLineAndWhiteSpace } from '../../utils';

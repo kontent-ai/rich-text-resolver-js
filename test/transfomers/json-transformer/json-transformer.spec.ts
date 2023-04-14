@@ -1,5 +1,5 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk"
-import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src/transformers/json_transformer/json-transformer"
+import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src/"
 import { IOutputResult, browserParse } from "../../../src/parser"
 
 const dummy: Elements.RichTextElement = {

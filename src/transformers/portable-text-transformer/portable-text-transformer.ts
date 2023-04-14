@@ -1,6 +1,6 @@
 import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult, IPortableTextBlock, IPortableTextImage, IPortableTextItem, IPortableTextListBlock, IPortableTextParagraph, IPortableTextSpan, IPortableTextMark, IPortableTextTable, IPortableTextTableRow, IPortableTextInternalLink, IPortableTextExternalLink, ListType, IReference } from "../../parser"
 import { createBlock, createComponentBlock, createExternalLink, createImageBlock, createItemLink, createListBlock, createMark, createSpan, createTable, createTableCell, createTableRow, isElement, isExternalLink, isListBlock, isOrderedListBlock, isText, isUnorderedListBlock } from "../../utils";
-import { compose, findLastIndex } from "../../utils/";
+import { compose, findLastIndex } from "../../utils";
 import ShortUniqueId from "short-unique-id";
 
 type TransformLinkFunction = (node: IDomHtmlNode) => [(IPortableTextExternalLink | IPortableTextInternalLink), IPortableTextMark];
@@ -134,12 +134,13 @@ const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
 
 export const flatten = (nodes: IDomNode[], depth: number = 0, listType?: ListType): IPortableTextItem[] => {
-    return nodes.reduce((finishedItems: IPortableTextItem[], node: IDomNode) => {
+    return nodes.flatMap((node: IDomNode) => {
         let transformedNode: IPortableTextItem[] | null = null;
         let children: IDomNode[] = [];
         let transformedChildren: IPortableTextItem[] = [];
         let currentListType = listType;
         let listDepthIncrement = 0;
+        const finishedItems: IPortableTextItem[] = [];
 
         if (isElement(node)) {
             children = node.children;
@@ -276,29 +277,20 @@ const transformTextMark: TransformElementFunction = (node: IDomHtmlNode): IPorta
 const transformLineBreak: TransformElementFunction = (): IPortableTextSpan[] =>
     [createSpan(uid().toString(), [], '\n')];
 
-const transformListItem: TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType): IPortableTextListBlock[] =>
+const transformListItem: TransformListItemFunction = (_, depth: number, listType: ListType): IPortableTextListBlock[] =>
     [createListBlock(uid().toString(), depth, listType!)];
 
-const ignoreElement: TransformElementFunction = (node: IDomHtmlNode) => [];
+const ignoreElement: TransformElementFunction = () => [];
 
 const transformMap: Record<string, TransformElementFunction | TransformListItemFunction> = {
-    ...blockElements.reduce(
-        (acc, tagName) => ({
-            ...acc,
-            [tagName]: transformBlock,
-        }), {}
+    ...Object.fromEntries(
+      blockElements.map(tagName => [tagName, transformBlock])
     ),
-    ...markElements.reduce(
-        (acc, tagName) => ({
-            ...acc,
-            [tagName]: transformTextMark,
-        }), {}
+    ...Object.fromEntries(
+      markElements.map(tagName => [tagName, transformTextMark])
     ),
-    ...ignoredElements.reduce(
-        (acc, tagName) => ({
-            ...acc,
-            [tagName]: ignoreElement,
-        }), {}
+    ...Object.fromEntries(
+      ignoredElements.map(tagName => [tagName, ignoreElement])
     ),
     'a': transformLink,
     'li': transformListItem,
@@ -309,7 +301,7 @@ const transformMap: Record<string, TransformElementFunction | TransformListItemF
     'figure': transformImage,
     'object': transformItem,
     default: (node: IDomHtmlNode) => {
-        console.log(`No transformer implemented for tag "${node.tagName}"`);
-        return [];
+      throw new Error(`No transformer implemented for tag "${node.tagName}"`)
     }
-}
+  };
+
