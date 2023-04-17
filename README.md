@@ -67,7 +67,7 @@ export interface IPortableTextTableCell extends IPortableTextBaseItem {
 ```
 
 Example portable text representation of a table:
-https://github.com/pokornyd/rich-text-resolver/blob/portable-text/test/transfomers/portable-text-transformer/__snapshots__/portable-text-transformer.spec.ts.snap#L853
+https://github.com/pokornyd/rich-text-resolver/blob/216cfea6385f751310095390fd84ffbd93aa5273/test/transfomers/portable-text-transformer/__snapshots__/portable-text-transformer.spec.ts.snap#L853
 
 </details>
 
