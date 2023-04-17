@@ -317,7 +317,7 @@ export const MyComponent = ({value, components}: IMyComponentProps) => {
 
 [issues-shield]: https://img.shields.io/github/issues/kontent-ai/rich-text-resolver-js.svg?style=for-the-badge
 [issues-url]: https://github.com/kontent-ai/rich-text-resolver-js/issues
-[license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?label=license&style=for-the-badge
 [license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
 [stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
 [discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge
