@@ -6,6 +6,8 @@
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
+>:information_source: This module is currently in experimental mode and may undergo significant changes in the future.
+
 # Kontent.ai rich text transformer
 
 This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
