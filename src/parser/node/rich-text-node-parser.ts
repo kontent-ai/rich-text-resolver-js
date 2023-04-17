@@ -1,8 +1,9 @@
 import * as NodeHtmlParser from 'node-html-parser';
-import { IDomNode, IOutputResult } from "..";
 import { Node } from "node-html-parser";
-import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils";
+
 import { getAllNewLineAndWhiteSpace } from '../../utils';
+import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils";
+import { IDomNode, IOutputResult } from "..";
 
 export const parse = (input: string): IOutputResult => {
     const node = NodeHtmlParser.parse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));
@@ -21,14 +22,14 @@ const parseInternal = (node: Node): IDomNode => {
     return {
       tagName: node.tagName.toLowerCase(),
       attributes: node.attributes,
-      children: node?.childNodes.flatMap(parseInternal) ?? [],
+      children: node.childNodes.flatMap(parseInternal),
       type: 'tag'
     };
   }
 
   if (isTextNode(node)) {
     return {
-      content: node.text ?? '',
+      content: node.text,
       type: 'text'
     };
   }

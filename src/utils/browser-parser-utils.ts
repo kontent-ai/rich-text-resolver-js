@@ -7,7 +7,7 @@ export enum NodeType {
 }
 
 export const convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): Record<string,string> => {
-    let convertedAttributes: Record<string, string> = {};
+    const convertedAttributes: Record<string, string> = {};
 
     for (const attr of domNodeAttributes) {
         convertedAttributes[attr.name] = attr.value;

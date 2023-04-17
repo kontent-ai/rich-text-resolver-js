@@ -1,6 +1,6 @@
-# Kontent.ai portable text transformer
+# Kontent.ai rich text transformer
 
-This package provides you with tools to transform rich text element value from Kontent.ai into [portable text standard](https://github.com/portabletext/portabletext).
+This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
 
 ## Installation
 
@@ -19,10 +19,10 @@ Parsed output can then be passed to a `transformToPortableText` function, which 
 
 Full specification of portable text format can be found in [the corresponding repository](https://github.com/portabletext/portabletext).
 
->💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](src/transformers/json_transformer/index.md) docs for further information.
+>💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](src/transformers/json-transformer/index.md) docs for further information.
 
 
-### Resolution
+### Portable text resolution
 
 Portable text supports majority of popular languages and frameworks. 
 
@@ -33,7 +33,7 @@ Portable text supports majority of popular languages and frameworks.
 
 Resolution is described in each corresponding repository. You can also find example resolution below.
 
-### Custom blocks
+### Custom portable text blocks
 
 Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
 
@@ -65,6 +65,10 @@ export interface IPortableTextTableCell extends IPortableTextBaseItem {
 }
 
 ```
+
+Example portable text representation of a table:
+https://github.com/pokornyd/rich-text-resolver/blob/portable-text/test/transfomers/portable-text-transformer/__snapshots__/portable-text-transformer.spec.ts.snap#L853
+
 </details>
 
 <details><summary>
@@ -86,6 +90,18 @@ export interface IReference {
     _type: 'reference',
     _ref: string
 }
+
+// Example portable text representation of a component/linked item
+// [
+//   {
+//     "_key": "guid",
+//     "_type": "component",
+//     "component": {
+//       "_ref": "test_item",
+//       "_type": "reference",
+//     },
+//   },
+// ]
 
 ```
 </details>
@@ -109,6 +125,36 @@ export interface IReference {
     _type: 'reference',
     _ref: string
 }
+
+// Example representation of an item link in portable text
+// [
+//   {
+//     "_key": "guid",
+//     "_type": "block",
+//     "children": [
+//       {
+//         "_key": "guid",
+//         "_type": "span",
+//         "marks": [
+//           "strong",
+//           "guid",
+//         ],
+//         "text": "link to an item",
+//       },
+//     ],
+//     "markDefs": [
+//       {
+//         "_key": "guid",
+//         "_type": "internalLink",
+//         "reference": {
+//           "_ref": "23f71096-fa89-4f59-a3f9-970e970944ec",
+//           "_type": "reference",
+//         },
+//       },
+//     ],
+//     "style": "normal",
+//   },
+// ]
 
 ```
 </details>
@@ -136,6 +182,19 @@ export interface IPortableTextImage extends IPortableTextBaseItem {
     _type: 'image',
     asset: IAssetReference
 }
+
+// portable text representation of an image
+// [
+//   {
+//     "_key": "guid",
+//     "_type": "image",
+//     "asset": {
+//       "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
+//       "_type": "reference",
+//       "url": "https://assets-eu-01.kc-usercontent.com:443/.../image.jpg",
+//     },
+//   }
+// ]
 
 ```
 </details>

@@ -1,4 +1,19 @@
-import { IPortableTextSpan, IPortableTextMarkDef, IPortableTextParagraph, IPortableTextListBlock, IPortableTextImage, IPortableTextTable, IPortableTextInternalLink, IPortableTextTableRow, IPortableTextTableCell, IPortableTextExternalLink, IPortableTextMark, IReference, IPortableTextComponent, IPortableTextItem } from "../parser"
+import {
+IPortableTextComponent,
+IPortableTextExternalLink,
+IPortableTextImage,
+IPortableTextInternalLink,
+IPortableTextItem,
+IPortableTextListBlock,
+IPortableTextMark,
+IPortableTextMarkDef,
+IPortableTextParagraph,
+IPortableTextSpan,
+IPortableTextTable,
+IPortableTextTableCell,
+IPortableTextTableRow,
+IReference
+} from "../parser"
 
 export const createSpan = (
     guid: string,
@@ -133,11 +148,11 @@ export const createComponentBlock = (guid: string, reference: IReference): IPort
     }
 }
 
-export const isBlock = (block?: IPortableTextItem): block is IPortableTextParagraph =>
-    block! && block._type === 'block';
+export const isBlock = (block: IPortableTextItem): block is IPortableTextParagraph =>
+    block._type === 'block';
 
-export const isSpan = (span?: IPortableTextItem): span is IPortableTextSpan =>
-    span! && span._type === 'span';
+export const isSpan = (span: IPortableTextItem): span is IPortableTextSpan =>
+    span._type === 'span';
 
 export const compose = <T>(firstFunction: (argument: T) => T, ...functions: Array<(argument: T) => T>) =>
     functions.reduce((previousFunction, nextFunction) => value => previousFunction(nextFunction(value)), firstFunction);
@@ -153,16 +168,17 @@ export const findLastIndex = <T>(arr: T[], predicate: (value: T) => boolean): nu
 
 export const resolveTable = (table: IPortableTextTable, resolver: (value: any) => string): string => {
     let tableHtml = '<table><tbody>';
+    const resolveCell = (cell: IPortableTextTableCell) => {
+        tableHtml += '<td>';
+        for (let j = 0; j < cell.childBlocksCount; j++) {
+            tableHtml += resolver(cell.content);
+        }
+        tableHtml += '</td>';
+    };
     for (let i = 0; i < table.numColumns; i++) {
-        let currentRow = table.rows[i];
+        const currentRow = table.rows[i];
         tableHtml += '<tr>';
-        currentRow.cells.forEach((cell: IPortableTextTableCell) => {
-            tableHtml += '<td>';
-            for (let j = 0; j < cell.childBlocksCount; j++) {
-                tableHtml += resolver(cell.content);
-            }
-            tableHtml += '</td>';
-        });
+        currentRow.cells.forEach(resolveCell);
         tableHtml += '</tr>';
     }
     tableHtml += '</tbody></table>';
