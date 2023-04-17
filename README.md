@@ -1,3 +1,11 @@
+![Last modified][last-commit]
+[![Issues][issues-shield]][issues-url]
+[![Contributors][contributors-shield]][contributors-url]
+[![MIT License][license-shield]][license-url]
+
+[![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
+[![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
+
 # Kontent.ai rich text transformer
 
 This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
@@ -302,3 +310,14 @@ export const MyComponent = ({value, components}: IMyComponentProps) => {
   return <PortableText value={value} components={components} />
 }
 ```
+
+[last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/rich-text-resolver-js?style=for-the-badge
+[contributors-url]: https://github.com/kontent-ai/rich-text-resolver-js/graphs/contributors
+
+[issues-shield]: https://img.shields.io/github/issues/kontent-ai/rich-text-resolver-js.svg?style=for-the-badge
+[issues-url]: https://github.com/kontent-ai/rich-text-resolver-js/issues
+[license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?style=for-the-badge
+[license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
+[stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge
