@@ -1,28 +1,10 @@
-# TypeScript rich text parser for Kontent.ai
+# JSON Transformer
 
-This tool provides an alternative to rich text parsing and resolution built into the JS SDK, allowing more control over the resolution process, such as specifying the output type and structure.
-
-## Installation
-
-Install the package via npm
-
-`npm i @pokornyd/kontent-ai-rich-text-parser`
-
----
+This module also allows you to manipulate the intermediate JSON structure prior to converting it into Portable text or if you prefer to work with a tree structure, rather than portable text.
 
 ## Usage
 
-Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js.
-
-Their use is identical, the only difference is the underlying parsing logic. Each exposes a single `parse` function, which accepts rich text HTML value in string format.
-
-```ts
-const parsedTree1 = browserParse(richTextValue); // for browsers
-
-const parsedTree2 = nodeParse(richTextValue); // for Node.js
-```
-
-Result is a simple tree structure, defined by the following interface:
+Output of `nodeParse` and `browserParse` methods is a simple tree structure, defined by the following interface.
 
 ```ts
 interface IOutputResult {
@@ -32,13 +14,92 @@ interface IOutputResult {
 
 `IDomNode` is a union of `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
 
-![Resolved DOMTree](./media/domtree.jpg)
+![Resolved DOMTree](../../../media/domtree.jpg)
 
-### Resolution
+The structure can be modified using `transformToJson` method which accepts `IOutputResult` as the first argument and an optional `customResolvers` object, which can contain two methods -- `resolveIDomTextNode` and `resolveIDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
 
-Resolution is achieved by traversing the output tree returned from one of the parse functions and manipulating it as per contextual requirements.
+Example use of the `transformToJson` method:
 
-To identify each node, you may use helper functions included in the module (`isText`, `isElement` (with type guard) and `isLinkedItem`, `isImage`, `isItemLink`, `isUnpairedElement` (boolean)) as in the below example, or manually, based on the domNode type and attributes, see examples:
+```ts
+const transformJsonWithCustomResolvers = (result: IOutputResult) => transformToJson(result, {
+  resolveIDomTextNode: customResolveIDomTextNode,
+  resolveIDomHtmlNode: customResolveIDomHtmlNode
+})
+
+
+const customResolveIDomTextNode: ResolveIDomTextNodeType = node => {
+  return {
+    text: node.content
+  };
+}
+
+const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
+  let result = {
+    tag: node.tagName
+  };
+
+  switch (node.tagName) {
+    case 'figure': {
+      const figureObject = {
+        'imageId': node.attributes['data-image-id']
+      };
+      result = { ...result, ...figureObject }
+      break;
+    }
+    case "img": {
+      const imgObject = {
+        'src': node.attributes['src'],
+        'alt': node.attributes['alt']
+      }
+      result = { ...result, ...imgObject }
+      break;      
+    }
+    case 'ol': {
+      const tdObject = {
+        'tag': 'ol'
+      };
+      result = { ...result, ...tdObject }
+      break;
+    }
+    case 'ul': {
+      const tdObject = {
+        'tag': 'ul'
+      };
+      result = { ...result, ...tdObject }
+      break;
+    }
+    case 'li': {
+      let tdObject = {
+        'tag': 'li',
+        'text': node.children[0].type === 'text' ? node.children[0].content : ""
+      };
+      if (node.children.length > 1) {
+        tdObject = { ...tdObject, ...{ children: node.children.slice(1).map(node => traverse(node)) } }
+      }
+      return { ...result, ...tdObject }
+    }
+    case "object": {
+      if (node.attributes['type'] === 'application/kenticocloud') {
+        const linkedItemObject = {
+          codeName: node.attributes['data-codename']
+        };
+        result = { ...result, ...linkedItemObject }
+      }
+      break;
+    }
+    default: {
+
+    }
+  }
+  return result;
+}
+
+const originalTree = browserParse(richTextValue);
+const transformedTree = transformJsonWithCustomResolvers(originalTree);
+```
+
+## Resolution
+If you prefer working with a tree structure, rather than Portable text, you can implement resolution around the `IOutputResult` tree. See examples below.
 
 #### HTML string (TypeScript)
 

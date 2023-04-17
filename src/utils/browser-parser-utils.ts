@@ -7,7 +7,7 @@ export enum NodeType {
 }
 
 export const convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): Record<string,string> => {
-    let convertedAttributes: Record<string, string> = {};
+    const convertedAttributes: Record<string, string> = {};
 
     for (const attr of domNodeAttributes) {
         convertedAttributes[attr.name] = attr.value;
@@ -24,16 +24,39 @@ export const isTextNode = (domNode: Node): domNode is Text =>
 
 export const isElementNode = (domNode: Node): domNode is Element =>
     domNode.nodeType === NodeType.ELEMENT_NODE
+
+export const isOrderedListBlock = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'ol';
+
+export const isUnorderedListBlock = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'ul';
+
+export const isListBlock = (node: IDomHtmlNode): boolean =>
+    isUnorderedListBlock(node) || isOrderedListBlock(node)
+
+export const isListItem = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'li';
+
+export const isExternalLink = (node: IDomHtmlNode): boolean =>
+    isAnchor(node) && !node.attributes['data-item-id'];
+
+export const isAnchor = (node: IDomHtmlNode): boolean =>
+    node.tagName === 'a';
+
+export type OmitKey<T, K> = Pick<T, Exclude<keyof T, K>>;
+
 /**
  * Returns `true` for text nodes and type guards the node as `IDomTextNode`.
  */ 
 export const isText = (node: IDomNode): node is IDomTextNode =>
     node.type === 'text';
+
 /**
  * Returns `true` for HTML nodes and type guards the node as `IDomHtmlNode`.
  */ 
 export const isElement = (node: IDomNode): node is IDomHtmlNode =>
     node.type === 'tag';
+
 /**
  * Returns `true` if the node is a linked item node (`<object></object>`).
  */ 
@@ -52,14 +75,6 @@ export const isImage = (node: IDomNode): boolean =>
 /**
  * Returns `true` if the node is a link to a content item.
  */
-export const isItemLink = (node: IDomNode): boolean =>
-    isElement(node) &&
-    node.tagName === 'a' &&
-    node.attributes['data-item-id'] ? true : false;
+export const isItemLink = (node: IDomHtmlNode): boolean =>
+    isAnchor(node) && !isExternalLink(node);
 
-/**
- * Returns `true` if the node represents an unpaired element (`br, img, hr, meta`)
- */
-export const isUnPairedElement = (node: IDomNode): boolean =>
-    isElement(node) &&
-    ['br', 'img', 'hr', 'meta'].includes(node.tagName);
