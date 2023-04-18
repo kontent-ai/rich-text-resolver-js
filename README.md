@@ -2,6 +2,7 @@
 [![Issues][issues-shield]][issues-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![MIT License][license-shield]][license-url]
+[![codecov][codecov-shield]][codecov-url]
 
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
@@ -323,3 +324,6 @@ export const MyComponent = ({value, components}: IMyComponentProps) => {
 [license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
 [stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
 [discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge
+[codecov-shield]: https://img.shields.io/codecov/c/github/kontent-ai/rich-text-resolver-js/main.svg?style=for-the-badge
+[codecov-url]: https://app.codecov.io/github/kontent-ai/rich-text-resolver-js
+
