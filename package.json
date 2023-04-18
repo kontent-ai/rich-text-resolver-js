@@ -21,6 +21,7 @@
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
     "build": "npm run build:commonjs && npm run build:esnext",
     "test": "jest",
+    "test:coverage": "jest --collect-coverage",
     "test:watch": "npm run test -- --watch",
     "lint": "eslint . --ext ts,tsx",
     "lint:fix": "eslint . --ext ts,tx --fix"
