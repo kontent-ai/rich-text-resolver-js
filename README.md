@@ -44,19 +44,19 @@ Resolution is described in each corresponding repository. You can also find exam
 
 ### Custom portable text blocks
 
-Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
+Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. **This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:**
 
 #### Component/linked item
-https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L8-L15
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L3-L10
 
 #### Image
-https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L17-L25
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L12-L20
 
 #### Item link
-https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L27-L34
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L22-L29
 
 #### Table
-https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L36-L69
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
 
 <br>
 
