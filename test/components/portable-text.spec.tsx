@@ -44,6 +44,9 @@ const portableTextComponents = {
     table: ({ value }: any) => {
       let tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
+    },
+    image: ({ value }: any) => {
+      return <img src={value.asset.url}></img>;
     }
   },
   marks: {
@@ -129,5 +132,24 @@ describe("portable text React resolver", () => {
 
     let tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`"<table><tbody><tr><td>Ivan</td><td>Jiri</td></tr><tr><td>Ondra</td><td>Dan</td></tr></tbody></table>"`);
+  })
+
+  it("renders an image", () => {
+    dummyRichText.value = `<p>some text before an asset</p><figure data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg" data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" alt=""></figure>`
+    const jsonTree = nodeParse(dummyRichText.value);
+    const portableText = transformToPortableText(jsonTree);
+    const renderer = TestRenderer.create(<PortableText value={portableText} components={portableTextComponents} />);
+
+    let tree = renderer.toJSON();
+    expect(tree).toMatchInlineSnapshot(`
+[
+  <p>
+    some text before an asset
+  </p>,
+  <img
+    src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg"
+  />,
+]
+`);
   })
 })

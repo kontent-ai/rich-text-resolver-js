@@ -173,7 +173,7 @@ const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextIt
 
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
 
-export const flatten = (nodes: IDomNode[], depth = 0, listType?: ListType): IPortableTextItem[] => {
+const flatten = (nodes: IDomNode[], depth = 0, listType?: ListType): IPortableTextItem[] => {
     return nodes.flatMap((node: IDomNode) => {
         let children: IDomNode[] = [];
         let transformedChildren: IPortableTextItem[] = [];

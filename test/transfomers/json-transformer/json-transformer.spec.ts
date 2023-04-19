@@ -1,6 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk"
-import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src/"
-import { IOutputResult, browserParse } from "../../../src/parser"
+
+import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src"
+import { browserParse,IOutputResult } from "../../../src/parser"
 
 const dummy: Elements.RichTextElement = {
   "images": [
@@ -101,14 +102,6 @@ const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
       result = { ...result, ...trObject };
       break;
     }
-    case 'td': {
-      const tdObject = {
-        'tag': 'td',
-        'content': node.children.map(node => traverse(node))
-      };
-      result = { ...result, ...tdObject }
-      break;
-    }
     case 'ol': {
       const tdObject = {
         'tag': 'ol'
@@ -151,7 +144,7 @@ const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
       break;
     }
     default: {
-
+      break;
     }
   }
   if (node.tagName != 'td') {

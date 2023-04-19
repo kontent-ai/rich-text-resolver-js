@@ -88,62 +88,6 @@ exports[`portable text transformer doesn't extend link mark to adjacent spans 1`
 ]
 `;
 
-exports[`portable text transformer flattens html to block array 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [],
-    "markDefs": [],
-    "style": "normal",
-  },
-  {
-    "_key": "guid",
-    "_type": "span",
-    "marks": [],
-    "text": "The coffee drinking culture has been evolving for hundreds and thousands of years. It has never been ",
-  },
-  {
-    "_key": "guid",
-    "_type": "internalLink",
-    "reference": {
-      "_ref": "3120ec15-a4a2-47ec-8ccd-c85ac8ac5ba5",
-      "_type": "reference",
-    },
-  },
-  {
-    "_key": "guid",
-    "_type": "linkMark",
-    "childCount": 2,
-    "value": "guid",
-  },
-  {
-    "_key": "guid",
-    "_type": "span",
-    "marks": [],
-    "text": "so rich as ",
-  },
-  {
-    "_key": "guid",
-    "_type": "mark",
-    "childCount": 1,
-    "value": "strong",
-  },
-  {
-    "_key": "guid",
-    "_type": "span",
-    "marks": [],
-    "text": "today",
-  },
-  {
-    "_key": "guid",
-    "_type": "span",
-    "marks": [],
-    "text": ". How do you make sense of different types of coffee, what do the particular names in beverage menus mean and what beverage to choose for which occasion in your favorite café?",
-  },
-]
-`;
-
 exports[`portable text transformer transforms complex rich text into portable text 1`] = `
 [
   {

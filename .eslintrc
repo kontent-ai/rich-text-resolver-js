@@ -6,5 +6,8 @@
     ],
     "extends": [
       "kontent-ai"
-    ]
+    ],
+    "parserOptions": {
+      "project": ["tsconfig.json", "tsconfig.test.json"]
+    }
   }

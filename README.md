@@ -1,15 +1,13 @@
+# Kontent.ai rich text transformer
+>:information_source: This module is in experimental mode and may undergo changes in the future.
+
 ![Last modified][last-commit]
 [![Issues][issues-shield]][issues-url]
 [![Contributors][contributors-shield]][contributors-url]
 [![MIT License][license-shield]][license-url]
 [![codecov][codecov-shield]][codecov-url]
-
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
-
->:information_source: This module is currently in experimental mode and may undergo significant changes in the future.
-
-# Kontent.ai rich text transformer
 
 This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
 
@@ -48,167 +46,18 @@ Resolution is described in each corresponding repository. You can also find exam
 
 Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:
 
-<details><summary>
-Table
-</summary>
+#### Component/linked item
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L8-L15
 
-```typescript
-export interface IPortableTextBaseItem {
-    _key: string,
-    _type: string
-}
+#### Image
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L17-L25
 
-export interface IPortableTextTable extends IPortableTextBaseItem {
-    _type: 'table',
-    numColumns: number,
-    rows: IPortableTextTableRow[],
-}
+#### Item link
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L27-L34
 
-export interface IPortableTextTableRow extends IPortableTextBaseItem {
-    _type: 'row',
-    cells: IPortableTextTableCell[]
-}
+#### Table
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/src/showcase/showcase.ts#L36-L69
 
-export interface IPortableTextTableCell extends IPortableTextBaseItem {
-    _type: 'cell',
-    childBlocksCount: number,
-    content: IPortableTextBlock[]
-}
-
-```
-
-Example portable text representation of a table:
-https://github.com/pokornyd/rich-text-resolver/blob/216cfea6385f751310095390fd84ffbd93aa5273/test/transfomers/portable-text-transformer/__snapshots__/portable-text-transformer.spec.ts.snap#L853
-
-</details>
-
-<details><summary>
-Component/linked item
-</summary>
-
-```typescript
-export interface IPortableTextBaseItem {
-    _key: string,
-    _type: string
-}
-
-export interface IPortableTextComponent extends IPortableTextBaseItem {
-    _type: 'component',
-    component: IReference
-}
-
-export interface IReference {
-    _type: 'reference',
-    _ref: string
-}
-
-// Example portable text representation of a component/linked item
-// [
-//   {
-//     "_key": "guid",
-//     "_type": "component",
-//     "component": {
-//       "_ref": "test_item",
-//       "_type": "reference",
-//     },
-//   },
-// ]
-
-```
-</details>
-
-<details><summary>
-Item link
-</summary>
-
-```typescript
-export interface IPortableTextBaseItem {
-    _key: string,
-    _type: string
-}
-
-export interface IPortableTextInternalLink extends IPortableTextBaseItem {
-    _type: 'internalLink',
-    reference: IReference
-}
-
-export interface IReference {
-    _type: 'reference',
-    _ref: string
-}
-
-// Example representation of an item link in portable text
-// [
-//   {
-//     "_key": "guid",
-//     "_type": "block",
-//     "children": [
-//       {
-//         "_key": "guid",
-//         "_type": "span",
-//         "marks": [
-//           "strong",
-//           "guid",
-//         ],
-//         "text": "link to an item",
-//       },
-//     ],
-//     "markDefs": [
-//       {
-//         "_key": "guid",
-//         "_type": "internalLink",
-//         "reference": {
-//           "_ref": "23f71096-fa89-4f59-a3f9-970e970944ec",
-//           "_type": "reference",
-//         },
-//       },
-//     ],
-//     "style": "normal",
-//   },
-// ]
-
-```
-</details>
-
-<details><summary>
-Image
-</summary>
-
-```typescript
-export interface IPortableTextBaseItem {
-    _key: string,
-    _type: string
-}
-
-export interface IReference {
-    _type: 'reference',
-    _ref: string
-}
-
-export interface IAssetReference extends IReference {
-    url: string
-}
-
-export interface IPortableTextImage extends IPortableTextBaseItem {
-    _type: 'image',
-    asset: IAssetReference
-}
-
-// portable text representation of an image
-// [
-//   {
-//     "_key": "guid",
-//     "_type": "image",
-//     "asset": {
-//       "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
-//       "_type": "reference",
-//       "url": "https://assets-eu-01.kc-usercontent.com:443/.../image.jpg",
-//     },
-//   }
-// ]
-
-```
-</details>
 <br>
 
 >💡 For table resolution, you may use `resolveTable` helper function. It accepts two arguments -- custom block of type `table` and a method to transform content of its cells into valid HTML. See below for usage examples. Alternatively, you can iterate over the table structure and resolve it as per your requirements (e.g. if you want to add CSS classes to its elements)
@@ -275,22 +124,25 @@ const portableText = transformToPortableText(parsedTree);
 
 interface IMyComponentProps {
   value: IPortableTextItem[];
-  components: any;
+  components: Partial<PortableTextReactComponents>;
 }
 
-const portableTextComponents = {
+const portableTextComponents: Partial<PortableTextReactComponents> = {
   types: {
-    component: (block: any) => {
+    component: (block) => {
       const item = linkedItems.find(item => item.system.codename === block.value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
-    table: ({ value }: any) => {
+    table: ({ value }) => {
       let tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
+    },
+    image: ({ value }) => {
+      return <img src={value.asset.url}></img>;
     }
   },
   marks: {
-    link: ({ value, children }: any) => {
+    link: ({ value, children }) => {
       const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
       return (
         <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value['data-new-window']}>
@@ -298,7 +150,7 @@ const portableTextComponents = {
         </a>
       )
     },
-    internalLink: ({ value, children }: any) => {
+    internalLink: ({ value, children }) => {
       const item = linkedItems.find(item => item.system.id === value.reference._ref);
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
