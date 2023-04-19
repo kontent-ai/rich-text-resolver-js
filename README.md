@@ -1,7 +1,5 @@
 # Kontent.ai rich text transformer
 
-> :information_source: This module is in experimental mode and may undergo changes in the future.
-
 ![Last modified][last-commit]
 [![Issues][issues-shield]][issues-url]
 [![Contributors][contributors-shield]][contributors-url]
@@ -10,13 +8,15 @@
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
+> :information_source: This module is in experimental mode and may undergo changes in the future.
+
 This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
 
 ## Installation
 
 Install the package via npm
 
-`npm i @pokornyd/kontent-ai-rich-text-parser`
+`npm i @kontent-ai/rich-text-resolver`
 
 ---
 
@@ -67,6 +67,8 @@ https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b
 
 ## Examples
 
+### Plain HTML resolution
+
 HTML resolution using `@portabletext/to-html` package.
 
 ```ts
@@ -75,7 +77,7 @@ import {
   browserParse,
   transformToPortableText,
   resolveTable,
-} from "@pokornyd/kontent-ai-rich-text-parser";
+} from "@kontent-ai/kontent-ai-rich-text-parser";
 
 const richTextValue = "<rich text html>";
 const linkedItems = ["<array of linked items>"];
@@ -120,27 +122,20 @@ const portableTextComponents: PortableTextOptions = {
 const resolvedHtml = toHTML(portableText, portableTextComponents);
 ```
 
+### React resolution
+
 React, using `@portabletext/react` package.
 
 ```tsx
-import { PortableText, toPlainText } from "@portabletext/react";
+import { PortableText, PortableTextReactComponents } from "@portabletext/react";
 import {
-  nodeParse,
-  resolveTable,
+  browserParse,
   transformToPortableText,
-} from "@pokornyd/kontent-ai-rich-text-parser";
+} from "@kontent-ai/kontent-ai-rich-text-parser";
 
-const richTextValue = "<rich text html>";
-const linkedItems = ["<array of linked items>"];
-const parsedTree = browserParse(richTextValue);
-const portableText = transformToPortableText(parsedTree);
-
-interface IMyComponentProps {
-  value: IPortableTextItem[];
-  components: Partial<PortableTextReactComponents>;
-}
-
-const portableTextComponents: Partial<PortableTextReactComponents> = {
+const createPortableTextComponents = (
+  linkedItems
+) => ({
   types: {
     component: (block) => {
       const item = linkedItems.find(
@@ -170,6 +165,8 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
       return table;
     },
     image: ({ value }) => {
+      // It is possible to use images from the rich text element response same as for linked items
+      // const image = images.find(image => image.image_id === value.asset._ref)
       return <img src={value.asset.url}></img>;
     },
   },
@@ -191,21 +188,55 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
       );
     },
     internalLink: ({ value, children }) => {
-      const item = linkedItems.find(
-        (item) => item.system.id === value.reference._ref
-      );
+      // It is possible to use links from the rich text element response same as for linked items
+      // const item = links.find(link => link.link_id === value.reference._ref);
       return (
-        <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
+        <a href={"https://somerandomwebsite.xyz/" + value.reference._ref}>
           {children}
         </a>
       );
     },
   },
-};
+});
 
-export const MyComponent = ({ value, components }: IMyComponentProps) => {
-  return <PortableText value={value} components={components} />;
+const MyComponent = ({ props }) => {
+  // https://github.com/portabletext/react-portabletext#customizing-components
+  const portableTextComponents = useMemo(
+    () => createPortableTextComponents(props.element.linkedItems),
+    [props.element.linkedItems]
+  );
+
+  const parsedTree = browserParse(props.element.value);
+  const portableText = transformToPortableText(parsedTree);
+
+  return (
+    <PortableText value={portableText} components={portableTextComponents} />
+  );
 };
+```
+
+#### Gatsby.js
+
+For [Gatsby.js](https://www.gatsbyjs.com) it is necessary to [ignore the RichText browser module by customizing webpack configuration](https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules) to utilize the package. The rest is the same for React above.
+
+```js
+// gatsby-node.js
+
+// https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules
+exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
+  if (stage === "build-html" || stage === "develop-html") {
+    actions.setWebpackConfig({
+      module: {
+        rules: [
+          {
+            test: /RichTextBrowserParser/,
+            use: loaders.null(),
+          },
+        ],
+      },
+    })
+  }
+}
 ```
 
 [last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge

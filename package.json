@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "0.1.10",
+  "version": "0.0.1",
   "description": "Kontent.ai rich text element resolver for Javascript and Typescript",
   "repository": {
     "type": "git",
