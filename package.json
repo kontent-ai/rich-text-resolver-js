@@ -1,6 +1,7 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
   "version": "0.0.1",
+  "private": false,
   "description": "Kontent.ai rich text element resolver for Javascript and Typescript",
   "license": "MIT",
   "author": "Daniel Pokorny",
@@ -44,5 +45,9 @@
     "eslint-config-kontent-ai": "^0.1.4",
     "node-html-parser": "^5.3.3",
     "short-unique-id": "^4.4.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   }
 }
