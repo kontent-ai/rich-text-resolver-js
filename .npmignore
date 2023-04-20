@@ -1,0 +1,17 @@
+# repo metadata
+.github/**
+
+
+# tests
+tests/**
+jest.config.js
+tsconfig.test.json
+
+# source
+src/**
+index.ts
+
+# docs
+media/**
+docs/**
+showcase/**

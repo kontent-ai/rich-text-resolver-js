@@ -2,21 +2,15 @@
   "name": "@kontent-ai/rich-text-resolver",
   "version": "0.0.1",
   "description": "Kontent.ai rich text element resolver for Javascript and Typescript",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/kontent-ai/rich-text-resolver.git"
   },
-  "files": [
-    "README.md",
-    "dist/"
-  ],
   "main": "dist/cjs/index.js",
   "module": "dist/esnext/index.js",
   "types": "dist/cjs/index.d.ts",
   "scripts": {
-    "publish:patch": "npx rimraf dist && npm run build && npm version patch && npm publish --access public",
-    "publish:minor": "npx rimraf dist && npm run build && npm version minor && npm publish --access public",
-    "publish:major": "npx rimraf dist && npm run build && npm version major && npm publish --access public",
     "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
     "build": "npm run build:commonjs && npm run build:esnext",
@@ -26,8 +20,6 @@
     "lint": "eslint . --ext ts,tsx",
     "lint:fix": "eslint . --ext ts,tx --fix"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@kontent-ai/delivery-sdk": "^12.4.3",
     "@portabletext/react": "^2.0.2",
