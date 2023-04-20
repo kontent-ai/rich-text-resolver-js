@@ -20,6 +20,7 @@ export {
     IOutputResult, 
     resolveTable, 
     transformToJson,
+    transformToPortableText,
     IPortableTextBaseItem, 
     IPortableTextComponent, 
     IPortableTextBlock, 
