@@ -7,7 +7,7 @@
   "author": "Daniel Pokorny",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kontent-ai/rich-text-resolver.git"
+    "url": "https://github.com/kontent-ai/rich-text-resolver-js.git"
   },
   "main": "dist/cjs/index.js",
   "module": "dist/esnext/index.js",
