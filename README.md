@@ -1,4 +1,4 @@
-# Kontent.ai rich text transformer
+# Kontent.ai rich text resolver
 
 ![Last modified][last-commit]
 [![Issues][issues-shield]][issues-url]
