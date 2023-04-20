@@ -87,10 +87,10 @@ const portableText = transformToPortableText(parsedTree);
 const portableTextComponents: PortableTextOptions = {
   components: {
     types: {
-      image: ({ value }) => {
+      image: ({ value }: { value: IPortableTextImage }) => {
         return `<img src="${value.asset.url}"></img>`;
       },
-      component: ({ value }) => {
+      component: ({ value }: {value: IPortableTextComponent}) => {
         const linkedItem = linkedItems.find(
           (item) => item.system.codename === value.component._ref
         );
@@ -103,16 +103,16 @@ const portableTextComponents: PortableTextOptions = {
           }
         }
       },
-      table: ({ value }) => {
+      table: ({ value }: {value: IPortableTextTable } => {
         const tableHtml = resolveTable(value, toHTML); // helper method for resolving tables
         return tableHtml;
       },
     },
     marks: {
-      internalLink: ({ children, value }) => {
+      internalLink: ({ children, value }: {children: any /* array of blocks (IPortableTextBaseItem) */ */, value: IPortableTextInternalLink}) => {
         return `\<a href=\"https://website.com/${value.reference._ref}">${children}</a>`;
       },
-      link: ({ children, value }) => {
+      link: ({ children, value }: {children: any /* array of blocks (IPortableTextBaseItem) */ */, value: IPortableTextExternalLink}) => {
         return `\<a href=${value?.href} target=${target} rel=${value?.rel} title=${value?.title} data-new-window=${value["data-new-window"]}>${children}</a>`;
       },
     },
@@ -133,9 +133,7 @@ import {
   transformToPortableText,
 } from "@kontent-ai/kontent-ai-rich-text-parser";
 
-const createPortableTextComponents = (
-  linkedItems
-) => ({
+const createPortableTextComponents = (linkedItems) => ({
   types: {
     component: (block) => {
       const item = linkedItems.find(
@@ -234,9 +232,9 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
           },
         ],
       },
-    })
+    });
   }
-}
+};
 ```
 
 [last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge
