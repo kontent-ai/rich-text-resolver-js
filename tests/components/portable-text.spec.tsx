@@ -1,7 +1,8 @@
 import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
+import { PortableText, toPlainText } from '@portabletext/react';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { PortableText, toPlainText } from '@portabletext/react';
+
 import { nodeParse, resolveTable, transformToPortableText } from '../../src';
 
 const dummyRichText: Elements.RichTextElement = {
@@ -42,7 +43,7 @@ const portableTextComponents = {
       return <div>{item?.elements.text_element.value}</div>;
     },
     table: ({ value }: any) => {
-      let tableString = resolveTable(value, toPlainText);
+      const tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
     },
     image: ({ value }: any) => {
@@ -75,7 +76,7 @@ describe("portable text React resolver", () => {
     const portableText = transformToPortableText(jsonTree);
     const renderer = TestRenderer.create(<PortableText value={portableText} />)
 
-    let tree = renderer.toJSON();
+    const tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`
 <p>
   some text in a paragraph
@@ -84,12 +85,12 @@ describe("portable text React resolver", () => {
   })
 
   it("renders a resolved linked item", () => {
-    dummyRichText.value = '<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object>';
+    dummyRichText.value = '<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>';
     const jsonTree = nodeParse(dummyRichText.value);
     const portableText = transformToPortableText(jsonTree);
     const renderer = TestRenderer.create(<PortableText value={portableText} components={portableTextComponents} />);
 
-    let tree = renderer.toJSON();
+    const tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`
 <div>
   random text value
@@ -98,12 +99,12 @@ describe("portable text React resolver", () => {
   })
 
   it("renders internal and external links", () => {
-    dummyRichText.value = "<p><a href=\"http://google.com\" title=\"linktitle\" target=\"_blank\" >external link</a><a data-item-id=\"99e17fe7-a215-400d-813a-dc3608ee0294\" href=\"\"><strong>item link</strong></a></p>"
+    dummyRichText.value = `<p><a href="http://google.com" title="linktitle" target="_blank" >external link</a><a data-item-id="99e17fe7-a215-400d-813a-dc3608ee0294" href=""><strong>item link</strong></a></p>`
     const jsonTree = nodeParse(dummyRichText.value);
     const portableText = transformToPortableText(jsonTree);
     const renderer = TestRenderer.create(<PortableText value={portableText} components={portableTextComponents} />);
 
-    let tree = renderer.toJSON();
+    const tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`
 <p>
   <a
@@ -130,7 +131,7 @@ describe("portable text React resolver", () => {
     const portableText = transformToPortableText(jsonTree);
     const renderer = TestRenderer.create(<PortableText value={portableText} components={portableTextComponents} />);
 
-    let tree = renderer.toJSON();
+    const tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`"<table><tbody><tr><td>Ivan</td><td>Jiri</td></tr><tr><td>Ondra</td><td>Dan</td></tr></tbody></table>"`);
   })
 
@@ -140,7 +141,7 @@ describe("portable text React resolver", () => {
     const portableText = transformToPortableText(jsonTree);
     const renderer = TestRenderer.create(<PortableText value={portableText} components={portableTextComponents} />);
 
-    let tree = renderer.toJSON();
+    const tree = renderer.toJSON();
     expect(tree).toMatchInlineSnapshot(`
 [
   <p>
