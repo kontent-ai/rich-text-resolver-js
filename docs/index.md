@@ -14,7 +14,7 @@ interface IOutputResult {
 
 `IDomNode` is a union of `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
 
-![Resolved DOMTree](../../../media/domtree.jpg)
+![Resolved DOMTree](../media/domtree.jpg)
 
 The structure can be modified using `transformToJson` method which accepts `IOutputResult` as the first argument and an optional `customResolvers` object, which can contain two methods -- `resolveIDomTextNode` and `resolveIDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
 
