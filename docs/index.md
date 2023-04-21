@@ -16,7 +16,7 @@ interface IOutputResult {
 
 ![Resolved DOMTree](../media/domtree.jpg)
 
-The structure can be modified using `transformToJson` method which accepts `IOutputResult` as the first argument and an optional `customResolvers` object, which can contain two methods -- `resolveIDomTextNode` and `resolveIDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
+The structure can be modified using `transformToJson` method which accepts `IOutputResult` as the first argument and an optional `customResolvers` object, which can contain two methods `resolveIDomTextNode` and `resolveIDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
 
 Example use of the `transformToJson` method:
 
