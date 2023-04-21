@@ -227,7 +227,7 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
       module: {
         rules: [
           {
-            test: /RichTextBrowserParser/,
+            test: /rich-text-browser-parser/,
             use: loaders.null(),
           },
         ],
