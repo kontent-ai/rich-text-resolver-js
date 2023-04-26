@@ -8,7 +8,10 @@ isTextNode
 import { IDomNode, IOutputResult } from "../parser-models";
 
 export const parse = (input: string): IOutputResult => {
-  const document = browserParse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));
+  const parser = new DOMParser();
+  const html = input.replaceAll(getAllNewLineAndWhiteSpace, '');
+  
+  const document = parser.parseFromString(html, 'text/html');
 
   if (isRootNode(document) && document.body.firstChild) {
     return {
@@ -40,7 +43,3 @@ const parseInternal = (document: Node): IDomNode => {
 
   throw new Error("Unknown node");
 };
-
-const parser = new DOMParser();
-
-const browserParse = (html: string) => parser.parseFromString(html, 'text/html');
