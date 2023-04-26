@@ -9,9 +9,9 @@ import { IDomNode, IOutputResult } from "../parser-models";
 
 export const parse = (input: string): IOutputResult => {
   const parser = new DOMParser();
-  const html = input.replaceAll(getAllNewLineAndWhiteSpace, '');
+  const sanitizedInput = input.replaceAll(getAllNewLineAndWhiteSpace, '');
   
-  const document = parser.parseFromString(html, 'text/html');
+  const document = parser.parseFromString(sanitizedInput, 'text/html');
 
   if (isRootNode(document) && document.body.firstChild) {
     return {
