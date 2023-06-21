@@ -96,7 +96,6 @@ describe("portable text transformer", () => {
     const result = transformToPortableText(tree);
 
     expect(result).toMatchSnapshot();
- 
   })
 
   it("transforms external links", () => {
@@ -133,6 +132,14 @@ describe("portable text transformer", () => {
 
   it("transforms complex rich text into portable text", () => {
     dummyRichText.value = `<table><tbody><tr><td><ul><li>list item</li><ol><li>nested list item</li></ol></ul></td></tr></tbody></table><table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><ul>\n  <li>list item\n     </li>\n</ul>\n</td><td><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">this is a<strong>strong</strong>link</a></td></tr>\n<tr><td><h1><strong>nadpis</strong></h1></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><em>italic text</em></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table><p>text<a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">normal and<strong>bold</strong>link</a></p><h1>heading</h1><object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
+    const tree = nodeParse(dummyRichText.value);
+    const result = transformToPortableText(tree);
+
+    expect(result).toMatchSnapshot();
+  })
+
+  it("Transform table with everything in it", () => {
+    dummyRichText.value = `<table><tbodytr><td><br></td><td><p><a data-item-id="e2d97322-470a-42e7-a31e-40be26c2ef24" href=""><strong>NanoBlade X</strong></a></p><figure data-asset-id="bb79f32d-4fed-4d46-bec3-71b1c285ca30" data-image-id="bb79f32d-4fed-4d46-bec3-71b1c285ca30"><img src="https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/2af0a87f-d750-4f6c-b6ff-8f895fa7d235/scalpel_blade_12.jpg" data-asset-id="bb79f32d-4fed-4d46-bec3-71b1c285ca30" data-image-id="bb79f32d-4fed-4d46-bec3-71b1c285ca30" alt=""></figure></td><td><p><a data-item-id="abaf708d-5d91-4b50-9905-30f1d0f482f9" href=""><strong>NanoBlade V</strong></a></p><figure data-asset-id="f6827ddf-7b07-49c3-819d-5270f1ac0164" data-image-id="f6827ddf-7b07-49c3-819d-5270f1ac0164"><img src="https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/653b1fc7-466a-4d91-945a-964ae4f9570a/scalpel_blade_11.jpg" data-asset-id="f6827ddf-7b07-49c3-819d-5270f1ac0164" data-image-id="f6827ddf-7b07-49c3-819d-5270f1ac0164" alt=""></figure></td></trtr><td>Nano-scale Cutting</td><td>Offers ultra-fine incisions with precision</td><td>Provides precise incisions</td></trtr><td>Blade Material</td><td><a data-asset-id="d27a4f12-c51c-4d64-bb8f-6dcd008abb96" href="https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/090af31a-6188-4c37-9623-1422fa966d3d/DALL%C2%B7E%202023-06-21%2008.57.55%20-%20GFenerate%20a%20scientific%20showcase%20of%20the%20the%20molecule%20similar%20to%20corabon%20.png">Advanced material</a> for durability</td><td>High-quality material</td></trtr><td>Imaging Compatibility</td><td><strong>Seamless integration</strong> with imaging tech</td><td>Limited integration</td></trtr><td><a href="https://www.nbstsa.org/cst-certification" title="CST certification">Regulatory Compliance</a></td><td><p>Exceeds regulatory standards</p><ulli>Basic</lili>Advanced    <ul><li><strong>Advaced II</strong></li></ul/li></ul></td><td>Meets regulatory standards</td></tr></tbody></table>`;
     const tree = nodeParse(dummyRichText.value);
     const result = transformToPortableText(tree);
 
