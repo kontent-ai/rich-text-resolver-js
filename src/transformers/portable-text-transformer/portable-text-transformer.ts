@@ -69,7 +69,7 @@ const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
             case 'link': {
                 const lastBlockIndex = findLastIndex(mergedItems, item => item._type === 'block');
                 const updatedBlock = mergedItems[lastBlockIndex];
-                if (updatedBlock && 'markDefs' in updatedBlock) {
+                if ('markDefs' in updatedBlock) {
                     updatedBlock.markDefs.push(item);
                     mergedItems[lastBlockIndex] = updatedBlock;
                 } else {
@@ -162,7 +162,6 @@ const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, l
         let children: IDomNode[] = [];
         let transformedChildren: IPortableTextItem[] = [];
         let currentListType = listType;
-        let listDepthIncrement = 0;
         const finishedItems: IPortableTextItem[] = [];
 
         if (isElement(node)) {
