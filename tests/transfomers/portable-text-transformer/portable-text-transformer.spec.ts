@@ -87,65 +87,7 @@ describe("portable text transformer", () => {
     const tree = nodeParse(dummyRichText.value);
     const result = transformToPortableText(tree);
 
-    expect(result).toMatchInlineSnapshot(`
-[
-  {
-    "_key": "guid",
-    "_type": "table",
-    "numColumns": 2,
-    "rows": [
-      {
-        "_key": "guid",
-        "_type": "row",
-        "cells": [
-          {
-            "_key": "guid",
-            "_type": "cell",
-            "childBlocksCount": 1,
-            "content": [
-              {
-                "_key": "guid",
-                "_type": "block",
-                "children": [
-                  {
-                    "_key": "guid",
-                    "_type": "span",
-                    "marks": [],
-                    "text": "cell content1",
-                  },
-                ],
-                "markDefs": [],
-                "style": "normal",
-              },
-            ],
-          },
-          {
-            "_key": "guid",
-            "_type": "cell",
-            "childBlocksCount": 1,
-            "content": [
-              {
-                "_key": "guid",
-                "_type": "block",
-                "children": [
-                  {
-                    "_key": "guid",
-                    "_type": "span",
-                    "marks": [],
-                    "text": "cell 2",
-                  },
-                ],
-                "markDefs": [],
-                "style": "normal",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]
-`);
+    expect(result).toMatchSnapshot();
   })
 
   it("transforms item links", () => {
