@@ -36,6 +36,7 @@ import {
     isElement,
     isExternalLink,
     isListBlock,
+    isListItem,
     isOrderedListBlock,
     isText,
     isUnorderedListBlock
@@ -74,6 +75,7 @@ const mergeSpansAndMarks = (itemsToMerge: IPortableTextItem[]): IPortableTextIte
                 } else {
                     const newBlock = createBlock(uid().toString());
                     newBlock.markDefs.push(item);
+                    mergedItems.push(newBlock);
                 }
                 break;
             }
@@ -153,49 +155,36 @@ const mergeRowsAndCells = (itemsToMerge: IPortableTextItem[]): IPortableTextItem
     return mergedItems;
 }
 
-const mergeCellsAndBlocks = (itemsToMerge: IPortableTextItem[]): IPortableTextItem[] => {
-    const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item, index, array) => {
-        if (item._type === 'cell') {
-            for (let i = 1; i <= item.childBlocksCount; i++) {
-                item.content.push(array[index + i] as IPortableTextBlock);
-            }
-            array.splice(index, item.childBlocksCount);
-            mergedItems.push(item);
-        } else {
-            mergedItems.push(item);
-        }
+const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBlocksAndSpans, mergeSpansAndMarks);
 
-        return mergedItems;
-    }, [])
-
-    return mergedItems;
-}
-
-const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeCellsAndBlocks, mergeBlocksAndSpans, mergeSpansAndMarks);
-
-const flatten = (nodes: IDomNode[], depth = 0, listType?: ListType): IPortableTextItem[] => {
+const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: ListType): IPortableTextItem[] => {
     return nodes.flatMap((node: IDomNode) => {
         let children: IDomNode[] = [];
         let transformedChildren: IPortableTextItem[] = [];
         let currentListType = listType;
-        let listDepthIncrement = 0;
         const finishedItems: IPortableTextItem[] = [];
 
         if (isElement(node)) {
-            children = node.children;
+            children = node.tagName === 'td' ? [] : node.children;
             if (isUnorderedListBlock(node)) {
+                lastListElement = node;
                 currentListType = 'bullet';
-                listDepthIncrement = 1;
             }
 
-            if (isOrderedListBlock(node)) {
+            else if (isOrderedListBlock(node)) {
+                lastListElement = node;
                 currentListType = 'number';
-                listDepthIncrement = 1;
+            }
+
+            else if (isListItem(node)) {
+                if(lastListElement && isListBlock(lastListElement))
+                    depth = depth + 1;
+                lastListElement = node;
             }
         }
 
         const transformedNode = transformNode(node, depth, currentListType);
-        transformedChildren = flatten(children, depth + listDepthIncrement, currentListType);
+        transformedChildren = flatten(children, depth, lastListElement, currentListType);
         finishedItems.push(...transformedNode, ...transformedChildren);
 
         return finishedItems;
@@ -227,38 +216,21 @@ const transformImage: TransformElementFunction = (node: IDomHtmlNode): IPortable
 }
 
 const transformTableCell: TransformElementFunction = (node: IDomHtmlNode): IPortableTextItem[] => {
-    let listDepth = 0;
-    let listNode: IDomNode | undefined;
-    const setListDepth = (node: IDomHtmlNode): void => {
-        if (listDepth === 0) {
-            listNode = node.children.find(childNode =>
-                childNode.type === 'tag' &&
-                isListBlock(childNode)
-            )
-        }
+    const cellContent = flatten(node.children, 0);
+    const isFirstChildText = (
+        node.children[0]?.type === 'text' ||
+        ['br', 'a', 'strong', 'em', 'sup', 'sub', 'code'].includes(node.children[0]?.tagName)
+    );
+    
+    if(isFirstChildText)
+        cellContent.unshift(createBlock(uid().toString()));
 
-        if (listNode && listNode.type === 'tag') {
-            const childListNode = listNode.children.find(childNode =>
-                childNode.type === 'tag' &&
-                isListBlock(childNode)
-            )
+    const mergedCellContent = composeAndMerge(cellContent);
+    const tableCell = createTableCell(uid().toString(), mergedCellContent.length);
+    tableCell.content = mergedCellContent as IPortableTextBlock[];
 
-            if (childListNode && childListNode.type === 'tag') {
-                listNode = childListNode;
-                listDepth++;
-                setListDepth(listNode);
-            }
-        }
-    }
-    setListDepth(node);
-    const childBlocksCount = node.children.length + listDepth;
-    const cellContent: IPortableTextItem[] = [createTableCell(uid().toString(), childBlocksCount)];
-
-    if (node.children[0].type === 'text' || ['br', 'a', 'strong', 'em', 'sup', 'sub', 'code'].includes(node.children[0].tagName)) // create block if cell first child isn't one
-        cellContent.push(createBlock(uid().toString()));
-
-    return cellContent;
-}
+    return [tableCell];
+};
 
 const transformItem: TransformElementFunction = (node: IDomHtmlNode): IPortableTextItem[] => {
     const itemReference: IReference = {
