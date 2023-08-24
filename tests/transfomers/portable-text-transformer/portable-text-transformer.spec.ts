@@ -1,7 +1,4 @@
-import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { escapeHTML, PortableTextOptions, toHTML } from '@portabletext/to-html';
-
-import { nodeParse, resolveTable, transformToPortableText } from "../../../src";
+import { browserParse, nodeParse, transformToPortableText } from "../../../src";
 
 jest.mock('short-unique-id', () => {
   return jest.fn().mockImplementation(() => {
@@ -9,139 +6,21 @@ jest.mock('short-unique-id', () => {
   });
 });
 
-
-const dummyRichText: Elements.RichTextElement = {
-  value: "<p><br></p>",
-  type: ElementType.RichText,
-  images: [],
-  linkedItemCodenames: [],
-  linkedItems: [
-    {
-      system: {
-        id: "99e17fe7-a215-400d-813a-dc3608ee0294",
-        name: "test item",
-        codename: "test_item",
-        language: "default",
-        type: "test",
-        collection: "default",
-        sitemapLocations: [],
-        lastModified: "2022-10-11T11:27:25.4033512Z",
-        workflowStep: "published"
-      },
-      elements: {
-        text_element: {
-          type: ElementType.Text,
-          name: "text element",
-          value: "random text value"
-        }
-      }
-    }
-  ],
-  links: [],
-  name: "dummy"
-};
-
-const portableTextComponents: PortableTextOptions = {
-  components: {
-    types: {
-      image: ({ value }) => {
-        return `<img src="${value.asset.url}"></img>`;
-      },
-      component: ({ value }) => {
-        const linkedItem = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
-        switch (linkedItem?.system.type) {
-          case ('test'): {
-            return `<p>resolved value of text_element: <strong>${linkedItem.elements.text_element.value}</strong></p>`;
-          }
-          default: {
-            return `Resolver for type ${linkedItem?.system.type} not implemented.`
-          }
-        }
-      },
-      table: ({ value }) => {
-        const tableHtml = resolveTable(value, toHTML);
-        return tableHtml;
-      }
-    },
-    marks: {
-      internalLink: ({ children, value }) => {
-        return `<a href="https://website.com/${value.reference._ref}">${children}</a>`
-      },
-      link: ({ children, value }) => {
-        return `<a href=${escapeHTML(value.href)}">${children}</a>`
-      }
-    }
-  }
-}
-
 describe("portable text transformer", () => {
   it("transforms empty rich text", () => {
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+    const input = "<p><br></p>";
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("transforms tables", () => {
-    dummyRichText.value = `<table><tbody><tr><td>cell content1</td><td>cell 2</td></tr></tbody></table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("transforms item links", () => {
-    dummyRichText.value = `<p><a data-item-id="23f71096-fa89-4f59-a3f9-970e970944ec" href="">text<strong>link to an item</strong></a></p>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-
-  })
-
-  it("transforms external links", () => {
-    dummyRichText.value = `<h2><strong>Kontent supports portable text!</strong></h2>\n<p>For more information, check out the related <a href="https://github.com/portabletext/portabletext" data-new-window="true" title="Portable text repo" target="_blank" rel="noopener noreferrer"><strong>GitHub repository.</strong></a></p>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("transforms nested styles", () => {
-    dummyRichText.value = `<p><strong>all text is bold and last part is </strong><em><strong>also italic and this is also </strong></em><em><strong><sup>superscript</sup></strong></em></p>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("transforms lists", () => {
-    dummyRichText.value = `<ul><li>first level bullet</li><li>first level bullet</li><ol><li>nested number in bullet list</li></ol></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong></li></ol>`;
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("transforms images", () => {
-    dummyRichText.value = `<figure data-asset-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" data-image-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0"><img src="https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg" data-asset-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" data-image-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" alt=""></figure><p><em>text in a paragraph</em></p>`;
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("transforms complex rich text into portable text", () => {
-    dummyRichText.value = `<table><tbody><tr><td><ul><li>list item</li><ol><li>nested list item</li></ol></ul></td></tr></tbody></table><table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><ul>\n  <li>list item\n     </li>\n</ul>\n</td><td><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">this is a<strong>strong</strong>link</a></td></tr>\n<tr><td><h1><strong>nadpis</strong></h1></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><em>italic text</em></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table><p>text<a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">normal and<strong>bold</strong>link</a></p><h1>heading</h1><object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("Transform medium complex table", () => {
-    dummyRichText.value =
-      `<table>
+  it.each([
+    `<table><tbody><tr><td>cell content1</td><td>cell 2</td></tr></tbody></table>`,
+    `<table>
     <tbody>
        <tr>
           <td><br></td>
@@ -184,125 +63,230 @@ describe("portable text transformer", () => {
           <td>Meets regulatory standards</td>
        </tr>
     </tbody>
- </table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("Transform complex table", () => {
-    dummyRichText.value =
-      `<p>Text</p>
-    <p><strong>Bold text</strong></p>
-    <p><strong>Bold text </strong><em><strong>with itallic</strong></em><strong> in it</strong></p>
-    <p><strong>Overlapping bold </strong><em><strong>over</strong></em><em> itallic text</em></p>
-    <ol>
-      <li>Odered list</li>
-      <li>Ord<strong>ered </strong><strong><sub>li</sub></strong><a href=\"http://www.example.com\"><em><strong><sub>s</sub></strong></em><em>t with s</em>tyles and li</a>nk
-        <ol>
-          <li>Nested ordered list</li>
-          <li>Nested ordered list
-            <ol>
-              <li>More nested ordered list</li>
-              <li><br></li>
-            </ol>
-          </li>
-        </ol>
-      </li>
-    </ol>
-    <h1><br></h1>
-    <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
-    <h1>Heading</h1>
-    <h4>Heading little</h4>
-    <table><tbody>
-      <tr><td>1</td><td>2 - w<strong>ith bold te</strong>xt</td><td>3 - w<a href=\"http://www.example.com\">ith link ins</a>ide</td></tr>
-      <tr><td>4 <em>- w</em><a data-item-id=\"6538fde0-e6e5-425c-8642-278e637b2dc1\" href=\"\"><em>ith lin</em>k to cont</a>ent</td><td><p>5 - with image in <em>table</em></p>
-    <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
-    <p><em>and style over the i</em>mage</p>
-    </td><td><p>6 - with list&nbsp;</p>
-    <ul>
-      <li>List in table</li>
-      <li>Another list item in table
-        <ul>
-          <li>Nested in table
-            <ul>
-              <li>More nested in table&nbsp;
-                <ol>
-                  <li>Ordered inside unorederd</li>
-                  <li>More unordered</li>
-                </ol>
-              </li>
-            </ul>
-          </li>
-        </ul>
-        <ol>
-          <li>Returning byck</li>
-        </ol>
-      </li>
-    </ul>
-    <ol>
-      <li><br></li>
-    </ol>
-    </td></tr>
-      <tr><td>7</td><td>8</td><td>9</td></tr>
-    </tbody>
+ </table>`,
+    `<p>Text</p>
+ <p><strong>Bold text</strong></p>
+ <p><strong>Bold text </strong><em><strong>with itallic</strong></em><strong> in it</strong></p>
+ <p><strong>Overlapping bold </strong><em><strong>over</strong></em><em> itallic text</em></p>
+ <ol>
+   <li>Odered list</li>
+   <li>Ord<strong>ered </strong><strong><sub>li</sub></strong><a href=\"http://www.example.com\"><em><strong><sub>s</sub></strong></em><em>t with s</em>tyles and li</a>nk
+     <ol>
+       <li>Nested ordered list</li>
+       <li>Nested ordered list
+         <ol>
+           <li>More nested ordered list</li>
+           <li><br></li>
+         </ol>
+       </li>
+     </ol>
+   </li>
+ </ol>
+ <h1><br></h1>
+ <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+ <h1>Heading</h1>
+ <h4>Heading little</h4>
+ <table><tbody>
+   <tr><td>1</td><td>2 - w<strong>ith bold te</strong>xt</td><td>3 - w<a href=\"http://www.example.com\">ith link ins</a>ide</td></tr>
+   <tr><td>4 <em>- w</em><a data-item-id=\"6538fde0-e6e5-425c-8642-278e637b2dc1\" href=\"\"><em>ith lin</em>k to cont</a>ent</td><td><p>5 - with image in <em>table</em></p>
+ <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+ <p><em>and style over the i</em>mage</p>
+ </td><td><p>6 - with list&nbsp;</p>
+ <ul>
+   <li>List in table</li>
+   <li>Another list item in table
+     <ul>
+       <li>Nested in table
+         <ul>
+           <li>More nested in table&nbsp;
+             <ol>
+               <li>Ordered inside unorederd</li>
+               <li>More unordered</li>
+             </ol>
+           </li>
+         </ul>
+       </li>
+     </ul>
+     <ol>
+       <li>Returning byck</li>
+     </ol>
+   </li>
+ </ul>
+ <ol>
+   <li><br></li>
+ </ol>
+ </td></tr>
+   <tr><td>7</td><td>8</td><td>9</td></tr>
+ </tbody>
+ </table>`,
+    `<table><tbody>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+ <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+</tbody></table>`,
+    `<table>
+      <tbody>
+        <tr>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+        </tr>
+        <tr>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+        </tr>
+        <tr>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+        </tr>
+        <tr>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+        </tr>
+        <tr>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+          <td>column</td>
+        </tr>
+      </tbody>
     </table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+  ])("transforms table with input %s", (input) => {
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("Transform 20x20 table", () => {
-    dummyRichText.value =
-      `<table><tbody>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
-    </tbody></table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+  it("transforms item links", () => {
+    const input = `<p><a data-item-id="23f71096-fa89-4f59-a3f9-970e970944ec" href="">text<strong>link to an item</strong></a></p>`;
 
-    expect(result).toMatchSnapshot();
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+
   })
 
+  it("transforms external links", () => {
+    const input = `<h2><strong>Kontent supports portable text!</strong></h2>\n<p>For more information, check out the related <a href="https://github.com/portabletext/portabletext" data-new-window="true" title="Portable text repo" target="_blank" rel="noopener noreferrer"><strong>GitHub repository.</strong></a></p>`
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms nested styles", () => {
+    const input = `<p><strong>all text is bold and last part is </strong><em><strong>also italic and this is also </strong></em><em><strong><sup>superscript</sup></strong></em></p>`
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms lists", () => {
+    const input = `<ul><li>first level bullet</li><li>first level bullet</li><ol><li>nested number in bullet list</li></ol></ul><ol><li>first level item</li><li>first level item</li><ol><li>second level item</li><li><strong>second level item </strong></li></ol>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms images", () => {
+    const input = `<figure data-asset-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" data-image-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0"><img src="https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg" data-asset-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" data-image-id="7d866175-d3db-4a02-b0eb-891fb06b6ab0" alt=""></figure><p><em>text in a paragraph</em></p>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms complex rich text into portable text", () => {
+    const input = `<table><tbody><tr><td><ul><li>list item</li><ol><li>nested list item</li></ol></ul></td></tr></tbody></table><table><tbody>\n  <tr><td><p>paragraph 1</p><p>paragraph 2</p></td><td><ul>\n  <li>list item\n     </li>\n</ul>\n</td><td><a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">this is a<strong>strong</strong>link</a></td></tr>\n<tr><td><h1><strong>nadpis</strong></h1></td><td><p>text</p></td><td><p>text</p></td></tr>\n<tr><td><em>italic text</em></td><td><p>text</p></td><td><p>text</p></td></tr>\n</tbody></table><p>text<a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer">normal and<strong>bold</strong>link</a></p><h1>heading</h1><object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
   it("transforms linked items/components", () => {
-    dummyRichText.value = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+    const input = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
   it("doesn't create duplicates for nested spans", () => {
-    dummyRichText.value = `<p>text<strong>bold</strong></p>`;
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+    const input = `<p>text<strong>bold</strong></p>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("throws error for non-supported tags", () => {
-    dummyRichText.value = "<p>text in a paragraph</p><div>text in a div, which doesnt exist in kontent RTE</div>"
-    const tree = nodeParse(dummyRichText.value);
+  it.each([nodeParse, browserParse])("throws error for non-supported tags for %s", (parse) => {
+    const input = "<p>text in a paragraph</p><div>text in a div, which doesnt exist in kontent RTE</div>"
+    const tree = parse(input);
 
     expect(() => {
       transformToPortableText(tree);
@@ -310,14 +294,18 @@ describe("portable text transformer", () => {
   })
 
   it("doesn't extend link mark to adjacent spans", () => {
-    dummyRichText.value = `<p>The coffee drinking culture has been evolving for hundreds and thousands of years. It has never been <a data-item-id="3120ec15-a4a2-47ec-8ccd-c85ac8ac5ba5" href="">so rich as <strong>today</strong></a>. How do you make sense of different types of coffee, what do the particular names in beverage menus mean and what beverage to choose for which occasion in your favorite café?</p>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-    expect(result).toMatchSnapshot();
+    const input = `<p>The coffee drinking culture has been evolving for hundreds and thousands of years. It has never been <a data-item-id="3120ec15-a4a2-47ec-8ccd-c85ac8ac5ba5" href="">so rich as <strong>today</strong></a>. How do you make sense of different types of coffee, what do the particular names in beverage menus mean and what beverage to choose for which occasion in your favorite café?</p>`
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("resolves table cells containing styled fonts", () => {
-    dummyRichText.value =
+  it("resolves lists", () => {
+    const input =
       `<ul>
 <li>
    first    
@@ -337,123 +325,30 @@ describe("portable text transformer", () => {
    </ul>
 </li>
 </ul>`
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 
   it("resolves adjacent styled fonts in table cell", () => {
-    dummyRichText.value =
+    const input =
       `<table>
       <tbody>
         <tr>
           <td><strong>bold</strong><em>italic</em></td>
         </tr>
       </tbody>
-    </table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
+    </table>`;
+    const browserTree = browserParse(input);
+    const nodeTree = nodeParse(input);
+    const nodeResult = transformToPortableText(nodeTree);
+    const browserResult = transformToPortableText(browserTree);
 
-    expect(result).toMatchSnapshot();
-  })
-
-  it("handles larger tables", () => {
-    dummyRichText.value =
-      `<table>
-      <tbody>
-        <tr>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-        </tr>
-        <tr>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-        </tr>
-        <tr>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-        </tr>
-        <tr>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-        </tr>
-        <tr>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-          <td>column</td>
-        </tr>
-      </tbody>
-    </table>`
-    const tree = nodeParse(dummyRichText.value);
-    const result = transformToPortableText(tree);
-
-    expect(result).toMatchSnapshot();
-  })
-})
-
-describe("HTML converter", () => {
-  it("builds basic portable text into HTML", () => {
-    dummyRichText.value = '<p><br></p><p>text<a href="http://google.com" data-new-window="true" title="linktitle" target="_blank" rel="noopener noreferrer"><strong>link</strong></a></p><h1>heading</h1><p><br></p>';
-    const tree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(tree);
-    const result = toHTML(portableText, portableTextComponents);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("resolves internal link", () => {
-    dummyRichText.value = `<p><a data-item-id="23f71096-fa89-4f59-a3f9-970e970944ec" href=""><em>item</em></a></p>`
-    const tree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(tree);
-    const result = toHTML(portableText, portableTextComponents);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("resolves a linked item", () => {
-    dummyRichText.value = '<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object><p>text after component</p>'
-    const tree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(tree);
-    const result = toHTML(portableText, portableTextComponents);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("resolves a table", () => {
-    dummyRichText.value = "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
-    const jsonTree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(jsonTree);
-    const result = toHTML(portableText, portableTextComponents);
-
-    expect(result).toMatchSnapshot();
-  })
-
-  it("resolves an asset", () => {
-    dummyRichText.value = `<figure data-asset-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" data-image-id="62ba1f17-13e9-43c0-9530-6b44e38097fc"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg" data-asset-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" data-image-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" alt=""></figure>`;
-    const tree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(tree);
-    const result = toHTML(portableText, portableTextComponents)
-
-    expect(result).toMatchSnapshot();
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
   })
 })
