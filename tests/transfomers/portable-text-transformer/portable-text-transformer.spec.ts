@@ -139,9 +139,9 @@ describe("portable text transformer", () => {
     expect(result).toMatchSnapshot();
   })
 
-  it("Transform table with everything in it", () => {
-    dummyRichText.value = 
-    `<table>
+  it("Transform medium complex table", () => {
+    dummyRichText.value =
+      `<table>
     <tbody>
        <tr>
           <td><br></td>
@@ -191,6 +191,99 @@ describe("portable text transformer", () => {
     expect(result).toMatchSnapshot();
   })
 
+  it("Transform complex table", () => {
+    dummyRichText.value =
+      `<p>Text</p>
+    <p><strong>Bold text</strong></p>
+    <p><strong>Bold text </strong><em><strong>with itallic</strong></em><strong> in it</strong></p>
+    <p><strong>Overlapping bold </strong><em><strong>over</strong></em><em> itallic text</em></p>
+    <ol>
+      <li>Odered list</li>
+      <li>Ord<strong>ered </strong><strong><sub>li</sub></strong><a href=\"http://www.example.com\"><em><strong><sub>s</sub></strong></em><em>t with s</em>tyles and li</a>nk
+        <ol>
+          <li>Nested ordered list</li>
+          <li>Nested ordered list
+            <ol>
+              <li>More nested ordered list</li>
+              <li><br></li>
+            </ol>
+          </li>
+        </ol>
+      </li>
+    </ol>
+    <h1><br></h1>
+    <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+    <h1>Heading</h1>
+    <h4>Heading little</h4>
+    <table><tbody>
+      <tr><td>1</td><td>2 - w<strong>ith bold te</strong>xt</td><td>3 - w<a href=\"http://www.example.com\">ith link ins</a>ide</td></tr>
+      <tr><td>4 <em>- w</em><a data-item-id=\"6538fde0-e6e5-425c-8642-278e637b2dc1\" href=\"\"><em>ith lin</em>k to cont</a>ent</td><td><p>5 - with image in <em>table</em></p>
+    <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+    <p><em>and style over the i</em>mage</p>
+    </td><td><p>6 - with list&nbsp;</p>
+    <ul>
+      <li>List in table</li>
+      <li>Another list item in table
+        <ul>
+          <li>Nested in table
+            <ul>
+              <li>More nested in table&nbsp;
+                <ol>
+                  <li>Ordered inside unorederd</li>
+                  <li>More unordered</li>
+                </ol>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ol>
+          <li>Returning byck</li>
+        </ol>
+      </li>
+    </ul>
+    <ol>
+      <li><br></li>
+    </ol>
+    </td></tr>
+      <tr><td>7</td><td>8</td><td>9</td></tr>
+    </tbody>
+    </table>`
+    const tree = nodeParse(dummyRichText.value);
+    const result = transformToPortableText(tree);
+
+    expect(result).toMatchSnapshot();
+  })
+
+  it("Transform 20x20 table", () => {
+    dummyRichText.value =
+      `<table><tbody>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+      <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
+    </tbody></table>`
+    const tree = nodeParse(dummyRichText.value);
+    const result = transformToPortableText(tree);
+
+    expect(result).toMatchSnapshot();
+  })
+
   it("transforms linked items/components", () => {
     dummyRichText.value = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
     const tree = nodeParse(dummyRichText.value);
@@ -225,7 +318,7 @@ describe("portable text transformer", () => {
 
   it("resolves table cells containing styled fonts", () => {
     dummyRichText.value =
-`<ul>
+      `<ul>
 <li>
    first    
    <ul>
@@ -252,7 +345,7 @@ describe("portable text transformer", () => {
 
   it("resolves adjacent styled fonts in table cell", () => {
     dummyRichText.value =
-    `<table>
+      `<table>
       <tbody>
         <tr>
           <td><strong>bold</strong><em>italic</em></td>
@@ -267,7 +360,7 @@ describe("portable text transformer", () => {
 
   it("handles larger tables", () => {
     dummyRichText.value =
-    `<table>
+      `<table>
       <tbody>
         <tr>
           <td>column</td>
