@@ -1,4 +1,4 @@
-import { IPortableTextItem, browserParse, nodeParse, transformToPortableText } from "../../../src";
+import { browserParse, IPortableTextItem, nodeParse, transformToPortableText } from "../../../src";
 
 jest.mock('short-unique-id', () => {
   return jest.fn().mockImplementation(() => {
@@ -77,7 +77,7 @@ describe("portable text transformer", () => {
  <p><strong>Overlapping bold </strong><em><strong>over</strong></em><em> itallic text</em></p>
  <ol>
    <li>Odered list</li>
-   <li>Ord<strong>ered </strong><strong><sub>li</sub></strong><a href=\"http://www.example.com\"><em><strong><sub>s</sub></strong></em><em>t with s</em>tyles and li</a>nk
+   <li>Ord<strong>ered </strong><strong><sub>li</sub></strong><a href="http://www.example.com"><em><strong><sub>s</sub></strong></em><em>t with s</em>tyles and li</a>nk
      <ol>
        <li>Nested ordered list</li>
        <li>Nested ordered list
@@ -90,13 +90,13 @@ describe("portable text transformer", () => {
    </li>
  </ol>
  <h1><br></h1>
- <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+ <figure data-asset-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" data-image-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2"><img src="https://example.com/image.png" data-asset-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" data-image-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" alt=""></figure>
  <h1>Heading</h1>
  <h4>Heading little</h4>
  <table><tbody>
-   <tr><td>1</td><td>2 - w<strong>ith bold te</strong>xt</td><td>3 - w<a href=\"http://www.example.com\">ith link ins</a>ide</td></tr>
-   <tr><td>4 <em>- w</em><a data-item-id=\"6538fde0-e6e5-425c-8642-278e637b2dc1\" href=\"\"><em>ith lin</em>k to cont</a>ent</td><td><p>5 - with image in <em>table</em></p>
- <figure data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\"><img src=\"https://example.com/image.png\" data-asset-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" data-image-id=\"8c35b61a-8fcb-4089-a576-5a5e7a158bf2\" alt=\"\"></figure>
+   <tr><td>1</td><td>2 - w<strong>ith bold te</strong>xt</td><td>3 - w<a href="http://www.example.com">ith link ins</a>ide</td></tr>
+   <tr><td>4 <em>- w</em><a data-item-id="6538fde0-e6e5-425c-8642-278e637b2dc1" href=""><em>ith lin</em>k to cont</a>ent</td><td><p>5 - with image in <em>table</em></p>
+ <figure data-asset-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" data-image-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2"><img src="https://example.com/image.png" data-asset-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" data-image-id="8c35b61a-8fcb-4089-a576-5a5e7a158bf2" alt=""></figure>
  <p><em>and style over the i</em>mage</p>
  </td><td><p>6 - with list&nbsp;</p>
  <ul>
