@@ -23,7 +23,7 @@
     "lint:fix": "eslint . --ext ts,tsx --fix"
   },
   "devDependencies": {
-    "@kontent-ai/delivery-sdk": "^12.4.3",
+    "@kontent-ai/delivery-sdk": "^14.5.0",
     "@portabletext/react": "^2.0.2",
     "@portabletext/to-html": "^2.0.0",
     "@testing-library/jest-dom": "^5.16.5",
