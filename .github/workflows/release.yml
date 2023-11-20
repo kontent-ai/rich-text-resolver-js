@@ -20,8 +20,8 @@ jobs:
       - run: npm publish --access public
         if: ${{!github.event.release.prerelease}}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
       - run: npm publish --access public --tag prerelease
         if: ${{github.event.release.prerelease}}
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_KEY }}
