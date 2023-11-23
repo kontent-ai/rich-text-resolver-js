@@ -9,7 +9,9 @@ import {
     IPortableTextExternalLink,
     IPortableTextInternalLink,
     IPortableTextItem,
+    IPortableTextListBlock,
     IPortableTextMark,
+    IPortableTextMarkDef,
     IPortableTextParagraph,
     IPortableTextSpan,
     IPortableTextTable,
@@ -40,7 +42,6 @@ import {
     isUnorderedListBlock
 } from "../../utils"
 
-
 type TransformLinkFunction = (node: IDomHtmlNode) => [(IPortableTextExternalLink | IPortableTextInternalLink), IPortableTextMark];
 type TransformElementFunction = (node: IDomHtmlNode) => IPortableTextItem[];
 type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: ListType) => IPortableTextItem[];
@@ -58,6 +59,22 @@ export const transformToPortableText = (parsedTree: IOutputResult): IPortableTex
     return composeAndMerge(flattened);
 }
 
+const handleLinkTypes = (mergedItems: IPortableTextItem[], linkItem: IPortableTextMarkDef) => {
+    const lastBlockIndex = findLastIndex(mergedItems, item => item._type === 'block');
+    if (lastBlockIndex !== -1) {
+        const updatedBlock = mergedItems[lastBlockIndex] as 
+            | IPortableTextParagraph 
+            | IPortableTextListBlock;
+        updatedBlock.markDefs = updatedBlock.markDefs || [];
+        updatedBlock.markDefs.push(linkItem);
+    } else {
+        // create new block if no parent was found (happens in tables)
+        const newBlock = createBlock(uid().toString());
+        newBlock.markDefs = [linkItem];
+        mergedItems.push(newBlock);
+    }
+}
+
 const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
     let marks: string[] = [];
     let links: string[] = [];
@@ -66,19 +83,9 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
     const mergedItems = itemsToMerge.reduce<IPortableTextItem[]>((mergedItems, item) => {
         switch (item._type) {
             case 'internalLink':
-            case 'link': {
-                const lastBlockIndex = findLastIndex(mergedItems, item => item._type === 'block');
-                const updatedBlock = mergedItems[lastBlockIndex];
-                if ('markDefs' in updatedBlock) {
-                    updatedBlock.markDefs.push(item);
-                    mergedItems[lastBlockIndex] = updatedBlock;
-                } else {
-                    const newBlock = createBlock(uid().toString());
-                    newBlock.markDefs.push(item);
-                    mergedItems.push(newBlock);
-                }
+            case 'link':
+                handleLinkTypes(mergedItems, item);
                 break;
-            }
             case 'mark':
                 marks.push(item.value);
                 break;
@@ -87,12 +94,19 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
                 linkChildCount = item.childCount;
                 break;
             case 'span':
-                if (linkChildCount === 0) {
-                    links = [];
-                } else {
-                    linkChildCount--;
-                }
-                item.marks = [...marks, ...links];
+                /**
+                 * both styles (strong, em, etc.) and links are represented as "marks" in portable text.
+                 * the logic below handles the following situation (note the duplication of <strong> tag pairs):
+                 * 
+                 * <p><strong>bold text </strong><a href=""><strong>bold text link</strong> regular text link</a> regular text</p>
+                 * 
+                 * in this case, a link can have multiple child nodes if some of its text is styled. 
+                 * as a result, keeping a counter for the link's children and decrementing it with each subsequent span occurrence
+                 * is required so that the link mark doesn't extend beyond its scope. 
+                 */
+                item.marks = [...marks, ...(linkChildCount > 0 ? links : [])];
+                // ensures the child count doesn't go below zero
+                linkChildCount = Math.max(0, linkChildCount - 1);
                 mergedItems.push(item);
                 marks = [];
                 break;
