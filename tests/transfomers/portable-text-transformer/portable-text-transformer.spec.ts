@@ -1,4 +1,5 @@
-import { browserParse, IPortableTextItem, nodeParse, transformToPortableText } from "../../../src";
+import { PortableTextBlock } from "@portabletext/types";
+import { browserParse, nodeParse, transformToPortableText } from "../../../src";
 
 jest.mock('short-unique-id', () => {
   return jest.fn().mockImplementation(() => {
@@ -8,7 +9,7 @@ jest.mock('short-unique-id', () => {
 
 describe("portable text transformer", () => {
 
-  const transformInput = (input: string): { nodeResult: IPortableTextItem[], browserResult: IPortableTextItem[] } => {
+  const transformInput = (input: string): { nodeResult: PortableTextBlock[], browserResult: PortableTextBlock[] } => {
     const browserTree = browserParse(input);
     const nodeTree = nodeParse(input);
     return {

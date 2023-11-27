@@ -1,188 +1,266 @@
 import {
-IPortableTextComponent,
-IPortableTextExternalLink,
-IPortableTextImage,
-IPortableTextInternalLink,
-IPortableTextItem,
-IPortableTextListBlock,
-IPortableTextMark,
-IPortableTextMarkDef,
-IPortableTextParagraph,
-IPortableTextSpan,
-IPortableTextTable,
-IPortableTextTableCell,
-IPortableTextTableRow,
-IReference
-} from "../parser"
+  PortableTextBlock,
+  PortableTextBlockStyle,
+  PortableTextListItemType,
+  PortableTextMarkDefinition,
+  PortableTextSpan,
+  TypedObject,
+} from "@portabletext/types";
+import {
+  PortableTextComponent,
+  PortableTextLink,
+  PortableTextExternalLink,
+  PortableTextImage,
+  PortableTextInternalLink,
+  PortableTextLinkMark,
+  PortableTextMark,
+  PortableTextObject,
+  PortableTextStrictBlock,
+  PortableTextStrictListItemBlock,
+  PortableTextTable,
+  PortableTextTableCell,
+  PortableTextTableRow,
+  Reference,
+} from "../transformers/transformer-models";
+import ShortUniqueId from "short-unique-id";
+import { IDomHtmlNode, IDomTextNode } from "../parser";
+
+export const textStyleElements = ['strong', 'em', 'sub', 'sup', 'code'] as const;
+export const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
+export const ignoredElements = ['img', 'tbody', 'ol', 'ul'] as const;
+export const tableElements = ['table', 'td', 'tr'] as const;
+export const lineBreakElement = 'br' as const;
+export const anchorElement = 'a' as const;
+export const objectElement = 'object' as const;
+export const assetElement = 'figure' as const;
+export const listItemElement = 'li' as const;
+export const markElements = [...textStyleElements, anchorElement] as const;
+export const allElements = [
+    ...blockElements,
+    ...ignoredElements,
+    ...markElements,
+    ...tableElements,
+    assetElement,
+    objectElement,
+    lineBreakElement,
+    listItemElement,
+  ] as const;
+
+export const uid = new ShortUniqueId({ length: 16 });
+
+export type TextStyleElement = typeof textStyleElements[number];
+export type BlockElement = typeof blockElements[number];
+export type IgnoredElement = typeof ignoredElements[number];
+export type MarkElement = typeof markElements[number];
+export type ValidElement = typeof allElements[number];
+
+export type TransformLinkFunction = (node: IDomHtmlNode) => [PortableTextLink, PortableTextMark];
+export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextObject[];
+export type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
+export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
+export type TransformFunction = TransformElementFunction | TransformListItemFunction;
+
+export type MergePortableTextItemsFunction = (itemsToMerge: PortableTextObject[]) => PortableTextObject[];
 
 export const createSpan = (
-    guid: string,
-    marks?: string[],
-    text?: string
-): IPortableTextSpan => {
-    return {
-        _type: 'span',
-        _key: guid,
-        marks: marks || [],
-        text: text || ''
-    }
-}
+  guid: string,
+  marks?: string[],
+  text?: string
+): PortableTextSpan => {
+  return {
+    _type: "span",
+    _key: guid,
+    marks: marks || [],
+    text: text || "",
+  };
+};
 
 export const createBlock = (
-    guid: string,
-    markDefs?: IPortableTextMarkDef[],
-    style?: string,
-    children?: IPortableTextSpan[]
-): IPortableTextParagraph => {
-    return {
-        _type: 'block',
-        _key: guid,
-        markDefs: markDefs || [],
-        style: style || 'normal',
-        children: children || []
-    }
-}
+  guid: string,
+  markDefs?: PortableTextMarkDefinition[],
+  style?: PortableTextBlockStyle,
+  children?: PortableTextSpan[]
+): PortableTextStrictBlock => {
+  return {
+    _type: "block",
+    _key: guid,
+    markDefs: markDefs || [],
+    style: style || "normal",
+    children: children || [],
+  };
+};
 
 export const createListBlock = (
-    guid: string,
-    level: number,
-    listItem: "number" | "bullet",
-    markDefs?: IPortableTextMarkDef[],
-    style?: string,
-    children?: IPortableTextSpan[],
+  guid: string,
+  level: number,
+  listItem: PortableTextListItemType,
+  markDefs?: PortableTextMarkDefinition[],
+  style?: string,
+  children?: PortableTextSpan[]
+): PortableTextStrictListItemBlock => {
+  return {
+    _type: "block",
+    _key: guid,
+    markDefs: markDefs || [],
+    level: level,
+    listItem: listItem,
+    style: style || "normal",
+    children: children || [],
+  };
+};
 
-): IPortableTextListBlock => {
-    return {
-        _type: 'block',
-        _key: guid,
-        markDefs: markDefs || [],
-        level: level,
-        listItem: listItem,
-        style: style || 'normal',
-        children: children || []
+export const createImageBlock = (guid: string): PortableTextImage => {
+  return {
+    _type: "image",
+    _key: guid,
+    asset: {
+      _type: "reference",
+      _ref: "",
+      url: "",
+    },
+  };
+};
+
+export const createTableBlock = (
+  guid: string,
+  columns: number
+): PortableTextTable => {
+  return {
+    _type: "table",
+    _key: guid,
+    numColumns: columns,
+    rows: [],
+  };
+};
+
+export const createItemLink = (
+  guid: string,
+  reference: string
+): PortableTextInternalLink => {
+  return {
+    _key: guid,
+    _type: "internalLink",
+    reference: {
+      _type: "reference",
+      _ref: reference,
+    },
+  };
+};
+
+export const createTable = (
+  guid: string,
+  numColumns: number
+): PortableTextTable => {
+  return {
+    _key: guid,
+    _type: "table",
+    numColumns: numColumns,
+    rows: [],
+  };
+};
+
+export const createTableRow = (guid: string): PortableTextTableRow => {
+  return {
+    _key: guid,
+    _type: "row",
+    cells: [],
+  };
+};
+
+export const createTableCell = (
+  guid: string,
+  childCount: number
+): PortableTextTableCell => {
+  return {
+    _key: guid,
+    _type: "cell",
+    content: [],
+    childBlocksCount: childCount,
+  };
+};
+
+export const createExternalLink = (
+  guid: string,
+  attributes: Record<string, string>
+): PortableTextExternalLink => {
+  return {
+    _key: guid,
+    _type: "link",
+    ...attributes,
+  };
+};
+
+export const createMark = (
+  guid: string,
+  value: TextStyleElement,
+): PortableTextStyleMark => {
+  return {
+    _type: type,
+    _key: guid,
+    value: value,
+    childCount: childCount,
+  };
+};
+
+export const createComponentBlock = (
+  guid: string,
+  reference: Reference
+): PortableTextComponent => {
+  return {
+    _type: "component",
+    _key: guid,
+    component: reference,
+  };
+};
+
+export const isBlock = (block: TypedObject): block is PortableTextBlock =>
+  block._type === "block";
+
+export const isSpan = (span: TypedObject): span is PortableTextSpan =>
+  span._type === "span";
+
+export const compose = <T>(
+  firstFunction: (argument: T) => T,
+  ...functions: Array<(argument: T) => T>
+) =>
+  functions.reduce(
+    (previousFunction, nextFunction) => (value) =>
+      previousFunction(nextFunction(value)),
+    firstFunction
+  );
+
+export const findLastIndex = <T>(
+  arr: T[],
+  predicate: (value: T) => boolean
+): number => {
+  for (let i = arr.length - 1; i >= 0; i--) {
+    if (predicate(arr[i])) {
+      return i;
     }
-}
+  }
+  return -1;
+};
 
-export const createImageBlock = (
-    guid: string
-): IPortableTextImage => {
-    return {
-        _type: 'image',
-        _key: guid,
-        asset: {
-            _type: 'reference',
-            _ref: '',
-            url: ''
-        }
+export const resolveTable = (
+  table: PortableTextTable,
+  resolver: (value: any) => string
+): string => {
+  let tableHtml = "<table><tbody>";
+  const resolveCell = (cell: PortableTextTableCell) => {
+    tableHtml += "<td>";
+    for (let j = 0; j < cell.childBlocksCount; j++) {
+      tableHtml += resolver(cell.content);
     }
-}
-
-export const createTableBlock = (guid: string, columns: number): IPortableTextTable => {
-    return {
-        _type: 'table',
-        _key: guid,
-        numColumns: columns,
-        rows: []
-    }
-}
-
-export const createItemLink = (guid: string, reference: string): IPortableTextInternalLink => {
-    return {
-        _key: guid,
-        _type: 'internalLink',
-        reference: {
-            _type: 'reference',
-            _ref: reference
-        }
-    }
-}
-
-export const createTable = (guid: string, numColumns: number): IPortableTextTable => {
-    return {
-        _key: guid,
-        _type: 'table',
-        numColumns: numColumns,
-        rows: []
-    }
-}
-
-export const createTableRow = (guid: string): IPortableTextTableRow => {
-    return {
-        _key: guid,
-        _type: 'row',
-        cells: []
-    }
-}
-
-export const createTableCell = (guid: string, childCount: number): IPortableTextTableCell => {
-    return {
-        _key: guid,
-        _type: 'cell',
-        content: [],
-        childBlocksCount: childCount
-    }
-}
-
-export const createExternalLink = (guid: string, attributes: Record<string, string>): IPortableTextExternalLink => {
-    return {
-        _key: guid,
-        _type: 'link',
-        ...attributes
-    }
-}
-
-export const createMark = (guid: string, value: string, type: 'mark' | 'linkMark', childCount: number): IPortableTextMark => {
-    return {
-        _type: type,
-        _key: guid,
-        value: value,
-        childCount: childCount
-    }
-}
-
-export const createComponentBlock = (guid: string, reference: IReference): IPortableTextComponent => {
-    return {
-        _type: 'component',
-        _key: guid,
-        component: reference
-    }
-}
-
-export const isBlock = (block: IPortableTextItem): block is IPortableTextParagraph =>
-    block._type === 'block';
-
-export const isSpan = (span: IPortableTextItem): span is IPortableTextSpan =>
-    span._type === 'span';
-
-export const compose = <T>(firstFunction: (argument: T) => T, ...functions: Array<(argument: T) => T>) =>
-    functions.reduce((previousFunction, nextFunction) => value => previousFunction(nextFunction(value)), firstFunction);
-
-export const findLastIndex = <T>(arr: T[], predicate: (value: T) => boolean): number => {
-    for (let i = arr.length - 1; i >= 0; i--) {
-        if (predicate(arr[i])) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-export const resolveTable = (table: IPortableTextTable, resolver: (value: any) => string): string => {
-    let tableHtml = '<table><tbody>';
-    const resolveCell = (cell: IPortableTextTableCell) => {
-        tableHtml += '<td>';
-        for (let j = 0; j < cell.childBlocksCount; j++) {
-            tableHtml += resolver(cell.content);
-        }
-        tableHtml += '</td>';
-    };
-    for (let i = 0; i < table.numColumns; i++) {
-        const currentRow = table.rows[i];
-        tableHtml += '<tr>';
-        currentRow.cells.forEach(resolveCell);
-        tableHtml += '</tr>';
-    }
-    tableHtml += '</tbody></table>';
-    return tableHtml;
-}
+    tableHtml += "</td>";
+  };
+  for (let i = 0; i < table.numColumns; i++) {
+    const currentRow = table.rows[i];
+    tableHtml += "<tr>";
+    currentRow.cells.forEach(resolveCell);
+    tableHtml += "</tr>";
+  }
+  tableHtml += "</tbody></table>";
+  return tableHtml;
+};
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
