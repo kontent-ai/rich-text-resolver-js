@@ -7,7 +7,6 @@ export {
     isLinkedItem, 
     isItemLink,
     isAnchor,
-    isBlock,
     isExternalLink,
     isListBlock,
     isListItem,
