@@ -13,10 +13,9 @@ import {
   PortableTextImage,
   PortableTextInternalLink,
   PortableTextLinkMark,
-  PortableTextMark,
-  PortableTextObject,
   PortableTextStrictBlock,
   PortableTextStrictListItemBlock,
+  PortableTextStyleMark,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
@@ -190,16 +189,28 @@ export const createExternalLink = (
   };
 };
 
-export const createMark = (
+export const createStyleMark = (
   guid: string,
-  value: TextStyleElement,
+  value: string,
 ): PortableTextStyleMark => {
   return {
-    _type: type,
+    _type: "mark",
     _key: guid,
-    value: value,
-    childCount: childCount,
+    value: value
   };
+};
+
+export const createLinkMark = (
+    guid: string,
+    value: string,
+    childCount: number
+): PortableTextLinkMark => {
+    return {
+        _type: "linkMark",
+        _key: guid,
+        value: value,
+        childCount: childCount
+    };
 };
 
 export const createComponentBlock = (
@@ -213,12 +224,6 @@ export const createComponentBlock = (
   };
 };
 
-export const isBlock = (block: TypedObject): block is PortableTextBlock =>
-  block._type === "block";
-
-export const isSpan = (span: TypedObject): span is PortableTextSpan =>
-  span._type === "span";
-
 export const compose = <T>(
   firstFunction: (argument: T) => T,
   ...functions: Array<(argument: T) => T>
@@ -228,18 +233,6 @@ export const compose = <T>(
       previousFunction(nextFunction(value)),
     firstFunction
   );
-
-export const findLastIndex = <T>(
-  arr: T[],
-  predicate: (value: T) => boolean
-): number => {
-  for (let i = arr.length - 1; i >= 0; i--) {
-    if (predicate(arr[i])) {
-      return i;
-    }
-  }
-  return -1;
-};
 
 export const resolveTable = (
   table: PortableTextTable,

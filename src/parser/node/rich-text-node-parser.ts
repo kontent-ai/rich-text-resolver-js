@@ -34,6 +34,6 @@ const parseInternal = (node: Node): IDomNode => {
     };
   }
 
-  throw new Error("Unkown node");
+  throw new Error("Unknown node");
 }
 
