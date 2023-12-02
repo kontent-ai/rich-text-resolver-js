@@ -1,9 +1,9 @@
 import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
-import { PortableText, toPlainText } from '@portabletext/react';
+import { PortableText, PortableTextMarkComponentProps, PortableTextReactComponents, PortableTextTypeComponentProps, toPlainText } from '@portabletext/react';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 
-import { nodeParse, resolveTable, transformToPortableText } from '../../src';
+import { nodeParse, PortableTextComponent, PortableTextExternalLink, PortableTextImage, PortableTextInternalLink, PortableTextLink, PortableTextTable, resolveTable, transformToPortableText } from '../../src';
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",
@@ -36,31 +36,31 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy"
 };
 
-const portableTextComponents = {
+const portableTextComponents: Partial<PortableTextReactComponents> = {
   types: {
-    component: (block: any) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.codename === block.value.component._ref);
+    component: ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => {
+      const item = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
-    table: ({ value }: any) => {
+    table: ({ value }: PortableTextTypeComponentProps<PortableTextTable>) => {
       const tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
     },
-    image: ({ value }: any) => {
+    image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
       return <img src={value.asset.url}></img>;
     }
   },
   marks: {
-    link: ({ value, children }: any) => {
+    link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
       const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
       return (
-        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value['data-new-window']}>
+        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value && value['data-new-window']}>
           {children}
         </a>
       )
     },
-    internalLink: ({ value, children }: any) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.id === value.reference._ref);
+    internalLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextInternalLink>) => {
+      const item = dummyRichText.linkedItems.find(item => item.system.id === value?.reference._ref);
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
           {children}

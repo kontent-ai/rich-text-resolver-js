@@ -33,6 +33,9 @@ export interface AssetReference extends Reference {
  */
 export interface PortableTextExternalLink extends PortableTextMarkDefinition {
   _type: "link";
+  href?: string;
+  rel?: string;
+  title?: string;
 }
 
 /**
@@ -127,7 +130,7 @@ export interface PortableTextLinkMark extends TypedObject {
   /**
    * Number of spans the link extends to.
    *
-   * This is required for merging process as one link can potentially have multiple spans, 
+   * This is required for merging process as one link can potentially have multiple spans,
    * in case parts of the link text are styled.
    */
   childCount: number;
@@ -135,7 +138,7 @@ export interface PortableTextLinkMark extends TypedObject {
 
 /**
  * Represents a block, usually a paragraph or heading.
- * 
+ *
  * Narrows the `_type` to `block` for type guard purposes.
  */
 export interface PortableTextStrictBlock
@@ -145,7 +148,7 @@ export interface PortableTextStrictBlock
 
 /**
  * Represents a list item block. Similar to regular block but requires `listItem` property.
- * 
+ *
  * Narrows the `_type` to `block` for type guard purposes.
  */
 export interface PortableTextStrictListItemBlock
@@ -161,7 +164,7 @@ export type PortableTextMark = PortableTextLinkMark | PortableTextStyleMark;
 
 /**
  * Union of all possible portable text objects in an array after using `flatten`.
- * 
+ *
  * Some of the types are only used temporarily for the purposes of merging.
  */
 export type PortableTextObject =
@@ -176,4 +179,3 @@ export type PortableTextObject =
   | PortableTextMark
   | PortableTextStrictBlock
   | PortableTextStrictListItemBlock;
-
