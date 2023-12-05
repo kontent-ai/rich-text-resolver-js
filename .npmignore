@@ -1,10 +1,9 @@
 # repo metadata
 .github/**
 
-
 # tests
 tests/**
-jest.config.js
+jest.config.cjs
 tsconfig.test.json
 
 # source
@@ -15,3 +14,9 @@ index.ts
 media/**
 docs/**
 showcase/**
+
+# misc
+/.gitignore
+/.npmignore
+/tsconfig.json
+/.eslintrc

@@ -5,12 +5,51 @@
   "description": "Kontent.ai rich text element resolver for Javascript and Typescript",
   "license": "MIT",
   "author": "Daniel Pokorny",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/kontent-ai/rich-text-resolver-js.git"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esnext/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esnext/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./parser": {
+      "node": {
+        "import": "./dist/esnext/src/parser/node/rich-text-node-parser.js",
+        "require": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
+      },
+      "default": {
+        "import": "./dist/esnext/src/parser/browser/rich-text-browser-parser.js",
+        "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
+      }
+    },
+    "./transformers": {
+      "import": "./dist/esnext/src/transformers/index.js",
+      "require": "./dist/cjs/src/transformers/index.js"
+    },
+    "./transformers/json": {
+      "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",
+      "require": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
+    },
+    "./transformers/portable-text": {
+      "import": "./dist/esnext/src/transformers/portable-text-transformer/portable-text-transformer.js",
+      "require": "./dist/cjs/src/transformers/portable-text-transformer/portable-text-transformer.js"
+    },
+    "./utils/node": {
+      "import": "./dist/esnext/src/utils/node-parser-utils.js",
+      "require": "./dist/cjs/src/utils/node-parser-utils.js"
+    },
+    "./utils/browser": {
+      "import": "./dist/esnext/src/utils/browser-parser-utils.js",
+      "require": "./dist/cjs/src/utils/browser-parser-utils.js"
+    },
+    "./utils": {
+      "import": "./dist/esnext/src/utils/index.js",
+      "require": "./dist/cjs/src/utils/index.js"
+    }
+  },
   "types": "dist/cjs/index.d.ts",
   "scripts": {
     "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
