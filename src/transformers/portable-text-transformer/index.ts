@@ -1,1 +1,1 @@
-export * from './portable-text-transformer';
+export * from './portable-text-transformer.js';

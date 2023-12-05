@@ -1,4 +1,4 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode } from "../parser/parser-models"
+import { IDomHtmlNode, IDomNode, IDomTextNode } from "../parser/index.js"
 
 export enum NodeType {
     ELEMENT_NODE = 1,

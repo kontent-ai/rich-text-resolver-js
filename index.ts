@@ -20,4 +20,4 @@ export {
     resolveTable, 
     transformToJson,
     transformToPortableText,
-} from "./src";
+} from "./src/index.js";

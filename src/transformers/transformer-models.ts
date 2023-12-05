@@ -5,7 +5,7 @@ import {
   PortableTextSpan,
   PortableTextListItemBlock,
 } from "@portabletext/types";
-import { TextStyleElement } from "../utils";
+import { TextStyleElement } from "../utils/index.js";
 
 /**
  * Represents a content item linked to from rich text (not a linked item).

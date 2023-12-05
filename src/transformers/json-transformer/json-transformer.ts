@@ -1,5 +1,5 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult } from "../../parser"
-import { isText } from "../../utils"
+import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult } from "../../parser/index.js"
+import { isText } from "../../utils/index.js"
 
 export type ResolveIDomTextNodeType = ((node: IDomTextNode) => unknown) | null
 export type ResolveIDomHtmlNodeType = ((node: IDomHtmlNode, traverse: (node: IDomNode) => unknown) => unknown) | null

@@ -1,3 +1,3 @@
-export * from './json-transformer';
-export * from './portable-text-transformer';
-export * from './transformer-models';
+export * from './json-transformer/index.js';
+export * from './portable-text-transformer/index.js';
+export * from './transformer-models.js';
