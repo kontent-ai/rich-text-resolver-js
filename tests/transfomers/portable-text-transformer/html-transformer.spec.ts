@@ -4,10 +4,12 @@ import { escapeHTML,PortableTextOptions, toHTML } from "@portabletext/to-html";
 import { browserParse,nodeParse, resolveTable, transformToPortableText } from "../../../src";
 
 jest.mock('short-unique-id', () => {
-    return jest.fn().mockImplementation(() => {
+    return {
+      default: jest.fn().mockImplementation(() => {
         return () => 'guid';
-    });
-});
+      })
+    }
+  });
 
 describe("HTML converter", () => {
 

@@ -2,9 +2,11 @@ import { PortableTextBlock } from "@portabletext/types";
 import { browserParse, nodeParse, transformToPortableText } from "../../../src";
 
 jest.mock('short-unique-id', () => {
-  return jest.fn().mockImplementation(() => {
-    return () => 'guid';
-  });
+  return {
+    default: jest.fn().mockImplementation(() => {
+      return () => 'guid';
+    })
+  }
 });
 
 describe("portable text transformer", () => {
