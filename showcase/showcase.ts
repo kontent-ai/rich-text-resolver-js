@@ -1,6 +1,6 @@
-import { IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, IPortableTextTable } from "../src"
+import { PortableTextComponent, PortableTextImage, PortableTextInternalLink, PortableTextTable } from "../src/index.js"
   
-  const portableTextComponent: IPortableTextComponent = {
+  const portableTextComponent: PortableTextComponent = {
     _type: "component",
     _key: "guid",
     component: {
@@ -9,7 +9,7 @@ import { IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, 
     }
   };
   
-  const portableTextImage: IPortableTextImage = {
+  const portableTextImage: PortableTextImage = {
     _type: "image",
     _key: "guid",
     asset: {
@@ -19,7 +19,7 @@ import { IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, 
     }
   };
   
-  const portableTextItemLink: IPortableTextInternalLink = {
+  const portableTextItemLink: PortableTextInternalLink = {
     _type: "internalLink",
     _key: "guid",
     reference: {
@@ -28,7 +28,7 @@ import { IPortableTextComponent, IPortableTextImage, IPortableTextInternalLink, 
     }
   };
   
-  const portableTextTable: IPortableTextTable = {
+  const portableTextTable: PortableTextTable = {
     _type: "table",
     _key: "guid",
     numColumns: 1,

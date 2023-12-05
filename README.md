@@ -133,15 +133,15 @@ import {
   transformToPortableText,
 } from "@kontent-ai/kontent-ai-rich-text-parser";
 
-const createPortableTextComponents = (linkedItems) => ({
+const createPortableTextComponents = ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => ({
   types: {
-    component: (block) => {
+    component: ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => {
       const item = linkedItems.find(
-        (item) => item.system.codename === block.value.component._ref
+        (item) => item.system.codename === value.component._ref
       );
       return <div>{item?.elements.text_element.value}</div>;
     },
-    table: ({ value }) => {
+    table: ({ value }: PortableTextTypeComponentProps<PortableTextTable>) => {
       const table = (
         <table>
           {value.rows.map((row) => (
@@ -162,14 +162,14 @@ const createPortableTextComponents = (linkedItems) => ({
       );
       return table;
     },
-    image: ({ value }) => {
+    image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
       // It is possible to use images from the rich text element response same as for linked items
       // const image = images.find(image => image.image_id === value.asset._ref)
       return <img src={value.asset.url}></img>;
     },
   },
   marks: {
-    link: ({ value, children }) => {
+    link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
       const target = (value?.href || "").startsWith("http")
         ? "_blank"
         : undefined;
@@ -185,7 +185,7 @@ const createPortableTextComponents = (linkedItems) => ({
         </a>
       );
     },
-    internalLink: ({ value, children }) => {
+    internalLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextInternalLink>) => {
       // It is possible to use links from the rich text element response same as for linked items
       // const item = links.find(link => link.link_id === value.reference._ref);
       return (
