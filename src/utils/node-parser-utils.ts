@@ -1,4 +1,4 @@
-import { HTMLElement, Node,NodeType, TextNode } from "node-html-parser"
+import { HTMLElement, Node, NodeType, TextNode } from "node-html-parser"
 
 export const isRootNode = (domNode: Node): domNode is HTMLElement =>
 domNode.nodeType === NodeType.ELEMENT_NODE && !domNode.parentNode
