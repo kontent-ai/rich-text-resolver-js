@@ -179,3 +179,10 @@ export type PortableTextObject =
   | PortableTextMark
   | PortableTextStrictBlock
   | PortableTextStrictListItemBlock;
+
+  /**
+   * Re-exports all types from the package, to allow both custom types and
+   * predefined types to be imported from a single point via "exports" in package.json.
+   */
+  export * from "@portabletext/types";
+
