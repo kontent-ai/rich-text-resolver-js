@@ -1,2 +1,2 @@
-export * from './browser-parser-utils';
-export * from './transformer-utils';
+export * from './browser-parser-utils.js';
+export * from './transformer-utils.js';

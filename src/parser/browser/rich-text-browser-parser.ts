@@ -4,8 +4,8 @@ getAllNewLineAndWhiteSpace,
 isElementNode,
 isRootNode,
 isTextNode
-} from "../../utils"
-import { IDomNode, IOutputResult } from "../parser-models";
+} from "../../utils/index.js"
+import { IDomNode, IOutputResult } from "../parser-models.js";
 
 export const parse = (input: string): IOutputResult => {
   const parser = new DOMParser();

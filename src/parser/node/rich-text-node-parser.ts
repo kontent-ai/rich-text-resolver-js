@@ -1,9 +1,10 @@
 import * as NodeHtmlParser from 'node-html-parser';
 import { Node } from "node-html-parser";
 
-import { getAllNewLineAndWhiteSpace } from '../../utils';
-import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils";
-import { IDomNode, IOutputResult } from "..";
+import { getAllNewLineAndWhiteSpace } from '../../utils/index.js';
+import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils.js";
+import { IDomNode, IOutputResult } from '../parser-models.js';
+
 
 export const parse = (input: string): IOutputResult => {
     const node = NodeHtmlParser.parse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));

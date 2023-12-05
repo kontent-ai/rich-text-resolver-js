@@ -1,1 +1,1 @@
-export * from './json-transformer';
+export * from './json-transformer.js';

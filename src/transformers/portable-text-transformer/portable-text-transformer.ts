@@ -9,12 +9,12 @@ import {
     PortableTextTable,
     PortableTextTableRow,
     Reference,
-} from "../../transformers/"
+} from "../../transformers/index.js"
 import {
     IDomHtmlNode,
     IDomNode,
     IOutputResult,
-} from "../../parser"
+} from "../../parser/index.js"
 import {
     compose,
     createBlock,
@@ -52,7 +52,7 @@ import {
     BlockElement,
     IgnoredElement,
     TransformFunction
-} from "../../utils"
+} from "../../utils/index.js"
 
 /**
  * Transforms a parsed tree into an array of Portable Text Blocks.
