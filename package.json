@@ -52,7 +52,7 @@
   },
   "types": "dist/cjs/index.d.ts",
   "scripts": {
-    "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
+    "build:commonjs": "tsc -m commonjs --outDir dist/cjs && node create-cjs-package-json.cjs",
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
     "build": "npm run build:commonjs && npm run build:esnext",
     "test": "jest",
