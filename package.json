@@ -25,10 +25,6 @@
         "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
       }
     },
-    "./transformers": {
-      "import": "./dist/esnext/src/transformers/index.js",
-      "require": "./dist/cjs/src/transformers/index.js"
-    },
     "./transformers/json": {
       "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",
       "require": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
@@ -37,20 +33,19 @@
       "import": "./dist/esnext/src/transformers/portable-text-transformer/portable-text-transformer.js",
       "require": "./dist/cjs/src/transformers/portable-text-transformer/portable-text-transformer.js"
     },
-    "./utils/node": {
-      "import": "./dist/esnext/src/utils/node-parser-utils.js",
-      "require": "./dist/cjs/src/utils/node-parser-utils.js"
-    },
-    "./utils/browser": {
-      "import": "./dist/esnext/src/utils/browser-parser-utils.js",
-      "require": "./dist/cjs/src/utils/browser-parser-utils.js"
-    },
     "./utils": {
-      "import": "./dist/esnext/src/utils/index.js",
-      "require": "./dist/cjs/src/utils/index.js"
+      "import": "./dist/esnext/src/utils/common-utils.js",
+      "require": "./dist/cjs/src/utils/common-utils.js"
+    },
+    "./types/transformer": {
+      "import": "./dist/esnext/src/transformers/transformer-models.js",
+      "require": "./dist/cjs/src/transformers/transformer-models.js"
+    },
+    "./types/parser": {
+      "import": "./dist/esnext/src/parser/parser-models.js",
+      "require": "./dist/cjs/src/parser/parser-models.js"
     }
   },
-  "types": "dist/cjs/index.d.ts",
   "scripts": {
     "build:commonjs": "tsc -m commonjs --outDir dist/cjs && node create-cjs-package-json.cjs",
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
