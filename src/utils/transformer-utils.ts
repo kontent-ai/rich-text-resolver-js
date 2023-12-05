@@ -22,7 +22,7 @@ import {
   Reference,
 } from "../transformers/transformer-models.js";
 import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
-import ShortUniqueId from 'short-unique-id';
+import ShortUniqueId from "short-unique-id";
 
 export const textStyleElements = ['strong', 'em', 'sub', 'sup', 'code'] as const;
 export const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
@@ -44,8 +44,6 @@ export const allElements = [
     lineBreakElement,
     listItemElement,
   ] as const;
-
-export const uid = new ShortUniqueId.default({length: 16});
 
 export type TextStyleElement = typeof textStyleElements[number];
 export type BlockElement = typeof blockElements[number];
@@ -257,3 +255,6 @@ export const resolveTable = (
 };
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
+
+export const uid = new ShortUniqueId.default({length: 16});
+
