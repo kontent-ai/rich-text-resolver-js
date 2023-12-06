@@ -1,9 +1,24 @@
 import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
-import { PortableText, PortableTextMarkComponentProps, PortableTextReactComponents, PortableTextTypeComponentProps, toPlainText } from '@portabletext/react';
+import {
+PortableText,
+PortableTextMarkComponentProps,
+PortableTextReactComponents,
+PortableTextTypeComponentProps,
+toPlainText
+} from '@portabletext/react'
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 
-import { nodeParse, PortableTextComponent, PortableTextExternalLink, PortableTextImage, PortableTextInternalLink, PortableTextLink, PortableTextTable, resolveTable, transformToPortableText } from '../../src';
+import {
+nodeParse,
+PortableTextComponent,
+PortableTextExternalLink,
+PortableTextImage,
+PortableTextInternalLink,
+PortableTextTable,
+resolveTable,
+transformToPortableText
+} from '../../src'
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",
@@ -54,7 +69,7 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
     link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
       const target = (value?.href || '').startsWith('http') ? '_blank' : undefined
       return (
-        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value && value['data-new-window']}>
+        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value?.['data-new-window']}>
           {children}
         </a>
       )
