@@ -1,16 +1,15 @@
 import {
   PortableTextBlock,
   PortableTextMarkDefinition,
-  TypedObject,
+  ArbitraryTypedObject,
   PortableTextSpan,
   PortableTextListItemBlock,
 } from "@portabletext/types";
-import { TextStyleElement } from "../utils/index.js";
 
 /**
  * Represents a content item linked to from rich text (not a linked item).
  */
-export interface Reference extends TypedObject {
+export interface Reference extends ArbitraryTypedObject {
   _type: "reference";
   /**
    * Holds an ID of the item being linked to.
@@ -49,7 +48,7 @@ export interface PortableTextInternalLink extends PortableTextMarkDefinition {
 /**
  * Represents an inline image used in rich text element.
  */
-export interface PortableTextImage extends TypedObject {
+export interface PortableTextImage extends ArbitraryTypedObject {
   _type: "image";
   /**
    * Reference to an asset used in rich text.
@@ -60,7 +59,7 @@ export interface PortableTextImage extends TypedObject {
 /**
  * Represents a table in rich text element.
  */
-export interface PortableTextTable extends TypedObject {
+export interface PortableTextTable extends ArbitraryTypedObject {
   _type: "table";
   /**
    * The number of columns the table has.
@@ -75,7 +74,7 @@ export interface PortableTextTable extends TypedObject {
 /**
  * Represents a single row of cells in a portable text table.
  */
-export interface PortableTextTableRow extends TypedObject {
+export interface PortableTextTableRow extends ArbitraryTypedObject {
   _type: "row";
   /**
    * Array of table cells.
@@ -86,7 +85,7 @@ export interface PortableTextTableRow extends TypedObject {
 /**
  * Represents a single cell in a portable text table.
  */
-export interface PortableTextTableCell extends TypedObject {
+export interface PortableTextTableCell extends ArbitraryTypedObject {
   _type: "cell";
   /**
    * Number of blocks that belong to a table cell.
@@ -102,7 +101,7 @@ export interface PortableTextTableCell extends TypedObject {
 /**
  * Represents a component or a linked item used in rich text.
  */
-export interface PortableTextComponent extends TypedObject {
+export interface PortableTextComponent extends ArbitraryTypedObject {
   _type: "component";
   /**
    * Reference to a component or a linked item.
@@ -113,15 +112,15 @@ export interface PortableTextComponent extends TypedObject {
 /**
  * Represents a mark that styles the text (`strong`, `em`, etc.)
  */
-export interface PortableTextStyleMark extends TypedObject {
+export interface PortableTextStyleMark extends ArbitraryTypedObject {
   _type: "mark";
-  value: TextStyleElement;
+  value: "strong" | "em" | "sub" | "sup" | "code"; // TODO: formerly TextStyleElement, is circular import okay in this case?
 }
 
 /**
  * Represents a mark that references a link type object in `markDefs` array via a guid.
  */
-export interface PortableTextLinkMark extends TypedObject {
+export interface PortableTextLinkMark extends ArbitraryTypedObject {
   _type: "linkMark";
   /**
    * Short guid pointing to a corresponding object in `markDefs` array.
@@ -155,6 +154,12 @@ export interface PortableTextStrictListItemBlock
   extends Omit<PortableTextListItemBlock, "_type"> {
   _type: "block";
 }
+
+/**
+ * Method signature for transforming/extending portable text objects prior to merging.
+ */
+export type ExtendPortableTextFunction<T> = (obj: T, index?: number, array?: T[]) => T;
+
 
 export type PortableTextLink =
   | PortableTextInternalLink
