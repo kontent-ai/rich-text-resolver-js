@@ -1,5 +1,12 @@
 import { PortableTextBlock } from "@portabletext/types";
-import { browserParse, nodeParse, transformToPortableText } from "../../../src";
+
+import {
+browserParse,
+ExtendPortableTextFunction,
+nodeParse,
+PortableTextObject,
+transformToPortableText
+} from "../../../src"
 
 jest.mock('short-unique-id', () => {
   return {
@@ -11,12 +18,12 @@ jest.mock('short-unique-id', () => {
 
 describe("portable text transformer", () => {
 
-  const transformInput = (input: string): { nodeResult: PortableTextBlock[], browserResult: PortableTextBlock[] } => {
+  const transformInput = (input: string, transformationFunction?: ExtendPortableTextFunction<PortableTextObject>): { nodeResult: PortableTextBlock[], browserResult: PortableTextBlock[] } => {
     const browserTree = browserParse(input);
     const nodeTree = nodeParse(input);
     return {
-      nodeResult: transformToPortableText(nodeTree),
-      browserResult: transformToPortableText(browserTree)
+      nodeResult: transformToPortableText(nodeTree, transformationFunction),
+      browserResult: transformToPortableText(browserTree, transformationFunction)
     };
   }
 
@@ -321,6 +328,40 @@ describe("portable text transformer", () => {
       </tbody>
     </table>`;
     const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("extends component with additional data", () => {
+    const input = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
+
+    const extendPortableText: ExtendPortableTextFunction<PortableTextObject> = (obj) => {
+      // User-defined transformation logic
+      if (obj._type === 'component') {
+        obj.component = {...obj.component, additionalComponentData: "data"};
+        obj = { ...obj, additionalBlockData: "data"};
+      }
+      return obj;
+    };
+
+    const { nodeResult, browserResult } = transformInput(input, extendPortableText);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("extends link nested in a table with additional data", () => {
+    const input = `<table><tbody><tr><td><a href="http://google.com">tablelink</a></td></tr></tbody></table>`;
+
+    const extendPortableText: ExtendPortableTextFunction<PortableTextObject> = (obj) => {
+      if (obj._type === 'link') {
+        obj = { ...obj, additionalLinkData: "data"};
+      }
+      return obj;
+    };
+
+    const { nodeResult, browserResult } = transformInput(input, extendPortableText);
 
     expect(nodeResult).toMatchSnapshot();
     expect(nodeResult).toMatchObject(browserResult);

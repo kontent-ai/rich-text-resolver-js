@@ -1,17 +1,14 @@
+import { PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
+import ShortUniqueId from "short-unique-id";
+
+import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
 import {
-  PortableTextBlock,
-  PortableTextBlockStyle,
-  PortableTextListItemType,
-  PortableTextMarkDefinition,
-  PortableTextSpan,
-  TypedObject,
-} from "@portabletext/types";
-import {
+  ExtendPortableTextFunction,
   PortableTextComponent,
-  PortableTextLink,
   PortableTextExternalLink,
   PortableTextImage,
   PortableTextInternalLink,
+  PortableTextLink,
   PortableTextLinkMark,
   PortableTextStrictBlock,
   PortableTextStrictListItemBlock,
@@ -21,8 +18,6 @@ import {
   PortableTextTableRow,
   Reference,
 } from "../transformers/transformer-models.js";
-import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
-import ShortUniqueId from "short-unique-id";
 
 export const textStyleElements = ['strong', 'em', 'sub', 'sup', 'code'] as const;
 export const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
@@ -55,9 +50,16 @@ export type TransformLinkFunction = (node: IDomHtmlNode) => [PortableTextLink, P
 export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextObject[];
 export type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
 export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
+export type TransformTableCellFunction = (node: IDomHtmlNode, extensionFunction?: ExtendPortableTextFunction<PortableTextObject>) => PortableTextObject[];
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
 export type MergePortableTextItemsFunction = (itemsToMerge: PortableTextObject[]) => PortableTextObject[];
+
+export const extendPortableText = <T extends PortableTextObject> (
+    portableTextArray: T[],
+    transform: ExtendPortableTextFunction<T>
+  ): T[] =>
+    portableTextArray.map((obj, index, array) => transform(obj, index, array));
 
 export const createSpan = (
   guid: string,

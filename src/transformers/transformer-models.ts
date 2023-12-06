@@ -1,9 +1,9 @@
 import {
-  PortableTextBlock,
-  PortableTextMarkDefinition,
   ArbitraryTypedObject,
-  PortableTextSpan,
+  PortableTextBlock,
   PortableTextListItemBlock,
+  PortableTextMarkDefinition,
+  PortableTextSpan,
 } from "@portabletext/types";
 
 /**
