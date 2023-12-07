@@ -258,11 +258,12 @@ const transformElement = (node: IDomHtmlNode, depth: number, listType?: Portable
 }
 
 const transformImage: TransformElementFunction = (node) => {
-    const block = createImageBlock(uid().toString());
     const imageTag = node.children[0] as IDomHtmlNode;
+    const block = createImageBlock(uid().toString());
 
     block.asset._ref = node.attributes['data-image-id'];
     block.asset.url = imageTag.attributes['src'];
+    block.asset.alt = imageTag.attributes['alt'];
 
     return [block];
 }

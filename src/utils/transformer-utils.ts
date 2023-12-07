@@ -144,6 +144,7 @@ export const createImageBlock = (guid: string): PortableTextImage => {
       _type: "reference",
       _ref: "",
       url: "",
+      alt: "",
     },
   };
 };
