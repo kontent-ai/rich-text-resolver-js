@@ -25,6 +25,10 @@ export interface AssetReference extends Reference {
    * URL of an asset.
    */
   url: string;
+  /**
+   * Alternate image text.
+   */
+  alt: string;
 }
 
 /**

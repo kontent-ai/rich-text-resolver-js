@@ -747,6 +747,7 @@ exports[`portable text transformer transforms images 1`] = `
     "asset": {
       "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
       "_type": "reference",
+      "alt": "",
       "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
     },
   },
@@ -1307,6 +1308,7 @@ exports[`portable text transformer transforms table with input <p>Text</p>
     "asset": {
       "_ref": "8c35b61a-8fcb-4089-a576-5a5e7a158bf2",
       "_type": "reference",
+      "alt": "",
       "url": "https://example.com/image.png",
     },
   },
@@ -1544,6 +1546,7 @@ exports[`portable text transformer transforms table with input <p>Text</p>
                 "asset": {
                   "_ref": "8c35b61a-8fcb-4089-a576-5a5e7a158bf2",
                   "_type": "reference",
+                  "alt": "",
                   "url": "https://example.com/image.png",
                 },
               },
@@ -2625,6 +2628,7 @@ exports[`portable text transformer transforms table with input <table>
                 "asset": {
                   "_ref": "bb79f32d-4fed-4d46-bec3-71b1c285ca30",
                   "_type": "reference",
+                  "alt": "",
                   "url": "https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/2af0a87f-d750-4f6c-b6ff-8f895fa7d235/scalpel_blade_12.jpg",
                 },
               },
@@ -2667,6 +2671,7 @@ exports[`portable text transformer transforms table with input <table>
                 "asset": {
                   "_ref": "f6827ddf-7b07-49c3-819d-5270f1ac0164",
                   "_type": "reference",
+                  "alt": "",
                   "url": "https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/653b1fc7-466a-4d91-945a-964ae4f9570a/scalpel_blade_11.jpg",
                 },
               },
