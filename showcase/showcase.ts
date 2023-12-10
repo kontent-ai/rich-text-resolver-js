@@ -15,7 +15,8 @@ import { PortableTextComponent, PortableTextImage, PortableTextInternalLink, Por
     asset: {
       _type: "reference",
       _ref: "bc6f3ce5-935d-4446-82d4-ce77436dd412",
-      url: "https://assets-us-01.kc-usercontent.com:443/.../image.jpg"
+      url: "https://assets-us-01.kc-usercontent.com:443/.../image.jpg",
+      alt: ""
     }
   };
   

@@ -16,9 +16,9 @@ PortableTextExternalLink,
 PortableTextImage,
 PortableTextInternalLink,
 PortableTextTable,
-resolveTable,
 transformToPortableText
 } from '../../src'
+import { resolveTable } from '../../src/utils/resolution/html';
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

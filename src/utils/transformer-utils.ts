@@ -1,4 +1,10 @@
-import { ArbitraryTypedObject, PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
+import {
+ArbitraryTypedObject,
+PortableTextBlockStyle,
+PortableTextListItemType,
+PortableTextMarkDefinition,
+PortableTextSpan
+} from "@portabletext/types"
 import ShortUniqueId from "short-unique-id";
 
 import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
@@ -56,6 +62,7 @@ export type TransformTableCellFunction = (node: IDomHtmlNode) => PortableTextIte
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
 export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextItem>) => PortableTextItem[];
+export type ResolverFunction<T extends ArbitraryTypedObject> = (value: T) => string;
 
 /**
  * Recursively traverses and optionally transforms a Portable Text structure using a provided 
@@ -262,28 +269,6 @@ export const compose = <T>(
       previousFunction(nextFunction(value)),
     firstFunction
   );
-
-export const resolveTable = (
-  table: PortableTextTable,
-  resolver: (value: any) => string
-): string => {
-  let tableHtml = "<table><tbody>";
-  const resolveCell = (cell: PortableTextTableCell) => {
-    tableHtml += "<td>";
-    for (let j = 0; j < cell.childBlocksCount; j++) {
-      tableHtml += resolver(cell.content);
-    }
-    tableHtml += "</td>";
-  };
-  for (let i = 0; i < table.numColumns; i++) {
-    const currentRow = table.rows[i];
-    tableHtml += "<tr>";
-    currentRow.cells.forEach(resolveCell);
-    tableHtml += "</tr>";
-  }
-  tableHtml += "</tbody></table>";
-  return tableHtml;
-};
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
 

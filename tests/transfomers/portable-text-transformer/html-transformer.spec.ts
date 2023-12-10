@@ -8,16 +8,18 @@ import {
 } from "@portabletext/to-html";
 
 import {
-  browserParse,
-  nodeParse,
-  PortableTextComponent,
-  PortableTextExternalLink,
-  PortableTextImage,
-  PortableTextInternalLink,
-  PortableTextTable,
-  resolveTable,
-  transformToPortableText,
-} from "../../../src";
+browserParse,
+nodeParse,
+PortableTextComponent,
+PortableTextExternalLink,
+PortableTextImage,
+PortableTextInternalLink,
+PortableTextTable,
+ResolverFunction,
+transformToPortableText
+} from "../../../src"
+
+import { resolveImage, resolveTable, toHTMLImageDefault } from "../../../src/utils/resolution/html";
 
 jest.mock('short-unique-id', () => {
     return {
@@ -26,6 +28,19 @@ jest.mock('short-unique-id', () => {
       })
     }
   });
+
+  type CustomResolvers = {
+    image?: ResolverFunction<PortableTextImage>;
+    block?: ResolverFunction<PortableTextBlock>;
+    table?: ResolverFunction<PortableTextTable>;
+    component?: ResolverFunction<PortableTextComponent>;
+    internalLink?: ResolverFunction<PortableTextInternalLink>;
+    link?: ResolverFunction<PortableTextExternalLink>;
+};
+
+const customResolvers: Partial<CustomResolvers> = {
+    image: (image) => `<img src="${image.asset.url} alt="${image.asset.rel ?? ""} height="800">`
+}
 
 describe("HTML converter", () => {
 
@@ -61,11 +76,11 @@ describe("HTML converter", () => {
         name: "dummy"
     };
 
-    const getPortableTextComponents = (element: Elements.RichTextElement): PortableTextOptions => ({
+    const getPortableTextComponents = (element: Elements.RichTextElement, customResolvers: CustomResolvers = {}): PortableTextOptions => ({
         components: {
             types: {
-                image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
-                    return `<img src="${value.asset.url}"></img>`;
+                image: ({ value }) => {
+                        return customResolvers.image ? customResolvers.image(value) : resolveImage(value, toHTMLImageDefault);
                 },
                 component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
                     const linkedItem = element.linkedItems.find(item => item.system.codename === value.component._ref);
@@ -161,6 +176,20 @@ describe("HTML converter", () => {
         const browserPortableText = transformToPortableText(browserTree);
         const nodeResult = toHTML(nodePortableText, getPortableTextComponents(richTextInput));
         const browserResult = toHTML(browserPortableText, getPortableTextComponents(richTextInput));
+
+        expect(nodeResult).toMatchSnapshot();
+        expect(nodeResult).toEqual(browserResult);
+    })
+
+    it("resolves an asset with custom resolver", () => {
+        const richTextInput = { ...richTextTemplate }
+        richTextInput.value = `<figure data-asset-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" data-image-id="62ba1f17-13e9-43c0-9530-6b44e38097fc"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg" data-asset-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" data-image-id="62ba1f17-13e9-43c0-9530-6b44e38097fc" alt=""></figure>`;
+        const browserTree = browserParse(richTextInput.value);
+        const nodeTree = nodeParse(richTextInput.value);
+        const nodePortableText = transformToPortableText(nodeTree);
+        const browserPortableText = transformToPortableText(browserTree);
+        const nodeResult = toHTML(nodePortableText, getPortableTextComponents(richTextInput, customResolvers));
+        const browserResult = toHTML(browserPortableText, getPortableTextComponents(richTextInput, customResolvers));
 
         expect(nodeResult).toMatchSnapshot();
         expect(nodeResult).toEqual(browserResult);
