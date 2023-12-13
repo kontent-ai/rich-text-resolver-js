@@ -53,7 +53,7 @@ export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
 export type TransformTableCellFunction = (node: IDomHtmlNode, extensionFunction?: ExtendPortableTextFunction<PortableTextObject>) => PortableTextObject[];
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
-export type MergePortableTextItemsFunction = (itemsToMerge: PortableTextObject[]) => PortableTextObject[];
+export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextObject>) => PortableTextObject[];
 
 export const extendPortableText = <T extends PortableTextObject> (
     portableTextArray: T[],
@@ -180,7 +180,7 @@ export const createTableCell = (
 
 export const createExternalLink = (
   guid: string,
-  attributes: Record<string, string>
+  attributes: Readonly<Record<string, string>>
 ): PortableTextExternalLink => {
   return {
     _key: guid,
@@ -226,7 +226,7 @@ export const createComponentBlock = (
 
 export const compose = <T>(
   firstFunction: (argument: T) => T,
-  ...functions: Array<(argument: T) => T>
+  ...functions: ReadonlyArray<(argument: T) => T>
 ) =>
   functions.reduce(
     (previousFunction, nextFunction) => (value) =>
