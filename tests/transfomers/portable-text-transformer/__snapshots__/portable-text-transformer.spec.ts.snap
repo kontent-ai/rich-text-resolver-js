@@ -83,11 +83,10 @@ exports[`portable text transformer extends component with additional data 1`] = 
   {
     "_key": "guid",
     "_type": "component",
-    "additionalBlockData": "data",
+    "additionalData": "data",
     "component": {
       "_ref": "test_item",
       "_type": "reference",
-      "additionalComponentData": "data",
     },
   },
 ]
@@ -126,7 +125,7 @@ exports[`portable text transformer extends link nested in a table with additiona
                   {
                     "_key": "guid",
                     "_type": "link",
-                    "additionalLinkData": "data",
+                    "additionalData": "data",
                     "href": "http://google.com",
                   },
                 ],

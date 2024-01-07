@@ -2,7 +2,6 @@ import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
 import { IDomHtmlNode, IDomNode, IOutputResult } from "../../parser/index.js"
 import {
-    ExtendPortableTextFunction,
     PortableTextLink,
     PortableTextObject,
     PortableTextStrictBlock,
@@ -11,43 +10,43 @@ import {
     Reference,
 } from "../../transformers/index.js"
 import {
-BlockElement,
-blockElements,
-compose,
-createBlock,
-createComponentBlock,
-createExternalLink,
-createImageBlock,
-createItemLink,
-createLinkMark,
-createListBlock,
-createSpan,
-createStyleMark,
-createTable,
-createTableCell,
-createTableRow,
-IgnoredElement,
-ignoredElements,
-isElement,
-isExternalLink,
-isListBlock,
-isListItem,
-isText,
-isUnorderedListBlock,
-lineBreakElement,
-MarkElement,
-markElements,
-MergePortableTextItemsFunction,
-TextStyleElement,
-textStyleElements,
-TransformElementFunction,
-TransformFunction,
-TransformLinkFunction,
-TransformListItemFunction,
-TransformTableCellFunction,
-TransformTextFunction,
-uid,
-ValidElement
+    BlockElement,
+    blockElements,
+    compose,
+    createBlock,
+    createComponentBlock,
+    createExternalLink,
+    createImageBlock,
+    createItemLink,
+    createLinkMark,
+    createListBlock,
+    createSpan,
+    createStyleMark,
+    createTable,
+    createTableCell,
+    createTableRow,
+    IgnoredElement,
+    ignoredElements,
+    isElement,
+    isExternalLink,
+    isListBlock,
+    isListItem,
+    isText,
+    isUnorderedListBlock,
+    lineBreakElement,
+    MarkElement,
+    markElements,
+    MergePortableTextItemsFunction,
+    TextStyleElement,
+    textStyleElements,
+    TransformElementFunction,
+    TransformFunction,
+    TransformLinkFunction,
+    TransformListItemFunction,
+    TransformTableCellFunction,
+    TransformTextFunction,
+    uid,
+    ValidElement
 } from "../../utils/index.js"
 
 /**
@@ -64,8 +63,8 @@ ValidElement
  *        as its argument and return a transformed Portable Text Object.
  * @returns {PortableTextBlock[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (parsedTree: IOutputResult, extensionFunction?: ExtendPortableTextFunction<PortableTextObject>): PortableTextBlock[] => {
-    const flattened = flatten(parsedTree.children, extensionFunction);
+export const transformToPortableText = (parsedTree: IOutputResult): PortableTextBlock[] => {
+    const flattened = flatten(parsedTree.children);
 
     return composeAndMerge(flattened) as PortableTextBlock[];
 }
@@ -207,22 +206,19 @@ const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBloc
  * processed with subsequent merge methods.
  * 
  * @param {IDomNode[]} nodes - The array of IDomNodes to be flattened.
- * @param {ExtendPortableTextFunction<PortableTextObject>} [extensionFunction] Optional function to apply
- *        additional transformations to each Portable Text Object. This function should accept a Portable Text Object
- *        as its argument and return a transformed Portable Text Object.
  * @param {number} [depth=0] - The current depth in the tree, used for list items.
  * @param {IDomHtmlNode} [lastListElement] - The last processed list element, used for tracking nested lists.
  * @param {PortableTextListItemType} [listType] - The type of the current list being processed (bullet or number).
  * @returns {PortableTextObject[]} The flattened array of PortableTextObjects.
  */
-const flatten = (nodes: IDomNode[], extensionFunction?: ExtendPortableTextFunction<PortableTextObject>, depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextObject[] => {
+const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextObject[] => {
     return nodes.flatMap((node: IDomNode): PortableTextObject[] => {
         let currentListType = listType;
 
         if (isElement(node)) {
             if (node.tagName === 'td') {
                 // table cells are resolved recursively in transformTableCell
-                return transformTableCell(node, extensionFunction);
+                return transformTableCell(node);
             }
 
             if (isListBlock(node)) {
@@ -242,8 +238,8 @@ const flatten = (nodes: IDomNode[], extensionFunction?: ExtendPortableTextFuncti
 
             // Recursively flatten children and concatenate with the transformed node.
             const transformedNode = transformNode(node, depth, currentListType);
-            const transformedChildren = flatten(node.children, extensionFunction, depth, lastListElement, currentListType);
-            return extensionFunction ? [...transformedNode, ...transformedChildren].map(extensionFunction) : [...transformedNode, ...transformedChildren];
+            const transformedChildren = flatten(node.children, depth, lastListElement, currentListType);
+            return [...transformedNode, ...transformedChildren];
         }
 
         // If not an element, transform as text and return as array
@@ -275,8 +271,8 @@ const transformImage: TransformElementFunction = (node) => {
     return [block];
 }
 
-const transformTableCell: TransformTableCellFunction = (node, extensionFunction?: ExtendPortableTextFunction<PortableTextObject>) => {
-    const cellContent = flatten(node.children, extensionFunction);
+const transformTableCell: TransformTableCellFunction = (node) => {
+    const cellContent = flatten(node.children);
     const isFirstChildText = (
         node.children[0]?.type === 'text' ||
         [lineBreakElement, ...markElements].includes(node.children[0]?.tagName as (MarkElement | 'br'))

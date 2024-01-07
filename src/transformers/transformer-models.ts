@@ -155,12 +155,6 @@ export interface PortableTextStrictListItemBlock
   _type: "block";
 }
 
-/**
- * Method signature for transforming/extending portable text objects.
- */
-export type ExtendPortableTextFunction = (object: PortableTextBlock) => (ArbitraryTypedObject | undefined)
-
-
 export type PortableTextLink =
   | PortableTextInternalLink
   | PortableTextExternalLink;
