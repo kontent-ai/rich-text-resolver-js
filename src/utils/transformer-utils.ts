@@ -1,9 +1,8 @@
-import { PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
+import { ArbitraryTypedObject, PortableTextBlock, PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
 import ShortUniqueId from "short-unique-id";
 
 import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
 import {
-  ExtendPortableTextFunction,
   PortableTextComponent,
   PortableTextExternalLink,
   PortableTextImage,
@@ -50,16 +49,38 @@ export type TransformLinkFunction = (node: IDomHtmlNode) => [PortableTextLink, P
 export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextObject[];
 export type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
 export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
-export type TransformTableCellFunction = (node: IDomHtmlNode, extensionFunction?: ExtendPortableTextFunction<PortableTextObject>) => PortableTextObject[];
+export type TransformTableCellFunction = (node: IDomHtmlNode) => PortableTextObject[];
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
 export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextObject>) => PortableTextObject[];
 
-export const extendPortableText = <T extends PortableTextObject> (
-    portableTextArray: T[],
-    transform: ExtendPortableTextFunction<T>
-  ): T[] =>
-    portableTextArray.map((obj, index, array) => transform(obj, index, array));
+/**
+ * Traverses and optionally transforms portable text using a provided callback function
+ * on each node. If the callback does not modify a node, the original one is used.
+ *
+ * @param {PortableTextBlock & ArbitraryTypedObject} object - A portable text node to traverse, either default
+ *   or custom.
+ * @param {(object: PortableTextBlock) => ArbitraryTypedObject | undefined} callback - A callback function
+ *   invoked for each portable text node. The callback can return a modified 
+ *   version of the node or `undefined` if no modifications are to be made.
+ * @returns {ArbitraryTypedObject} - A modified copy of the original portable text.
+ */
+export const traversePortableText = (
+  object: PortableTextBlock & ArbitraryTypedObject,
+  callback: (object: PortableTextBlock) => ArbitraryTypedObject | undefined
+): ArbitraryTypedObject => {
+  const traversedObject = callback(object) ?? object;
+
+  Object.keys(traversedObject).forEach((key) => {
+    if (Array.isArray(traversedObject[key])) {
+      traversedObject[key] = traversedObject[key].map(
+        (child: PortableTextBlock) => traversePortableText(child, callback)
+      );
+    }
+  });
+
+  return traversedObject;
+};
 
 export const createSpan = (
   guid: string,
