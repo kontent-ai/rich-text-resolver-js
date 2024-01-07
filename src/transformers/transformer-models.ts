@@ -141,7 +141,7 @@ export interface PortableTextLinkMark extends ArbitraryTypedObject {
  * Narrows the `_type` to `block` for type guard purposes.
  */
 export interface PortableTextStrictBlock
-  extends Omit<PortableTextBlock, "_type"> {
+  extends Omit<PortableTextBlock, "_type">, ArbitraryTypedObject {
   _type: "block";
 }
 
@@ -151,14 +151,14 @@ export interface PortableTextStrictBlock
  * Narrows the `_type` to `block` for type guard purposes.
  */
 export interface PortableTextStrictListItemBlock
-  extends Omit<PortableTextListItemBlock, "_type"> {
+  extends Omit<PortableTextListItemBlock, "_type">, ArbitraryTypedObject {
   _type: "block";
 }
 
 /**
- * Method signature for transforming/extending portable text objects prior to merging.
+ * Method signature for transforming/extending portable text objects.
  */
-export type ExtendPortableTextFunction<T> = (obj: T, index?: number, array?: T[]) => T;
+export type ExtendPortableTextFunction = (object: PortableTextBlock) => (ArbitraryTypedObject | undefined)
 
 
 export type PortableTextLink =
@@ -168,9 +168,7 @@ export type PortableTextLink =
 export type PortableTextMark = PortableTextLinkMark | PortableTextStyleMark;
 
 /**
- * Union of all possible portable text objects in an array after using `flatten`.
- *
- * Some of the types are only used temporarily for the purposes of merging.
+ * Union of all default portable text object types.
  */
 export type PortableTextObject =
   | PortableTextLink
