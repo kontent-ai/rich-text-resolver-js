@@ -1,7 +1,23 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { escapeHTML,PortableTextOptions, toHTML } from "@portabletext/to-html";
+import {
+  escapeHTML,
+  PortableTextMarkComponentOptions,
+  PortableTextOptions,
+  PortableTextTypeComponentOptions,
+  toHTML,
+} from "@portabletext/to-html";
 
-import { browserParse,nodeParse, resolveTable, transformToPortableText } from "../../../src";
+import {
+  browserParse,
+  nodeParse,
+  PortableTextComponent,
+  PortableTextExternalLink,
+  PortableTextImage,
+  PortableTextInternalLink,
+  PortableTextTable,
+  resolveTable,
+  transformToPortableText,
+} from "../../../src";
 
 jest.mock('short-unique-id', () => {
     return {
@@ -47,10 +63,10 @@ describe("HTML converter", () => {
     const getPortableTextComponents = (element: Elements.RichTextElement): PortableTextOptions => ({
         components: {
             types: {
-                image: ({ value }) => {
+                image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
                     return `<img src="${value.asset.url}"></img>`;
                 },
-                component: ({ value }) => {
+                component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
                     const linkedItem = element.linkedItems.find(item => item.system.codename === value.component._ref);
                     switch (linkedItem?.system.type) {
                         case ('test'): {
@@ -61,17 +77,17 @@ describe("HTML converter", () => {
                         }
                     }
                 },
-                table: ({ value }) => {
+                table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable>) => {
                     const tableHtml = resolveTable(value, toHTML);
                     return tableHtml;
                 }
             },
             marks: {
-                internalLink: ({ children, value }) => {
-                    return `<a href="https://website.com/${value.reference._ref}">${children}</a>`
+                internalLink: ({ children, value }: PortableTextMarkComponentOptions<PortableTextInternalLink>) => {
+                    return `<a href="https://website.com/${value?.reference._ref}">${children}</a>`
                 },
-                link: ({ children, value }) => {
-                    return `<a href=${escapeHTML(value.href)}">${children}</a>`
+                link: ({ children, value }: PortableTextMarkComponentOptions<PortableTextExternalLink>) => {
+                    return `<a href=${escapeHTML(value?.href!)}">${children}</a>`
                 }
             }
         }

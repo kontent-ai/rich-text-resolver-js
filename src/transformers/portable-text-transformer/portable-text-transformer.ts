@@ -63,10 +63,10 @@ import {
  *        as its argument and return a transformed Portable Text Object.
  * @returns {PortableTextBlock[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (parsedTree: IOutputResult): PortableTextBlock[] => {
+export const transformToPortableText = (parsedTree: IOutputResult): PortableTextObject[] => {
     const flattened = flatten(parsedTree.children);
 
-    return composeAndMerge(flattened) as PortableTextBlock[];
+    return composeAndMerge(flattened);
 }
 
 /**
