@@ -1,4 +1,4 @@
-import { ArbitraryTypedObject, PortableTextBlock, PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
+import { ArbitraryTypedObject, PortableTextBlockStyle, PortableTextListItemType, PortableTextMarkDefinition, PortableTextSpan } from "@portabletext/types"
 import ShortUniqueId from "short-unique-id";
 
 import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
@@ -55,26 +55,30 @@ export type TransformFunction = TransformElementFunction | TransformListItemFunc
 export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextObject>) => PortableTextObject[];
 
 /**
- * Traverses and optionally transforms portable text using a provided callback function
- * on each node. If the callback does not modify a node, the original one is used.
+ * Recursively traverses and optionally transforms a Portable Text structure using a provided 
+ * callback function. The callback is applied to each node in the structure. If the callback 
+ * does not modify a node, the original node is used.
  *
- * @param {PortableTextBlock & ArbitraryTypedObject} object - A portable text node to traverse, either default
- *   or custom.
- * @param {(object: PortableTextBlock) => ArbitraryTypedObject | undefined} callback - A callback function
- *   invoked for each portable text node. The callback can return a modified 
- *   version of the node or `undefined` if no modifications are to be made.
- * @returns {ArbitraryTypedObject} - A modified copy of the original portable text.
+ * @template T The type of the Portable Text nodes, defaulting to PortableTextObject.
+ * @param {T} object - The root node of the Portable Text structure to be traversed. 
+ *   It can be a default Portable Text object or a custom type that extends from it.
+ * @param {(object: T) => ArbitraryTypedObject | undefined} callback - A callback function 
+ *   invoked for each node in the Portable Text structure. It can return a modified version 
+ *   of the node or `undefined` if no modifications are to be made.
+ * @returns {ArbitraryTypedObject} - A modified copy of the original portable text structure.
  */
-export const traversePortableText = (
-  object: PortableTextBlock & ArbitraryTypedObject,
-  callback: (object: PortableTextBlock) => ArbitraryTypedObject | undefined
+export const traversePortableText = <T extends ArbitraryTypedObject = PortableTextObject>(
+  object: T,
+  callback: (object: T) => ArbitraryTypedObject | undefined
 ): ArbitraryTypedObject => {
-  const traversedObject = callback(object) ?? object;
+  // ensure a deep copy is created instead of modifying the original object
+  const traversedObject = callback(object) ?? {...object};
 
   Object.keys(traversedObject).forEach((key) => {
-    if (Array.isArray(traversedObject[key])) {
+    // marks is an array of strings that shouldn't be modified, therefore omit from traversal
+    if (Array.isArray(traversedObject[key]) && key !== "marks") {
       traversedObject[key] = traversedObject[key].map(
-        (child: PortableTextBlock) => traversePortableText(child, callback)
+        (child: T) => traversePortableText(child, callback)
       );
     }
   });
@@ -226,12 +230,12 @@ export const createLinkMark = (
     value: string,
     childCount: number
 ): PortableTextLinkMark => {
-    return {
-        _type: "linkMark",
-        _key: guid,
-        value: value,
-        childCount: childCount
-    };
+  return {
+      _type: "linkMark",
+      _key: guid,
+      value: value,
+      childCount: childCount
+  };
 };
 
 export const createComponentBlock = (
