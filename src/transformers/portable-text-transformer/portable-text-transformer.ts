@@ -256,9 +256,9 @@ const transformNode = (node: IDomNode, depth: number, listType?: PortableTextLis
 }
 
 const transformElement = (node: IDomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextObject[] => {
-    const transformerFunction = transformMap[node.tagName as ValidElement];
-    // TODO: handle no function found
-    return transformerFunction(node, depth, listType!);
+    const transformFunction = transformMap[node.tagName as ValidElement];
+
+    return transformFunction(node, depth, listType!);
 }
 
 const transformImage: TransformElementFunction = (node) => {
