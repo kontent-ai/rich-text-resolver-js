@@ -1,10 +1,9 @@
-import { PortableTextBlock } from "@portabletext/types";
-
 import {
-browserParse,
-nodeParse,
-transformToPortableText,
-traversePortableText
+  browserParse,
+  nodeParse,
+  PortableTextObject,
+  transformToPortableText,
+  traversePortableText
 } from "../../../src"
 
 jest.mock('short-unique-id', () => {
@@ -17,7 +16,7 @@ jest.mock('short-unique-id', () => {
 
 describe("portable text transformer", () => {
 
-  const transformInput = (input: string): { nodeResult: PortableTextBlock[], browserResult: PortableTextBlock[] } => {
+  const transformInput = (input: string): { nodeResult: PortableTextObject[], browserResult: PortableTextObject[] } => {
     const browserTree = browserParse(input);
     const nodeTree = nodeParse(input);
     return {
@@ -335,7 +334,7 @@ describe("portable text transformer", () => {
   it("extends component with additional data", () => {
     const input = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
 
-    const processBlock = (block: PortableTextBlock) => {
+    const processBlock = (block: PortableTextObject) => {
       if (block._type === "component") {
         return {
           ...block,
@@ -353,7 +352,7 @@ describe("portable text transformer", () => {
 
   it("extends link nested in a table with additional data", () => {
     const input = `<table><tbody><tr><td><a href="http://google.com">tablelink</a></td></tr></tbody></table>`;
-    const processBlock = (block: PortableTextBlock) => {
+    const processBlock = (block: PortableTextObject) => {
       if (block._type === "link") {
         return {
           ...block,

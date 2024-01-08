@@ -99,8 +99,8 @@ const handleLinks = (mergedItems: PortableTextObject[], linkItem: PortableTextLi
  * style marks (e.g., 'strong', 'em') and link marks. It handles the scenarios where links may contain multiple 
  * child nodes, some of which may be styled text, ensuring that marks are correctly associated with their respective spans.
  *
- * @param {PortableTextObject[]} itemsToMerge - The array of PortableTextObjects to be merged.
- * @returns {PortableTextObject[]} The array of PortableTextObjects after merging spans and marks.
+ * @param {ReadonlyArray<PortableTextItem>} itemsToMerge - The array of PortableTextItems to be merged.
+ * @returns {PortableTextItem[]} The array of PortableTextItems after merging spans and marks.
  */
 const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
     let marks: string[] = [];
@@ -202,14 +202,14 @@ const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBloc
  * Flattens a tree of IDomNodes into an array of PortableTextObjects.
  * 
  * This function recursively processes a tree structure, transforming each node to its corresponding 
- * PortableTextObject, picking a suitable method using `transformNode`. The resulting array is flat, to be
+ * PortableTextItem, picking a suitable method using `transformNode`. The resulting array is flat, to be
  * processed with subsequent merge methods.
  * 
  * @param {IDomNode[]} nodes - The array of IDomNodes to be flattened.
  * @param {number} [depth=0] - The current depth in the tree, used for list items.
  * @param {IDomHtmlNode} [lastListElement] - The last processed list element, used for tracking nested lists.
  * @param {PortableTextListItemType} [listType] - The type of the current list being processed (bullet or number).
- * @returns {PortableTextObject[]} The flattened array of PortableTextObjects.
+ * @returns {PortableTextItem[]} The flattened array of PortableTextItems.
  */
 const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextObject[] => {
     return nodes.flatMap((node: IDomNode): PortableTextObject[] => {
