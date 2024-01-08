@@ -8,8 +8,6 @@
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
-> :information_source: This module is in experimental mode and may undergo changes in the future.
-
 This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
 
 ## Installation
@@ -37,13 +35,13 @@ Portable text supports majority of popular languages and frameworks.
 - React: [react-portabletext](https://github.com/portabletext/react-portabletext)
 - HTML: [to-html](https://github.com/portabletext/to-html)
 - Svelte: [svelte-portabletext](https://github.com/portabletext/svelte-portabletext)
-- Vue: [sanity-blocks-vue-component](https://github.com/rdunk/sanity-blocks-vue-component)
+- Vue: [vue-portabletext](https://github.com/portabletext/vue-portabletext)
 
 Resolution is described in each corresponding repository. You can also find example resolution below.
 
 ### Custom portable text blocks
 
-Besides default blocks for common elements, Portable text supports custom blocks, which can represent other (not only) HTML entities. Each custom block should extend `IPortableTextBaseItem` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should point out what said custom block represents. Value of `_type` property is used for subsequent override for resolution purposes. **This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:**
+Besides default blocks for common elements, Portable text supports custom blocks, which can represent other entities. Each custom block should extend `ArbitraryTypedObject` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should indicate what the block represents. Value of `_type` property is used for subsequent override and resolution purposes. **This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:**
 
 #### Component/linked item
 
@@ -61,11 +59,42 @@ https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
 
-<br>
-
 > 💡 For table resolution, you may use `resolveTable` helper function. It accepts two arguments -- custom block of type `table` and a method to transform content of its cells into valid HTML. See below for usage examples. Alternatively, you can iterate over the table structure and resolve it as per your requirements (e.g. if you want to add CSS classes to its elements)
 
+
+<br>
+
+
 ## Examples
+
+### Modifying portable text nodes
+
+Package exports a `traversePortableText` method, which accepts a `PortableTextObject` and a callback function. The method recursively traverses all subnodes and optionally modifies them with the provided callback:
+
+```ts
+    const input = `<figure data-asset-id="guid" data-image-id="guid"><img src="https://asseturl.xyz" data-asset-id="guid" data-image-id="guid" alt=""></figure>`;
+
+    // Adds height parameter to asset reference and changes _type.  
+    const processBlocks = (block: PortableTextObject) => {
+      if (block._type === "image") {
+        const modifiedReference = {
+          ...block.asset,
+          height: 300
+        }
+  
+        return {
+          ...block,
+          asset: modifiedReference,
+          _type: "modifiedImage"
+        }
+      }
+
+      // logic for modifying other object types...
+    }
+
+    const portableText = transformToPortableText(input);
+    const modifiedPortableText = portableText.map(block => traversePortableText(block, processBlocks));
+```
 
 ### Plain HTML resolution
 
@@ -73,24 +102,20 @@ HTML resolution using `@portabletext/to-html` package.
 
 ```ts
 import { escapeHTML, PortableTextOptions, toHTML } from "@portabletext/to-html";
-import {
-  browserParse,
-  transformToPortableText,
-  resolveTable,
-} from "@kontent-ai/kontent-ai-rich-text-parser";
+import { resolveTable } from "@kontent-ai/rich-text-resolver";
 
 const richTextValue = "<rich text html>";
-const linkedItems = ["<array of linked items>"];
+const linkedItems = ["<array of linked items>"]; // e.g. from SDK
 const parsedTree = browserParse(richTextValue);
 const portableText = transformToPortableText(parsedTree);
 
 const portableTextComponents: PortableTextOptions = {
   components: {
     types: {
-      image: ({ value }: { value: IPortableTextImage }) => {
+      image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
         return `<img src="${value.asset.url}"></img>`;
       },
-      component: ({ value }: {value: IPortableTextComponent}) => {
+      component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
         const linkedItem = linkedItems.find(
           (item) => item.system.codename === value.component._ref
         );
@@ -103,17 +128,17 @@ const portableTextComponents: PortableTextOptions = {
           }
         }
       },
-      table: ({ value }: {value: IPortableTextTable } => {
+      table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable> => {
         const tableHtml = resolveTable(value, toHTML); // helper method for resolving tables
         return tableHtml;
       },
     },
     marks: {
-      internalLink: ({ children, value }: {children: any /* array of blocks (IPortableTextBaseItem) */ */, value: IPortableTextInternalLink}) => {
-        return `\<a href=\"https://website.com/${value.reference._ref}">${children}</a>`;
+      internalLink: ({ children, value }: PortableTextMarkComponentOptions<PortableTextInternalLink>) => {
+        return `<a href="https://website.com/${value.reference._ref}">${children}</a>`;
       },
-      link: ({ children, value }: {children: any /* array of blocks (IPortableTextBaseItem) */ */, value: IPortableTextExternalLink}) => {
-        return `\<a href=${value?.href} target=${target} rel=${value?.rel} title=${value?.title} data-new-window=${value["data-new-window"]}>${children}</a>`;
+      link: ({ children, value }: PortableTextMarkComponentOptions<PortableTextExternalLink>) => {
+        return `<a href=${value?.href!} data-new-window=${value["data-new-window"]}>${children}</a>`;
       },
     },
   },
@@ -128,83 +153,43 @@ React, using `@portabletext/react` package.
 
 ```tsx
 import { PortableText, PortableTextReactComponents } from "@portabletext/react";
-import {
-  browserParse,
-  transformToPortableText,
-} from "@kontent-ai/kontent-ai-rich-text-parser";
 
-const createPortableTextComponents = ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => ({
+// assumes richTextElement from SDK
+
+const portableTextComponents: Partial<PortableTextReactComponents> = {
   types: {
     component: ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => {
-      const item = linkedItems.find(
-        (item) => item.system.codename === value.component._ref
-      );
+      const item = richTextElement.linkedItems.find(item => item.system.codename === value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
     table: ({ value }: PortableTextTypeComponentProps<PortableTextTable>) => {
-      const table = (
-        <table>
-          {value.rows.map((row) => (
-            <tr>
-              {row.cells.map((cell) => {
-                return (
-                  <td>
-                    <PortableText
-                      value={cell.content}
-                      components={portableTextComponents}
-                    />
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </table>
-      );
-      return table;
-    },
-    image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
-      // It is possible to use images from the rich text element response same as for linked items
-      // const image = images.find(image => image.image_id === value.asset._ref)
-      return <img src={value.asset.url}></img>;
-    },
+      const tableString = resolveTable(value, toPlainText);
+      return <>{tableString}</>;
+    }
   },
   marks: {
     link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
-      const target = (value?.href || "").startsWith("http")
-        ? "_blank"
-        : undefined;
       return (
-        <a
-          href={value?.href}
-          target={target}
-          rel={value?.rel}
-          title={value?.title}
-          data-new-window={value["data-new-window"]}
-        >
+        <a href={value?.href} rel={value?.rel} title={value?.title} data-new-window={value?.['data-new-window']}>
           {children}
         </a>
-      );
+      )
     },
     internalLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextInternalLink>) => {
-      // It is possible to use links from the rich text element response same as for linked items
-      // const item = links.find(link => link.link_id === value.reference._ref);
+      const item = richTextElement.linkedItems.find(item => item.system.id === value?.reference._ref);
       return (
-        <a href={"https://somerandomwebsite.xyz/" + value.reference._ref}>
+        <a href={"https://website.xyz/" + item?.system.codename}>
           {children}
         </a>
-      );
-    },
-  },
-});
+      )
+    }
+  }
+}
 
 const MyComponent = ({ props }) => {
   // https://github.com/portabletext/react-portabletext#customizing-components
-  const portableTextComponents = useMemo(
-    () => createPortableTextComponents(props.element.linkedItems),
-    [props.element.linkedItems]
-  );
 
-  const parsedTree = browserParse(props.element.value);
+  const parsedTree = browserParse(props.element.value); // or nodeParse for SSR
   const portableText = transformToPortableText(parsedTree);
 
   return (
@@ -215,7 +200,7 @@ const MyComponent = ({ props }) => {
 
 #### Gatsby.js
 
-For [Gatsby.js](https://www.gatsbyjs.com) it is necessary to [ignore the RichText browser module by customizing webpack configuration](https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules) to utilize the package. The rest is the same for React above.
+For [Gatsby.js](https://www.gatsbyjs.com), it is necessary to [ignore the RichText browser module by customizing webpack configuration](https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules) in order to utilize the package.
 
 ```js
 // gatsby-node.js
