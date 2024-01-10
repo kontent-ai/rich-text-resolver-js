@@ -36,7 +36,8 @@ const dummy: Elements.RichTextElement = {
 
         ],
         "type": "contenttype_with_simple_text",
-        "workflowStep": null
+        "workflowStep": null,
+        "workflow": "default"
       }
     }
   ],
