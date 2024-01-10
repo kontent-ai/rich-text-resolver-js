@@ -7,6 +7,7 @@ import {
   PortableTextExternalLink,
   PortableTextImage,
   PortableTextInternalLink,
+  PortableTextItem,
   PortableTextLink,
   PortableTextLinkMark,
   PortableTextStrictBlock,
@@ -46,13 +47,13 @@ export type MarkElement = typeof markElements[number];
 export type ValidElement = typeof allElements[number];
 
 export type TransformLinkFunction = (node: IDomHtmlNode) => [PortableTextLink, PortableTextMark];
-export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextObject[];
+export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextItem[];
 export type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
 export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
-export type TransformTableCellFunction = (node: IDomHtmlNode) => PortableTextObject[];
+export type TransformTableCellFunction = (node: IDomHtmlNode) => PortableTextItem[];
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
-export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextObject>) => PortableTextObject[];
+export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextItem>) => PortableTextItem[];
 
 /**
  * Recursively traverses and optionally transforms a Portable Text structure using a provided 

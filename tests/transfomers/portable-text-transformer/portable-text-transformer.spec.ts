@@ -1,6 +1,7 @@
 import {
   browserParse,
   nodeParse,
+  PortableTextItem,
   PortableTextObject,
   transformToPortableText,
   traversePortableText
@@ -352,7 +353,7 @@ describe("portable text transformer", () => {
 
   it("extends link nested in a table with additional data", () => {
     const input = `<table><tbody><tr><td><a href="http://google.com">tablelink</a></td></tr></tbody></table>`;
-    const processBlock = (block: PortableTextObject) => {
+    const processBlock = (block: PortableTextItem) => {
       if (block._type === "link") {
         return {
           ...block,

@@ -162,24 +162,36 @@ export type PortableTextLink =
 export type PortableTextMark = PortableTextLinkMark | PortableTextStyleMark;
 
 /**
- * Union of all default portable text object types.
+ * Union of all default, top-level portable text object types.
  */
 export type PortableTextObject =
-  | PortableTextLink
   | PortableTextComponent
   | PortableTextImage
   | PortableTextTable
-  | PortableTextTableRow
-  | PortableTextTableCell
-  | Reference
-  | PortableTextSpan
-  | PortableTextMark
   | PortableTextStrictBlock
   | PortableTextStrictListItemBlock;
 
-  /**
-   * Re-exports all types from the package, to allow both custom types and
-   * predefined types to be imported from a single point via "exports" in package.json.
-   */
-  export * from "@portabletext/types";
+
+/**
+ * Union of all nested portable text object types.
+ */
+export type PortableTextInternalObject =
+  | Reference
+  | PortableTextMark
+  | PortableTextLink
+  | PortableTextTableRow
+  | PortableTextTableCell
+  | PortableTextSpan;
+
+/**
+ * Union of all default portable text object types.
+ */
+export type PortableTextItem = PortableTextObject | PortableTextInternalObject;
+
+
+/**
+ * Re-exports all types from the package, to allow both custom types and
+ * predefined types to be imported from a single point via "exports" in package.json.
+ */
+export * from "@portabletext/types";
 
