@@ -57,24 +57,24 @@
     "lint:fix": "eslint . --ext ts,tsx --fix"
   },
   "devDependencies": {
-    "@kontent-ai/delivery-sdk": "^14.5.0",
+    "@kontent-ai/delivery-sdk": "^14.6.0",
     "@portabletext/react": "^3.0.11",
     "@portabletext/to-html": "^2.0.5",
-    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/jest-dom": "^6.2.0",
     "@types/jest": "^29.5.11",
-    "@types/react": "^18.2.43",
+    "@types/react": "^18.2.47",
     "@types/react-test-renderer": "^18.0.7",
-    "@typescript-eslint/eslint-plugin": "^5.58.0",
-    "@typescript-eslint/parser": "^5.58.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "babel-jest": "^29.7.0",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
+    "eslint-config-kontent-ai": "^0.1.8",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "react": "^18.2.0",
     "react-test-renderer": "^18.2.0",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.0.3",
-    "eslint-config-kontent-ai": "^0.1.8"
+    "typescript": "5.0.3"
   },
   "dependencies": {
     "@portabletext/types": "^2.0.8",

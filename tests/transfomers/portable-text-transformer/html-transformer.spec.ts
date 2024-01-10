@@ -45,7 +45,8 @@ describe("HTML converter", () => {
                     collection: "default",
                     sitemapLocations: [],
                     lastModified: "2022-10-11T11:27:25.4033512Z",
-                    workflowStep: "published"
+                    workflowStep: "published",
+                    workflow: "default"
                 },
                 elements: {
                     text_element: {
