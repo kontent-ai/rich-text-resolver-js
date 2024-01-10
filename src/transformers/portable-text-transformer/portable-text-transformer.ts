@@ -2,6 +2,7 @@ import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
 import { IDomHtmlNode, IDomNode, IOutputResult } from "../../parser/index.js"
 import {
+    PortableTextItem,
     PortableTextLink,
     PortableTextObject,
     PortableTextStrictBlock,
@@ -66,7 +67,7 @@ import {
 export const transformToPortableText = (parsedTree: IOutputResult): PortableTextObject[] => {
     const flattened = flatten(parsedTree.children);
 
-    return composeAndMerge(flattened);
+    return composeAndMerge(flattened) as PortableTextObject[];
 }
 
 /**
@@ -79,7 +80,7 @@ export const transformToPortableText = (parsedTree: IOutputResult): PortableText
  * @param {PortableTextObject[]} mergedItems - The array of PortableTextObjects being processed.
  * @param {PortableTextLink} linkItem - The link item (either internal or external) to be added to the text block's mark definitions.
  */
-const handleLinks = (mergedItems: PortableTextObject[], linkItem: PortableTextLink) => {
+const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink) => {
     const lastBlockIndex = mergedItems.findLastIndex(item => item._type === 'block');
     if (lastBlockIndex !== -1) {
         const lastBlock = mergedItems[lastBlockIndex] as PortableTextBlock;
@@ -107,7 +108,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
     let links: string[] = [];
     let linkChildCount = 0;
 
-    const mergedItems = itemsToMerge.reduce<PortableTextObject[]>((mergedItems, item) => {
+    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         switch (item._type) {
             case 'internalLink':
             case 'link':
@@ -149,7 +150,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
 };
 
 const mergeBlocksAndSpans: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextObject[]>((mergedItems, item) => {
+    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'span') {
             const previousBlock = mergedItems.pop() as PortableTextStrictBlock;
             previousBlock.children.push(item);
@@ -165,7 +166,7 @@ const mergeBlocksAndSpans: MergePortableTextItemsFunction = (itemsToMerge) => {
 }
 
 const mergeTablesAndRows: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextObject[]>((mergedItems, item) => {
+    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'row') {
             const tableBlock = mergedItems.pop() as PortableTextTable;
             tableBlock.rows.push(item);
@@ -181,7 +182,7 @@ const mergeTablesAndRows: MergePortableTextItemsFunction = (itemsToMerge) => {
 }
 
 const mergeRowsAndCells: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextObject[]>((mergedItems, item) => {
+    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'cell') {
             const tableRow = mergedItems.pop() as PortableTextTableRow;
             tableRow.cells.push(item);
@@ -211,8 +212,8 @@ const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBloc
  * @param {PortableTextListItemType} [listType] - The type of the current list being processed (bullet or number).
  * @returns {PortableTextItem[]} The flattened array of PortableTextItems.
  */
-const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextObject[] => {
-    return nodes.flatMap((node: IDomNode): PortableTextObject[] => {
+const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextItem[] => {
+    return nodes.flatMap((node: IDomNode): PortableTextItem[] => {
         let currentListType = listType;
 
         if (isElement(node)) {
@@ -247,7 +248,7 @@ const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, l
     });
 };
 
-const transformNode = (node: IDomNode, depth: number, listType?: PortableTextListItemType): PortableTextObject[] => {
+const transformNode = (node: IDomNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
     if (isText(node)) {
         return [transformText(node)];
     } else {
@@ -255,7 +256,7 @@ const transformNode = (node: IDomNode, depth: number, listType?: PortableTextLis
     }
 }
 
-const transformElement = (node: IDomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextObject[] => {
+const transformElement = (node: IDomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
     const transformFunction = transformMap[node.tagName as ValidElement];
 
     return transformFunction(node, depth, listType!);
