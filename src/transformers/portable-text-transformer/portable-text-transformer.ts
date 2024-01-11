@@ -55,14 +55,9 @@ import {
  *
  * This function takes the parsed tree of a rich text content, flattens it to an array of intermediate
  * Portable Text Objects, and then composes and merges these objects into an array of Portable Text Blocks.
- * An optional extension function can be provided to apply additional transformations to each Portable Text Object
- * during the flattening process.
  *
  * @param {IOutputResult} parsedTree The parsed tree structure representing the rich text content.
- * @param {ExtendPortableTextFunction<PortableTextObject>} [extensionFunction] Optional function to apply
- *        additional transformations to each Portable Text Object. This function should accept a Portable Text Object
- *        as its argument and return a transformed Portable Text Object.
- * @returns {PortableTextBlock[]} An array of Portable Text Blocks representing the structured content.
+ * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
 export const transformToPortableText = (parsedTree: IOutputResult): PortableTextObject[] => {
     const flattened = flatten(parsedTree.children);
@@ -77,7 +72,7 @@ export const transformToPortableText = (parsedTree: IOutputResult): PortableText
  * to the mark definitions of the block. If no text block is found (which can happen in structures like tables), a new text 
  * block is created with the link item.
  *
- * @param {PortableTextObject[]} mergedItems - The array of PortableTextObjects being processed.
+ * @param {PortableTextItem[]} mergedItems - The array of PortableTextItems being processed.
  * @param {PortableTextLink} linkItem - The link item (either internal or external) to be added to the text block's mark definitions.
  */
 const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink) => {
@@ -343,7 +338,7 @@ const transformBlock: TransformElementFunction = (node) =>
     [createBlock(uid().toString(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node) =>
-    [createStyleMark(uid().toString(), node.tagName)];
+    [createStyleMark(uid().toString(), node.tagName as TextStyleElement)];
 
 const transformLineBreak: TransformElementFunction = () =>
     [createSpan(uid().toString(), [], '\n')];

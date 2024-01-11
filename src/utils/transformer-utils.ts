@@ -10,6 +10,8 @@ import {
   PortableTextItem,
   PortableTextLink,
   PortableTextLinkMark,
+  PortableTextMark,
+  PortableTextObject,
   PortableTextStrictBlock,
   PortableTextStrictListItemBlock,
   PortableTextStyleMark,
@@ -217,7 +219,7 @@ export const createExternalLink = (
 
 export const createStyleMark = (
   guid: string,
-  value: string,
+  value: TextStyleElement,
 ): PortableTextStyleMark => {
   return {
     _type: "mark",
