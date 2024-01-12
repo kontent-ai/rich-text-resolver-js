@@ -10,6 +10,7 @@ import {
 import {
 browserParse,
 nodeParse,
+PortableTextBlock,
 PortableTextComponent,
 PortableTextExternalLink,
 PortableTextImage,
@@ -18,7 +19,6 @@ PortableTextTable,
 ResolverFunction,
 transformToPortableText
 } from "../../../src"
-
 import { resolveImage, resolveTable, toHTMLImageDefault } from "../../../src/utils/resolution/html";
 
 jest.mock('short-unique-id', () => {
@@ -79,7 +79,7 @@ describe("HTML converter", () => {
     const getPortableTextComponents = (element: Elements.RichTextElement, customResolvers: CustomResolvers = {}): PortableTextOptions => ({
         components: {
             types: {
-                image: ({ value }) => {
+                image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
                         return customResolvers.image ? customResolvers.image(value) : resolveImage(value, toHTMLImageDefault);
                 },
                 component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
