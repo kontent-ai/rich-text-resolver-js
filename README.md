@@ -45,21 +45,21 @@ Besides default blocks for common elements, Portable text supports custom blocks
 
 #### Component/linked item
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/8bc4b74acaa5c1b8a3c19539e82217de1c9609a0/showcase/showcase.ts#L3-L10
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L3-L10
 
 #### Image
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/8bc4b74acaa5c1b8a3c19539e82217de1c9609a0/showcase/showcase.ts#L12-L20
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L12-L20
 
 > 💡 For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations for HTML and Vue, `toHTMLImageDefault` and `toVueImageDefault` respectively.
 
 #### Item link
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/8bc4b74acaa5c1b8a3c19539e82217de1c9609a0/showcase/showcase.ts#L22-L29
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L22-L29
 
 #### Table
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/8bc4b74acaa5c1b8a3c19539e82217de1c9609a0/showcase/showcase.ts#L31-L58
+https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
 
 > 💡 For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`)
 
@@ -104,6 +104,7 @@ HTML resolution using `@portabletext/to-html` package.
 
 ```ts
 import { escapeHTML, PortableTextOptions, toHTML } from "@portabletext/to-html";
+import { browserParse, transformToPortableText } from "@kontent-ai/rich-text-resolver";
 import { resolveTable, resolveImage, toHTMLImageDefault } from "@kontent-ai/rich-text-resolver/utils/html";
 
 
@@ -225,6 +226,36 @@ exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
     });
   }
 };
+```
+
+### Vue resolution
+Using `@portabletext/vue` package
+
+```ts
+<script setup>
+import {
+  PortableText,
+  PortableTextComponentProps,
+  PortableTextComponents,
+  toPlainText,
+} from "@portabletext/vue";
+import { resolveTable, resolveImage, toVueImageDefault } from "@kontent-ai/rich-text-resolver/utils/vue";
+
+
+const components: PortableTextComponents = {
+  types: {
+    image: ({ value }: PortableTextComponentProps<PortableTextImage>) =>
+      resolveImage(value, h, toVueImageDefault),
+    table: ({ value }: PortableTextComponentProps<PortableTextTable>) =>
+      resolveTable(value, h, toPlainText),
+  },
+  // marks etc.
+};
+</script>
+
+<template>
+  <PortableText :value="props.value" :components="myPortableTextComponents" />
+</template>
 ```
 
 [last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge
