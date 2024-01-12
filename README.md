@@ -45,21 +45,21 @@ Besides default blocks for common elements, Portable text supports custom blocks
 
 #### Component/linked item
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L3-L10
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/showcase/showcase.ts#L3-L10
 
 #### Image
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L12-L20
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/showcase/showcase.ts#L12-L20
 
 > 💡 For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations for HTML and Vue, `toHTMLImageDefault` and `toVueImageDefault` respectively.
 
 #### Item link
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L22-L29
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/showcase/showcase.ts#L22-L29
 
 #### Table
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
+https://github.com/kontent-ai/rich-text-resolver-js/blob/main/showcase/showcase.ts#L31-L58
 
 > 💡 For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`)
 
