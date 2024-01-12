@@ -164,9 +164,7 @@ describe("portable text React resolver", () => {
   <p>
     some text before an asset
   </p>,
-  <img
-    src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg"
-  />,
+  "<img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg" alt="">",
 ]
 `);
   })
