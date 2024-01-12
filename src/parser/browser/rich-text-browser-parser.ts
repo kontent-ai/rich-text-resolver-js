@@ -5,9 +5,9 @@ isElementNode,
 isRootNode,
 isTextNode
 } from "../../utils/index.js"
-import { IDomNode, IOutputResult } from "../parser-models.js";
+import { DomNode, ParseResult } from "../parser-models.js";
 
-export const parse = (input: string): IOutputResult => {
+export const parse = (input: string): ParseResult => {
   const parser = new DOMParser();
   const sanitizedInput = input.replaceAll(getAllNewLineAndWhiteSpace, '');
   
@@ -24,7 +24,7 @@ export const parse = (input: string): IOutputResult => {
   }
 }
 
-const parseInternal = (document: Node): IDomNode => {
+const parseInternal = (document: Node): DomNode => {
   if (isElementNode(document)) {
     return {
       tagName: document.tagName.toLowerCase(),

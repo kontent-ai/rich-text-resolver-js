@@ -1,6 +1,6 @@
 import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
-import { IDomHtmlNode, IDomNode, IOutputResult } from "../../parser/index.js"
+import { DomHtmlNode, DomNode, ParseResult } from "../../parser/index.js"
 import {
     PortableTextItem,
     PortableTextLink,
@@ -56,10 +56,10 @@ import {
  * This function takes the parsed tree of a rich text content, flattens it to an array of intermediate
  * Portable Text Objects, and then composes and merges these objects into an array of Portable Text Blocks.
  *
- * @param {IOutputResult} parsedTree The parsed tree structure representing the rich text content.
+ * @param {ParseResult} parsedTree The parsed tree structure representing the rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (parsedTree: IOutputResult): PortableTextObject[] => {
+export const transformToPortableText = (parsedTree: ParseResult): PortableTextObject[] => {
     const flattened = flatten(parsedTree.children);
 
     return composeAndMerge(flattened) as PortableTextObject[];
@@ -195,20 +195,20 @@ const mergeRowsAndCells: MergePortableTextItemsFunction = (itemsToMerge) => {
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBlocksAndSpans, mergeSpansAndMarks);
 
 /**
- * Flattens a tree of IDomNodes into an array of PortableTextObjects.
+ * Flattens a tree of DomNodes into an array of PortableTextObjects.
  * 
  * This function recursively processes a tree structure, transforming each node to its corresponding 
  * PortableTextItem, picking a suitable method using `transformNode`. The resulting array is flat, to be
  * processed with subsequent merge methods.
  * 
- * @param {IDomNode[]} nodes - The array of IDomNodes to be flattened.
+ * @param {DomNode[]} nodes - The array of DomNodes to be flattened.
  * @param {number} [depth=0] - The current depth in the tree, used for list items.
- * @param {IDomHtmlNode} [lastListElement] - The last processed list element, used for tracking nested lists.
+ * @param {DomHtmlNode} [lastListElement] - The last processed list element, used for tracking nested lists.
  * @param {PortableTextListItemType} [listType] - The type of the current list being processed (bullet or number).
  * @returns {PortableTextItem[]} The flattened array of PortableTextItems.
  */
-const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, listType?: PortableTextListItemType): PortableTextItem[] => {
-    return nodes.flatMap((node: IDomNode): PortableTextItem[] => {
+const flatten = (nodes: DomNode[], depth = 0, lastListElement?: DomHtmlNode, listType?: PortableTextListItemType): PortableTextItem[] => {
+    return nodes.flatMap((node: DomNode): PortableTextItem[] => {
         let currentListType = listType;
 
         if (isElement(node)) {
@@ -243,7 +243,7 @@ const flatten = (nodes: IDomNode[], depth = 0, lastListElement?: IDomHtmlNode, l
     });
 };
 
-const transformNode = (node: IDomNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
+const transformNode = (node: DomNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
     if (isText(node)) {
         return [transformText(node)];
     } else {
@@ -251,14 +251,14 @@ const transformNode = (node: IDomNode, depth: number, listType?: PortableTextLis
     }
 }
 
-const transformElement = (node: IDomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
+const transformElement = (node: DomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
     const transformFunction = transformMap[node.tagName as ValidElement];
 
     return transformFunction(node, depth, listType!);
 }
 
 const transformImage: TransformElementFunction = (node) => {
-    const imageTag = node.children[0] as IDomHtmlNode;
+    const imageTag = node.children[0] as DomHtmlNode;
     const block = createImageBlock(uid().toString());
 
     block.asset._ref = node.attributes['data-image-id'];
@@ -322,8 +322,8 @@ const transformExternalLink: TransformLinkFunction = (node) => {
 }
 
 const transformTable: TransformElementFunction = (node) => {
-    const tableBody = node.children[0] as IDomHtmlNode;
-    const tableRow = tableBody.children[0] as IDomHtmlNode;
+    const tableBody = node.children[0] as DomHtmlNode;
+    const tableRow = tableBody.children[0] as DomHtmlNode;
     const numCols = tableRow.children.length;
 
     return [createTable(uid().toString(), numCols)];

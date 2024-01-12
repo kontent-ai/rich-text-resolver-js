@@ -7,7 +7,7 @@ PortableTextSpan
 } from "@portabletext/types"
 import ShortUniqueId from "short-unique-id";
 
-import { IDomHtmlNode, IDomTextNode } from "../parser/index.js";
+import { DomHtmlNode, DomTextNode } from "../parser/index.js";
 import {
   PortableTextComponent,
   PortableTextExternalLink,
@@ -54,11 +54,11 @@ export type IgnoredElement = typeof ignoredElements[number];
 export type MarkElement = typeof markElements[number];
 export type ValidElement = typeof allElements[number];
 
-export type TransformLinkFunction = (node: IDomHtmlNode) => [PortableTextLink, PortableTextMark];
-export type TransformElementFunction = (node: IDomHtmlNode) => PortableTextItem[];
-export type TransformListItemFunction = (node: IDomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
-export type TransformTextFunction = (node: IDomTextNode) => PortableTextSpan;
-export type TransformTableCellFunction = (node: IDomHtmlNode) => PortableTextItem[];
+export type TransformLinkFunction = (node: DomHtmlNode) => [PortableTextLink, PortableTextMark];
+export type TransformElementFunction = (node: DomHtmlNode) => PortableTextItem[];
+export type TransformListItemFunction = (node: DomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
+export type TransformTextFunction = (node: DomTextNode) => PortableTextSpan;
+export type TransformTableCellFunction = (node: DomHtmlNode) => PortableTextItem[];
 export type TransformFunction = TransformElementFunction | TransformListItemFunction;
 
 export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextItem>) => PortableTextItem[];
