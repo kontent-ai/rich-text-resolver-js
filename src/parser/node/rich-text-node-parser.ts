@@ -3,10 +3,10 @@ import { Node } from "node-html-parser";
 
 import { getAllNewLineAndWhiteSpace } from '../../utils/index.js';
 import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils.js";
-import { IDomNode, IOutputResult } from '../parser-models.js';
+import { DomNode, ParseResult } from '../parser-models.js';
 
 
-export const parse = (input: string): IOutputResult => {
+export const parse = (input: string): ParseResult => {
     const node = NodeHtmlParser.parse(input.replaceAll(getAllNewLineAndWhiteSpace, ''));
 
     if (!isRootNode(node)) {
@@ -18,7 +18,7 @@ export const parse = (input: string): IOutputResult => {
     }
 };
 
-const parseInternal = (node: Node): IDomNode => {
+const parseInternal = (node: Node): DomNode => {
   if (isElementNode(node)) {
     return {
       tagName: node.tagName.toLowerCase(),

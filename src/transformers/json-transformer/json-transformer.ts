@@ -1,39 +1,39 @@
-import { IDomHtmlNode, IDomNode, IDomTextNode, IOutputResult } from "../../parser/index.js"
+import { DomHtmlNode, DomNode, DomTextNode, ParseResult } from "../../parser/index.js"
 import { isText } from "../../utils/index.js"
 
-export type ResolveIDomTextNodeType = ((node: IDomTextNode) => unknown) | null
-export type ResolveIDomHtmlNodeType = ((node: IDomHtmlNode, traverse: (node: IDomNode) => unknown) => unknown) | null
+export type ResolveDomTextNodeType = ((node: DomTextNode) => unknown) | null
+export type ResolveDomHtmlNodeType = ((node: DomHtmlNode, traverse: (node: DomNode) => unknown) => unknown) | null
 
 type CustomResolversType = {
-    resolveIDomTextNode: ResolveIDomTextNodeType
-    resolveIDomHtmlNode: ResolveIDomHtmlNodeType
+    resolveDomTextNode: ResolveDomTextNodeType
+    resolveDomHtmlNode: ResolveDomHtmlNodeType
 }
 
-export type TransformIDomNodeType = (
-    node: IDomNode,
+export type TransformDomNodeType = (
+    node: DomNode,
     customResolvers: CustomResolversType
 ) => unknown;
 
 export const transformToJson = (
-    result: IOutputResult,
+    result: ParseResult,
     customResolvers?: CustomResolversType
 ) => {
     if (!customResolvers) {
         return result.children
     }
 
-    return result.children.map(node => transformIDomNode(node, customResolvers))
+    return result.children.map(node => transformDomNode(node, customResolvers))
 }
 
-const nodeIdentity = (node: IDomNode) => node
+const nodeIdentity = (node: DomNode) => node
 
-const transformIDomNode: TransformIDomNodeType = (
-    node: IDomNode,
+const transformDomNode: TransformDomNodeType = (
+    node: DomNode,
     customResolvers: CustomResolversType
 ) => {
-    const {resolveIDomHtmlNode, resolveIDomTextNode} = customResolvers;
+    const {resolveDomHtmlNode, resolveDomTextNode} = customResolvers;
     if (isText(node)) {
-        return resolveIDomTextNode ? resolveIDomTextNode(node) : nodeIdentity(node);
+        return resolveDomTextNode ? resolveDomTextNode(node) : nodeIdentity(node);
     }
-    return resolveIDomHtmlNode ? resolveIDomHtmlNode(node, (node) => transformIDomNode(node, customResolvers)) : nodeIdentity(node)
+    return resolveDomHtmlNode ? resolveDomHtmlNode(node, (node) => transformDomNode(node, customResolvers)) : nodeIdentity(node)
 } 

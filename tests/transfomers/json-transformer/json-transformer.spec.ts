@@ -1,7 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk"
 
-import { ResolveIDomHtmlNodeType, ResolveIDomTextNodeType, transformToJson } from "../../../src"
-import { browserParse,IOutputResult } from "../../../src/parser"
+import { ResolveDomHtmlNodeType, ResolveDomTextNodeType, transformToJson } from "../../../src"
+import { browserParse,ParseResult } from "../../../src/parser"
 
 const dummy: Elements.RichTextElement = {
   "images": [
@@ -49,19 +49,19 @@ const dummy: Elements.RichTextElement = {
   "value": "<p>Test from rich text</p>\n<figure data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\"><img src=\"https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg\" data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" alt=\"\"></figure>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"e53bff4f_0f6e_0168_a2fe_5ec0eaa032de\"></object>"
 }
 
-const transformJsonWithCustomResolvers = (result: IOutputResult) => transformToJson(result, {
-  resolveIDomTextNode: customResolveIDomTextNode,
-  resolveIDomHtmlNode: customResolveIDomHtmlNode
+const transformJsonWithCustomResolvers = (result: ParseResult) => transformToJson(result, {
+  resolveDomTextNode: customResolveDomTextNode,
+  resolveDomHtmlNode: customResolveDomHtmlNode
 })
 
 
-const customResolveIDomTextNode: ResolveIDomTextNodeType = node => {
+const customResolveDomTextNode: ResolveDomTextNodeType = node => {
   return {
     text: node.content
   };
 }
 
-const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
+const customResolveDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
   let result = {
     tag: node.tagName
   };
@@ -168,7 +168,7 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("Test empty", () => {
-    const testValue: IOutputResult = {
+    const testValue: ParseResult = {
       children: []
     }
 
@@ -177,8 +177,8 @@ describe("Json Transfomer Tests", () => {
     expect(output).toEqual([]);
   })
 
-  it("Test only IDomTextNode", () => {
-    const testValue: IOutputResult = {
+  it("Test only DomTextNode", () => {
+    const testValue: ParseResult = {
       children: [
         {
           type: "text",
@@ -197,8 +197,8 @@ describe("Json Transfomer Tests", () => {
     expect(output).toEqual(expectedOutput);
   })
 
-  it("Test only IDomHtmlNode", () => {
-    const testValue: IOutputResult = {
+  it("Test only DomHtmlNode", () => {
+    const testValue: ParseResult = {
       children: [
         {
           type: "tag",

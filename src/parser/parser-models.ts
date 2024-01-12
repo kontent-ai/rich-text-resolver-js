@@ -1,12 +1,12 @@
 /**
  * Union type of tags and text nodes.
  */
-export type IDomNode = IDomHtmlNode | IDomTextNode;
+export type DomNode = DomHtmlNode | DomTextNode;
 
 /**
  * Represents a text node.
  */
-export interface IDomTextNode {
+export interface DomTextNode {
   type: "text";
   /**
    * Text content.
@@ -17,7 +17,7 @@ export interface IDomTextNode {
 /**
  * Represents a HTML tag.
  */
-export interface IDomHtmlNode {
+export interface DomHtmlNode {
   type: "tag";
   /**
    * Name of the HTML tag.
@@ -30,12 +30,12 @@ export interface IDomHtmlNode {
   /**
    * Array of childnodes.
    */
-  children: IDomNode[];
+  children: DomNode[];
 }
 
 /**
  * A tree structure representing a result of the `parse` method.
  */
-export interface IOutputResult {
-  children: IDomNode[];
+export interface ParseResult {
+  children: DomNode[];
 }

@@ -7,33 +7,33 @@ This module also allows you to manipulate the intermediate JSON structure prior 
 Output of `nodeParse` and `browserParse` methods is a simple tree structure, defined by the following interface.
 
 ```ts
-interface IOutputResult {
-  children: IDomNode[];
+interface ParseResult {
+  children: DomNode[];
 }
 ```
 
-`IDomNode` is a union of `IDomHtmlNode` and `IDomTextNode`, which together define the full HTML tree structure:
+`DomNode` is a union of `DomHtmlNode` and `DomTextNode`, which together define the full HTML tree structure:
 
 ![Resolved DOMTree](../media/domtree.jpg)
 
-The structure can be modified using `transformToJson` method which accepts `IOutputResult` as the first argument and an optional `customResolvers` object, which can contain two methods `resolveIDomTextNode` and `resolveIDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
+The structure can be modified using `transformToJson` method which accepts `ParseResult` as the first argument and an optional `customResolvers` object, which can contain two methods `resolveDomTextNode` and `resolveDomHtmlNode`. Each method is responsible for manipulating its respective node type, allowing you to transform the output as per your requirements.
 
 Example use of the `transformToJson` method:
 
 ```ts
-const transformJsonWithCustomResolvers = (result: IOutputResult) => transformToJson(result, {
-  resolveIDomTextNode: customResolveIDomTextNode,
-  resolveIDomHtmlNode: customResolveIDomHtmlNode
+const transformJsonWithCustomResolvers = (result: ParseResult) => transformToJson(result, {
+  resolveDomTextNode: customResolveDomTextNode,
+  resolveDomHtmlNode: customResolveDomHtmlNode
 })
 
 
-const customResolveIDomTextNode: ResolveIDomTextNodeType = node => {
+const customResolveDomTextNode: ResolveDomTextNodeType = node => {
   return {
     text: node.content
   };
 }
 
-const customResolveIDomHtmlNode: ResolveIDomHtmlNodeType = (node, traverse) => {
+const customResolveDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
   let result = {
     tag: node.tagName
   };
@@ -99,14 +99,14 @@ const transformedTree = transformJsonWithCustomResolvers(originalTree);
 ```
 
 ## Resolution
-If you prefer working with a tree structure, rather than Portable text, you can implement resolution around the `IOutputResult` tree. See examples below.
+If you prefer working with a tree structure, rather than Portable text, you can implement resolution around the `ParseResult` tree. See examples below.
 
 #### HTML string (TypeScript)
 
 ```ts
 const parsedTree = browserParse(richTextValue);
 
-const resolve = (domNode: IDomNode): string => {
+const resolve = (domNode: DomNode): string => {
   switch (node.type) {
     case "tag": {
       if (isLinkedItem(node)) {
@@ -137,7 +137,7 @@ const resolvedHtml = parsedTree.children.map(resolve).join("");
 Resolution method implementation varies based on the use cases. This is just a showcase to present how to get information for node specific data.
 
 ```ts
-const resolveHtmlElement = (node: IDomHtmlNode): string => {
+const resolveHtmlElement = (node: DomHtmlNode): string => {
   const attributes = Object.entries(node.attributes)
     .map(([key, value]) => `${key}="${value}"`)
     .join(" ");
@@ -152,7 +152,7 @@ const resolveHtmlElement = (node: IDomHtmlNode): string => {
 [Image attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Images-in-rich-text) contain just the information parsed from HTML. Image context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getImage` method.
 
 ```ts
-resolveImage = (node: IDomHtmlNode): string => {
+resolveImage = (node: DomHtmlNode): string => {
   const imageId = node.attributes["data-asset-id"];
 
   const image = getImage(imageId);
@@ -163,7 +163,7 @@ resolveImage = (node: IDomHtmlNode): string => {
 [Link attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Links-in-rich-text) contain just the information parsed from HTML. Link context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getLink` method.
 
 ```ts
-const resolveItemLink = (node: IDomHtmlNode): string => {
+const resolveItemLink = (node: DomHtmlNode): string => {
   const linkId = node.attributes["data-item-id"];
 
   const link = getLink(linkId);
@@ -175,7 +175,7 @@ const resolveItemLink = (node: IDomHtmlNode): string => {
 [Linked item attributes](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Content-items-and-components-in-rich-text) contain just the information parsed from HTML. Linked item context is being returned as a [part of the Delivery API response](https://kontent.ai/learn/reference/openapi/delivery-api/#section/Rich-text-element) - in the sample below being loaded by `getLinkedContentItem` method.
 
 ```ts
-const resolveLinkedItem = (node: IDomHtmlNode): string => {
+const resolveLinkedItem = (node: DomHtmlNode): string => {
   const itemCodeName = node.attributes["data-codename"];
 
   const item = getLinkedContentItem(itemCodeName);
@@ -204,7 +204,7 @@ const RichText: React.FC<Props> = ({element, className}) => {
 
   useEffect(() => {
     const parsedTree = browserParse(element.value);
-    const resolve = (domNode: IDomNode, index: number): JSX.Element => {
+    const resolve = (domNode: DomNode, index: number): JSX.Element => {
       switch (domNode.type) {
         case 'tag': {
           // traverse tree recursively
