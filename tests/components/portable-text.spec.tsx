@@ -18,7 +18,7 @@ PortableTextInternalLink,
 PortableTextTable,
 transformToPortableText
 } from '../../src'
-import { resolveTable } from '../../src/utils/resolution/html';
+import { resolveImage, resolveTable, toHTMLImageDefault } from '../../src/utils/resolution/html';
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",
@@ -63,7 +63,8 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
       return <>{tableString}</>;
     },
     image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
-      return <img src={value.asset.url}></img>;
+      const imageString = resolveImage(value, toHTMLImageDefault);
+      return <>{imageString}</>;
     }
   },
   marks: {
