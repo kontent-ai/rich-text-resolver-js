@@ -51,6 +51,8 @@ https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L12-L20
 
+> 💡 For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations for HTML and Vue, `toHTMLImageDefault` and `toVueImageDefault` respectively.
+
 #### Item link
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L22-L29
@@ -59,7 +61,7 @@ https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
 
-> 💡 For table resolution, you may use `resolveTable` helper function. It accepts two arguments -- custom block of type `table` and a method to transform content of its cells into valid HTML. See below for usage examples. Alternatively, you can iterate over the table structure and resolve it as per your requirements (e.g. if you want to add CSS classes to its elements)
+> 💡 For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`)
 
 
 <br>
@@ -102,7 +104,8 @@ HTML resolution using `@portabletext/to-html` package.
 
 ```ts
 import { escapeHTML, PortableTextOptions, toHTML } from "@portabletext/to-html";
-import { resolveTable } from "@kontent-ai/rich-text-resolver";
+import { resolveTable, resolveImage, toHTMLImageDefault } from "@kontent-ai/rich-text-resolver/utils/html";
+
 
 const richTextValue = "<rich text html>";
 const linkedItems = ["<array of linked items>"]; // e.g. from SDK
@@ -113,7 +116,8 @@ const portableTextComponents: PortableTextOptions = {
   components: {
     types: {
       image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
-        return `<img src="${value.asset.url}"></img>`;
+        // helper method for resolving images
+        return resolveImage(value, toHTMLImageDefault); 
       },
       component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
         const linkedItem = linkedItems.find(
@@ -129,7 +133,8 @@ const portableTextComponents: PortableTextOptions = {
         }
       },
       table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable> => {
-        const tableHtml = resolveTable(value, toHTML); // helper method for resolving tables
+        // helper method for resolving tables
+        const tableHtml = resolveTable(value, toHTML);
         return tableHtml;
       },
     },
