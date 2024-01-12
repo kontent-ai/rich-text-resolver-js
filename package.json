@@ -1,8 +1,8 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "private": false,
-  "description": "Kontent.ai rich text element resolver for Javascript and Typescript",
+  "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
   "author": "Daniel Pokorny",
   "type": "module",
