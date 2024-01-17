@@ -254,7 +254,7 @@ const components: PortableTextComponents = {
 </script>
 
 <template>
-  <PortableText :value="props.value" :components="myPortableTextComponents" />
+  <PortableText :value="props.value" :components="components" />
 </template>
 ```
 
