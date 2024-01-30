@@ -1,3 +1,4 @@
+![image](https://github.com/kontent-ai/rich-text-resolver-js/assets/52500882/560ea072-2a0f-4e22-ba3c-300576952198)
 # Kontent.ai rich text resolver
 
 ![Last modified][last-commit]
