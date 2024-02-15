@@ -10,17 +10,17 @@ import React from "react";
 import TestRenderer from "react-test-renderer";
 
 import {
+  PortableTextComponent,
+  PortableTextExternalLink,
+  PortableTextImage,
+  PortableTextInternalLink,
+  PortableTextTable,
+} from "../../src/transformers/transformer-models";
+import {
   resolveImage,
   resolveTable,
   toHTMLImageDefault,
 } from "../../src/utils/resolution/html";
-import {
-  PortableTextTable,
-  PortableTextImage,
-  PortableTextExternalLink,
-  PortableTextInternalLink,
-  PortableTextComponent,
-} from "../../src/transformers/transformer-models";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

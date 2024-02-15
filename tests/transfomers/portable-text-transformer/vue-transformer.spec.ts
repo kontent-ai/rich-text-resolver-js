@@ -4,8 +4,8 @@ import { mount } from "@vue/test-utils";
 import { h } from "vue";
 
 import { nodeParse, transformToPortableText } from "../../../src"
-import { resolveImage, resolveTable,toVueImageDefault } from '../../../src/utils/resolution/vue';
 import { PortableTextImage, PortableTextTable } from "../../../src/transformers/transformer-models";
+import { resolveImage, resolveTable,toVueImageDefault } from '../../../src/utils/resolution/vue';
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

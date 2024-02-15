@@ -1,7 +1,8 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk"
-import { transformToJson, browserParse } from "../../../src";
+
+import { browserParse,transformToJson } from "../../../src";
 import { ParseResult } from "../../../src/parser/parser-models";
-import { ResolveDomTextNodeType, ResolveDomHtmlNodeType } from "../../../src/transformers/json-transformer/json-transformer";
+import { ResolveDomHtmlNodeType,ResolveDomTextNodeType } from "../../../src/transformers/json-transformer/json-transformer";
 
 const dummy: Elements.RichTextElement = {
   "images": [

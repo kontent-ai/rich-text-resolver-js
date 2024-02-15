@@ -1,9 +1,10 @@
 import { PortableTextBlock } from "@portabletext/types";
+
 import {
+  PortableTextImage,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
-  PortableTextImage,
 } from "../../transformers/transformer-models.js";
 
 /**

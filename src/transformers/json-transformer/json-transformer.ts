@@ -1,7 +1,7 @@
 import {
-    DomTextNode,
     DomHtmlNode,
     DomNode,
+    DomTextNode,
     ParseResult,
   } from "../../parser/parser-models.js";
 import { isText } from "../../utils/common-utils.js";

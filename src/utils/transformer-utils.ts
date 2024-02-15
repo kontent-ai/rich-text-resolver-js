@@ -7,6 +7,7 @@ PortableTextSpan
 } from "@portabletext/types"
 import ShortUniqueId from "short-unique-id";
 
+import { DomHtmlNode, DomTextNode } from "../parser/parser-models.js";
 import {
   PortableTextComponent,
   PortableTextExternalLink,
@@ -25,8 +26,6 @@ import {
   PortableTextTableRow,
   Reference,
 } from "../transformers/transformer-models.js";
-
-import { DomHtmlNode, DomTextNode } from "../parser/parser-models.js";
 
 export const textStyleElements = ['strong', 'em', 'sub', 'sup', 'code'] as const;
 export const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
