@@ -1,11 +1,10 @@
 import {
   browserParse,
   nodeParse,
-  PortableTextItem,
-  PortableTextObject,
   transformToPortableText,
   traversePortableText
 } from "../../../src"
+import { PortableTextObject, PortableTextItem } from "../../../src/transformers/transformer-models";
 
 jest.mock('short-unique-id', () => {
   return {

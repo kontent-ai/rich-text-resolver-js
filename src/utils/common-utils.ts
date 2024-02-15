@@ -1,4 +1,4 @@
-import { DomHtmlNode, DomNode, DomTextNode } from "../index.js";
+import { DomHtmlNode, DomNode, DomTextNode } from "../parser/parser-models.js";
 
 export const isOrderedListBlock = (node: DomHtmlNode): boolean =>
     node.tagName === 'ol';

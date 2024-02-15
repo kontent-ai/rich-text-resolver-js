@@ -8,7 +8,6 @@ tsconfig.test.json
 
 # source
 src/**
-index.ts
 
 # docs
 media/**

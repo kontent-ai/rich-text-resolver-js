@@ -6,20 +6,10 @@ import {
   PortableTextTypeComponentOptions,
   toHTML,
 } from "@portabletext/to-html";
-
-import {
-browserParse,
-nodeParse,
-PortableTextBlock,
-PortableTextComponent,
-PortableTextExternalLink,
-PortableTextImage,
-PortableTextInternalLink,
-PortableTextTable,
-ResolverFunction,
-transformToPortableText
-} from "../../../src"
 import { resolveImage, resolveTable, toHTMLImageDefault } from "../../../src/utils/resolution/html";
+import { PortableTextBlock, PortableTextComponent, PortableTextExternalLink, PortableTextImage, PortableTextInternalLink, PortableTextTable } from "../../../src/transformers/transformer-models";
+import { browserParse, nodeParse, transformToPortableText } from "../../../src";
+import { ResolverFunction } from "../../../src/utils/transformer-utils";
 
 jest.mock('short-unique-id', () => {
     return {

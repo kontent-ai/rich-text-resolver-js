@@ -1,5 +1,10 @@
-import { DomHtmlNode, DomNode, DomTextNode, ParseResult } from "../../parser/index.js"
-import { isText } from "../../utils/index.js"
+import {
+    DomTextNode,
+    DomHtmlNode,
+    DomNode,
+    ParseResult,
+  } from "../../parser/parser-models.js";
+import { isText } from "../../utils/common-utils.js";
 
 export type ResolveDomTextNodeType = ((node: DomTextNode) => unknown) | null
 export type ResolveDomHtmlNodeType = ((node: DomHtmlNode, traverse: (node: DomNode) => unknown) => unknown) | null

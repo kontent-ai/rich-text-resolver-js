@@ -1,7 +1,7 @@
 import * as NodeHtmlParser from 'node-html-parser';
 import { Node } from "node-html-parser";
 
-import { getAllNewLineAndWhiteSpace } from '../../utils/index.js';
+import { getAllNewLineAndWhiteSpace } from '../../utils/transformer-utils.js';
 import { isElementNode, isRootNode, isTextNode } from "../../utils/node-parser-utils.js";
 import { DomNode, ParseResult } from '../parser-models.js';
 

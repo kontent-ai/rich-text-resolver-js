@@ -1,24 +1,26 @@
-import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
+import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import {
-PortableText,
-PortableTextMarkComponentProps,
-PortableTextReactComponents,
-PortableTextTypeComponentProps,
-toPlainText
-} from '@portabletext/react'
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
+  PortableText,
+  PortableTextMarkComponentProps,
+  PortableTextReactComponents,
+  PortableTextTypeComponentProps,
+  toPlainText,
+} from "@portabletext/react";
+import React from "react";
+import TestRenderer from "react-test-renderer";
 
 import {
-nodeParse,
-PortableTextComponent,
-PortableTextExternalLink,
-PortableTextImage,
-PortableTextInternalLink,
-PortableTextTable,
-transformToPortableText
-} from '../../src'
-import { resolveImage, resolveTable, toHTMLImageDefault } from '../../src/utils/resolution/html';
+  resolveImage,
+  resolveTable,
+  toHTMLImageDefault,
+} from "../../src/utils/resolution/html";
+import {
+  PortableTextTable,
+  PortableTextImage,
+  PortableTextExternalLink,
+  PortableTextInternalLink,
+  PortableTextComponent,
+} from "../../src/transformers/transformer-models";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

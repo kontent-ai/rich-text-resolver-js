@@ -1,11 +1,10 @@
 import { PortableTextBlock } from "@portabletext/types";
-
 import {
-  PortableTextImage,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
-} from "../../index.js";
+  PortableTextImage,
+} from "../../transformers/transformer-models.js";
 
 /**
  * Renders a portable text table to a Vue virtual DOM node.
