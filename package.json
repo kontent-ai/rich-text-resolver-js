@@ -6,53 +6,12 @@
   "license": "MIT",
   "author": "Daniel Pokorny",
   "type": "module",
+  "types": "./dist/types/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esnext/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/kontent-ai/rich-text-resolver-js.git"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/esnext/index.js",
-      "require": "./dist/cjs/index.js"
-    },
-    "./parser": {
-      "node": {
-        "import": "./dist/esnext/src/parser/node/rich-text-node-parser.js",
-        "require": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
-      },
-      "default": {
-        "import": "./dist/esnext/src/parser/browser/rich-text-browser-parser.js",
-        "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
-      }
-    },
-    "./transformers/json": {
-      "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",
-      "require": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
-    },
-    "./transformers/portable-text": {
-      "import": "./dist/esnext/src/transformers/portable-text-transformer/portable-text-transformer.js",
-      "require": "./dist/cjs/src/transformers/portable-text-transformer/portable-text-transformer.js"
-    },
-    "./utils": {
-      "import": "./dist/esnext/src/utils/common-utils.js",
-      "require": "./dist/cjs/src/utils/common-utils.js"
-    },
-    "./utils/vue": {
-      "import": "./dist/esnext/src/utils/resolution/vue.js",
-      "require": "./dist/cjs/src/utils/resolution/vue.js"
-    },
-    "./utils/html": {
-      "import": "./dist/esnext/src/utils/resolution/html.js",
-      "require": "./dist/cjs/src/utils/resolution/html.js"
-    },
-    "./types/transformer": {
-      "import": "./dist/esnext/src/transformers/transformer-models.js",
-      "require": "./dist/cjs/src/transformers/transformer-models.js"
-    },
-    "./types/parser": {
-      "import": "./dist/esnext/src/parser/parser-models.js",
-      "require": "./dist/cjs/src/parser/parser-models.js"
-    }
   },
   "scripts": {
     "build:commonjs": "tsc -m commonjs --outDir dist/cjs && node create-cjs-package-json.cjs",
@@ -68,8 +27,8 @@
     "@kontent-ai/delivery-sdk": "^14.6.0",
     "@portabletext/react": "^3.0.11",
     "@portabletext/to-html": "^2.0.5",
-    "@testing-library/jest-dom": "^6.2.0",
     "@portabletext/vue": "^1.0.6",
+    "@testing-library/jest-dom": "^6.2.0",
     "@types/jest": "^29.5.11",
     "@types/react": "^18.2.47",
     "@types/react-test-renderer": "^18.0.7",

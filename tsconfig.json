@@ -23,7 +23,7 @@
     // "moduleDetection": "auto",                        /* Control what method is used to detect module-format JS files. */
     /* Modules */
     "module": "NodeNext", /* Specify what module code is generated. */
-    // "rootDir": "./",                                  /* Specify the root folder within your source files. */
+    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
     "moduleResolution": "NodeNext",                       /* Specify how TypeScript looks up a file from a given module specifier. */
     // "baseUrl": "./",                                  /* Specify the base directory to resolve non-relative module names. */
     // "paths": {},                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
@@ -60,7 +60,7 @@
     // "noEmitHelpers": true,                            /* Disable generating custom helper functions like '__extends' in compiled output. */
     // "noEmitOnError": true,                            /* Disable emitting files if any type checking errors are reported. */
     // "preserveConstEnums": true,                       /* Disable erasing 'const enum' declarations in generated code. */
-    // "declarationDir": "./",                           /* Specify the output directory for generated declaration files. */
+    "declarationDir": "./dist/types",                           /* Specify the output directory for generated declaration files. */
     // "preserveValueImports": true,                     /* Preserve unused imported values in the JavaScript output that would otherwise be removed. */
     /* Interop Constraints */
     // "isolatedModules": true,                          /* Ensure that each file can be safely transpiled without relying on other imports. */
@@ -101,6 +101,7 @@
     "**/*.spec.tsx",
     "**/*.test.tsx",
     "dist",
-    "create-cjs-package-json.js"
+    "create-cjs-package-json.js",
+    "showcase"
   ]
 }
