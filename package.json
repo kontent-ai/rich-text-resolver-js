@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "1.0.0",
+  "version": "1.0.1b-alpha",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
@@ -12,50 +12,100 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/esnext/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": {
+        "types": "./dist/esnext/index.d.ts",
+        "default": "./dist/esnext/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     },
     "./parser": {
       "node": {
-        "import": "./dist/esnext/src/parser/node/rich-text-node-parser.js",
-        "require": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
+        "import": {
+          "types": "./dist/esnext/src/parser/node/rich-text-node-parser.d.ts",
+          "default": "./dist/esnext/src/parser/node/rich-text-node-parser.js"
+        },
+        "require": {
+          "types": "./dist/cjs/src/parser/node/rich-text-node-parser.d.ts",
+          "default": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
+        }
       },
       "default": {
-        "import": "./dist/esnext/src/parser/browser/rich-text-browser-parser.js",
-        "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
+        "import": {
+          "types": "./dist/esnext/src/parser/browser/rich-text-browser-parser.d.ts",
+          "default": "./dist/esnext/src/parser/node/rich-text-browser-parser.js"
+        },
+        "require": {
+          "types": "./dist/cjs/src/parser/browser/rich-text-browser-parser.d.ts",
+          "default": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
+        }
       }
     },
     "./transformers/json": {
-      "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",
-      "require": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
-    },
-    "./transformers/portable-text": {
-      "import": "./dist/esnext/src/transformers/portable-text-transformer/portable-text-transformer.js",
-      "require": "./dist/cjs/src/transformers/portable-text-transformer/portable-text-transformer.js"
+      "import": {
+        "types": "./dist/esnext/src/transformers/json-transformer/json-transformer.d.ts",
+        "default": "./dist/esnext/src/transformers/json-transformer/json-transformer.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/transformers/json-transformer/json-transformer.d.ts",
+        "default": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
+      }
     },
     "./utils": {
-      "import": "./dist/esnext/src/utils/common-utils.js",
-      "require": "./dist/cjs/src/utils/common-utils.js"
+      "import": {
+        "types": "./dist/esnext/src/utils/common-utils.d.ts",
+        "default": "./dist/esnext/src/utils/common-utils.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/utils/common-utils.d.ts",
+        "default": "./dist/cjs/src/utils/common-utils.js"
+      }
     },
     "./utils/vue": {
-      "import": "./dist/esnext/src/utils/resolution/vue.js",
-      "require": "./dist/cjs/src/utils/resolution/vue.js"
+      "import": {
+        "types": "./dist/esnext/src/utils/vue/vue.d.ts",
+        "default": "./dist/esnext/src/utils/vue/vue.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/utils/vue/vue.d.ts",
+        "default": "./dist/cjs/src/utils/vue/vue.js"
+      }
     },
     "./utils/html": {
-      "import": "./dist/esnext/src/utils/resolution/html.js",
-      "require": "./dist/cjs/src/utils/resolution/html.js"
+      "import": {
+        "types": "./dist/esnext/src/utils/html/html.d.ts",
+        "default": "./dist/esnext/src/utils/html/html.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/utils/html/html.d.ts",
+        "default": "./dist/cjs/src/utils/html/html.js"
+      }
     },
     "./types/transformer": {
-      "import": "./dist/esnext/src/transformers/transformer-models.js",
-      "require": "./dist/cjs/src/transformers/transformer-models.js"
+      "import": {
+        "types": "./dist/esnext/src/transformers/transformer-models.d.ts",
+        "default": "./dist/esnext/src/transformers/transformer-models.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/transformers/transformer-models.d.ts",
+        "default": "./dist/cjs/src/transformers/transformer-models.js"
+      }
     },
     "./types/parser": {
-      "import": "./dist/esnext/src/parser/parser-models.js",
-      "require": "./dist/cjs/src/parser/parser-models.js"
+      "import": {
+        "types": "./dist/esnext/src/parser/parser-models.d.ts",
+        "default": "./dist/esnext/src/parser/parser-models.js"
+      },
+      "require": {
+        "types": "./dist/cjs/src/parser/parser-models.d.ts",
+        "default": "./dist/cjs/src/parser/parser-models.js"
+      }
     }
   },
   "scripts": {
-    "build:commonjs": "tsc -m commonjs --outDir dist/cjs && node create-cjs-package-json.cjs",
+    "build:commonjs": "tsc -m commonjs --outDir dist/cjs",
     "build:esnext": "tsc -m es6 --outDir dist/esnext",
     "build": "npm run build:commonjs && npm run build:esnext",
     "test": "jest",
@@ -68,8 +118,8 @@
     "@kontent-ai/delivery-sdk": "^14.6.0",
     "@portabletext/react": "^3.0.11",
     "@portabletext/to-html": "^2.0.5",
-    "@testing-library/jest-dom": "^6.2.0",
     "@portabletext/vue": "^1.0.6",
+    "@testing-library/jest-dom": "^6.2.0",
     "@types/jest": "^29.5.11",
     "@types/react": "^18.2.47",
     "@types/react-test-renderer": "^18.0.7",
