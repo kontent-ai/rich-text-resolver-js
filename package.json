@@ -1,10 +1,13 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "1.0.1b-alpha",
+  "version": "1.0.1",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
   "author": "Daniel Pokorny",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esnext/index.js",
+  "types": "./dist/esnext/index.d.ts",
   "type": "module",
   "repository": {
     "type": "git",
@@ -12,96 +15,46 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "types": "./dist/esnext/index.d.ts",
-        "default": "./dist/esnext/index.js"
-      },
-      "require": {
-        "types": "./dist/cjs/index.d.ts",
-        "default": "./dist/cjs/index.js"
-      }
+      "import": "./dist/esnext/index.js",
+      "require": "./dist/cjs/index.js"
     },
     "./parser": {
       "node": {
-        "import": {
-          "types": "./dist/esnext/src/parser/node/rich-text-node-parser.d.ts",
-          "default": "./dist/esnext/src/parser/node/rich-text-node-parser.js"
-        },
-        "require": {
-          "types": "./dist/cjs/src/parser/node/rich-text-node-parser.d.ts",
-          "default": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
-        }
+        "import": "./dist/esnext/src/parser/node/rich-text-node-parser.js",
+        "require": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
       },
       "default": {
-        "import": {
-          "types": "./dist/esnext/src/parser/browser/rich-text-browser-parser.d.ts",
-          "default": "./dist/esnext/src/parser/node/rich-text-browser-parser.js"
-        },
-        "require": {
-          "types": "./dist/cjs/src/parser/browser/rich-text-browser-parser.d.ts",
-          "default": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
-        }
+        "import": "./dist/esnext/src/parser/browser/rich-text-browser-parser.js",
+        "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
       }
     },
     "./transformers/json": {
-      "import": {
-        "types": "./dist/esnext/src/transformers/json-transformer/json-transformer.d.ts",
-        "default": "./dist/esnext/src/transformers/json-transformer/json-transformer.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/transformers/json-transformer/json-transformer.d.ts",
-        "default": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
-      }
+      "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",
+      "require": "./dist/cjs/src/transformers/json-transformer/json-transformer.js"
+    },
+    "./transformers/portable-text": {
+      "import": "./dist/esnext/src/transformers/portable-text-transformer/portable-text-transformer.js",
+      "require": "./dist/cjs/src/transformers/portable-text-transformer/portable-text-transformer.js"
     },
     "./utils": {
-      "import": {
-        "types": "./dist/esnext/src/utils/common-utils.d.ts",
-        "default": "./dist/esnext/src/utils/common-utils.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/utils/common-utils.d.ts",
-        "default": "./dist/cjs/src/utils/common-utils.js"
-      }
+      "import": "./dist/esnext/src/utils/common-utils.js",
+      "require": "./dist/cjs/src/utils/common-utils.js"
     },
     "./utils/vue": {
-      "import": {
-        "types": "./dist/esnext/src/utils/vue/vue.d.ts",
-        "default": "./dist/esnext/src/utils/vue/vue.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/utils/vue/vue.d.ts",
-        "default": "./dist/cjs/src/utils/vue/vue.js"
-      }
+      "import": "./dist/esnext/src/utils/resolution/vue.js",
+      "require": "./dist/cjs/src/utils/resolution/vue.js"
     },
     "./utils/html": {
-      "import": {
-        "types": "./dist/esnext/src/utils/html/html.d.ts",
-        "default": "./dist/esnext/src/utils/html/html.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/utils/html/html.d.ts",
-        "default": "./dist/cjs/src/utils/html/html.js"
-      }
+      "import": "./dist/esnext/src/utils/resolution/html.js",
+      "require": "./dist/cjs/src/utils/resolution/html.js"
     },
     "./types/transformer": {
-      "import": {
-        "types": "./dist/esnext/src/transformers/transformer-models.d.ts",
-        "default": "./dist/esnext/src/transformers/transformer-models.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/transformers/transformer-models.d.ts",
-        "default": "./dist/cjs/src/transformers/transformer-models.js"
-      }
+      "import": "./dist/esnext/src/transformers/transformer-models.js",
+      "require": "./dist/cjs/src/transformers/transformer-models.js"
     },
     "./types/parser": {
-      "import": {
-        "types": "./dist/esnext/src/parser/parser-models.d.ts",
-        "default": "./dist/esnext/src/parser/parser-models.js"
-      },
-      "require": {
-        "types": "./dist/cjs/src/parser/parser-models.d.ts",
-        "default": "./dist/cjs/src/parser/parser-models.js"
-      }
+      "import": "./dist/esnext/src/parser/parser-models.js",
+      "require": "./dist/cjs/src/parser/parser-models.js"
     }
   },
   "scripts": {
