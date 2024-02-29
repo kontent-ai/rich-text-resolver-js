@@ -105,9 +105,13 @@ HTML resolution using `@portabletext/to-html` package.
 
 ```ts
 import { escapeHTML, PortableTextOptions, toHTML } from "@portabletext/to-html";
-import { browserParse, transformToPortableText } from "@kontent-ai/rich-text-resolver";
-import { resolveTable, resolveImage, toHTMLImageDefault } from "@kontent-ai/rich-text-resolver/utils/html";
-
+import {
+  browserParse,
+  transformToPortableText,
+  resolveTable,
+  resolveImage,
+  toHTMLImageDefault,
+} from "@kontent-ai/rich-text-resolver";
 
 const richTextValue = "<rich text html>";
 const linkedItems = ["<array of linked items>"]; // e.g. from SDK
@@ -240,7 +244,11 @@ import {
   PortableTextComponents,
   toPlainText,
 } from "@portabletext/vue";
-import { resolveTable, resolveImage, toVueImageDefault } from "@kontent-ai/rich-text-resolver/utils/vue";
+import {
+  resolveTableVue as resolveTable,
+  resolveImageVue as resolveImage,
+  toVueImageDefault,
+} from "@kontent-ai/rich-text-resolver";
 
 
 const components: PortableTextComponents = {
