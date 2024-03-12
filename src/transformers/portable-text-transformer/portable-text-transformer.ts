@@ -261,7 +261,7 @@ const transformImage: TransformElementFunction = (node) => {
     const imageTag = node.children[0] as DomHtmlNode;
     const block = createImageBlock(uid().toString());
 
-    block.asset._ref = node.attributes['data-image-id'];
+    block.asset._ref = node.attributes['data-asset-id'];
     block.asset.url = imageTag.attributes['src'];
     block.asset.alt = imageTag.attributes['alt'];
 
