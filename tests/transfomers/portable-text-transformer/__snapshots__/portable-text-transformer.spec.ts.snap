@@ -274,6 +274,21 @@ exports[`portable text transformer resolves lists 1`] = `
 ]
 `;
 
+exports[`portable text transformer transforms asset from MAPI 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "image",
+    "asset": {
+      "_ref": "62ba1f17-13e9-43c0-9530-6b44e38097fc",
+      "_type": "reference",
+      "alt": undefined,
+      "url": "#",
+    },
+  },
+]
+`;
+
 exports[`portable text transformer transforms complex rich text into portable text 1`] = `
 [
   {
@@ -805,6 +820,55 @@ exports[`portable text transformer transforms item links 1`] = `
       },
     ],
     "style": "normal",
+  },
+]
+`;
+
+exports[`portable text transformer transforms linked item and a component from MAPI 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Some text at the first level, followed by a component. ",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "d6a10cb4-3639-429f-b6b0-b7fea6dec252",
+      "_type": "reference",
+    },
+  },
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "and a linked item",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "99e17fe7-a215-400d-813a-dc3608ee0294",
+      "_type": "reference",
+    },
   },
 ]
 `;
