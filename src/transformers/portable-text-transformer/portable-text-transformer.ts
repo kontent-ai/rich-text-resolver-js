@@ -2,6 +2,7 @@ import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
 import { DomHtmlNode, DomNode, ParseResult } from "../../parser/index.js"
 import {
+    ModularContentType,
     PortableTextItem,
     PortableTextLink,
     PortableTextObject,
@@ -297,7 +298,18 @@ const transformItem: TransformElementFunction = (node) => {
         _ref: node.attributes['data-codename'] ?? node.attributes['data-id']
     }
 
-    return [createComponentBlock(uid().toString(), itemReference)];
+    /**
+     * data-rel is only present in DAPI and acts as a differentiator
+     * between component and linked item in rich text
+     * 
+     * data-type is present in both DAPI and MAPI but differentiates
+     * only in the latter
+     */
+    const modularContentType =
+    (node.attributes["data-rel"] as ModularContentType) ??
+    (node.attributes["data-type"] as ModularContentType);
+
+    return [createComponentBlock(uid().toString(), itemReference, modularContentType)];
 }
 
 const transformLink: TransformLinkFunction = (node) => {

@@ -257,13 +257,6 @@ describe("portable text transformer", () => {
     expect(nodeResult).toMatchSnapshot();
     expect(nodeResult).toMatchObject(browserResult);
   })
-  it("transforms linked items/components", () => {
-    const input = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
-    const { nodeResult, browserResult } = transformInput(input);
-
-    expect(nodeResult).toMatchSnapshot();
-    expect(nodeResult).toMatchObject(browserResult);
-  })
 
   it("doesn't create duplicates for nested spans", () => {
     const input = `<p>text<strong>bold</strong></p>`;
@@ -332,7 +325,7 @@ describe("portable text transformer", () => {
     expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("extends component with additional data", () => {
+  it("extends component block with additional data", () => {
     const input = `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
 
     const processBlock = (block: PortableTextObject) => {
@@ -369,7 +362,7 @@ describe("portable text transformer", () => {
     expect(nodeResult).toMatchObject(browserResult);
   })
 
-  it("transforms linked item and a component from MAPI", () => {
+  it("transforms a linked item and a component from MAPI with corresponding dataType", () => {
     const input = `<p>Some text at the first level, followed by a component.&nbsp;</p>\n<object type=\"application/kenticocloud\" data-type=\"component\" data-id=\"d6a10cb4-3639-429f-b6b0-b7fea6dec252\"></object>\n<p>and a linked item</p>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-id=\"99e17fe7-a215-400d-813a-dc3608ee0294\"></object>`;
     const { nodeResult, browserResult } = transformInput(input);
 
@@ -379,6 +372,14 @@ describe("portable text transformer", () => {
 
   it("transforms asset from MAPI", () => {
     const input = `<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"#\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"></figure>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms a linked item and a component from DAPI with corresponding dataType", () => {
+    const input = `<p>Some text at the first level, followed by a component.&nbsp;</p>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"n27ec1626_93ac_0129_64e5_1beeda45416c\"></object>\n<p>and a linked item</p>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"commercet\"></object>`;
     const { nodeResult, browserResult } = transformInput(input);
 
     expect(nodeResult).toMatchSnapshot();
