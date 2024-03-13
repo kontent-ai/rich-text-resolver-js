@@ -291,9 +291,10 @@ const transformTableCell: TransformTableCellFunction = (node) => {
 };
 
 const transformItem: TransformElementFunction = (node) => {
+    // data-codename reference is for DAPI, data-id for MAPI
     const itemReference: Reference = {
         _type: 'reference',
-        _ref: node.attributes['data-codename']
+        _ref: node.attributes['data-codename'] ?? node.attributes['data-id']
     }
 
     return [createComponentBlock(uid().toString(), itemReference)];
