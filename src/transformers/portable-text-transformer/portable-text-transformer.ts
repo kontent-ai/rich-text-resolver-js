@@ -2,6 +2,7 @@ import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
 import { DomHtmlNode, DomNode, ParseResult } from "../../parser/index.js"
 import {
+    ModularContentType,
     PortableTextItem,
     PortableTextLink,
     PortableTextObject,
@@ -261,7 +262,7 @@ const transformImage: TransformElementFunction = (node) => {
     const imageTag = node.children[0] as DomHtmlNode;
     const block = createImageBlock(uid().toString());
 
-    block.asset._ref = node.attributes['data-image-id'];
+    block.asset._ref = node.attributes['data-asset-id'];
     block.asset.url = imageTag.attributes['src'];
     block.asset.alt = imageTag.attributes['alt'];
 
@@ -291,12 +292,24 @@ const transformTableCell: TransformTableCellFunction = (node) => {
 };
 
 const transformItem: TransformElementFunction = (node) => {
+    // data-codename reference is for DAPI, data-id for MAPI
     const itemReference: Reference = {
         _type: 'reference',
-        _ref: node.attributes['data-codename']
+        _ref: node.attributes['data-codename'] ?? node.attributes['data-id']
     }
 
-    return [createComponentBlock(uid().toString(), itemReference)];
+    /**
+     * data-rel is only present in DAPI and acts as a differentiator
+     * between component and linked item in rich text
+     * 
+     * data-type is present in both DAPI and MAPI but differentiates
+     * only in the latter
+     */
+    const modularContentType =
+    (node.attributes["data-rel"] as ModularContentType) ??
+    (node.attributes["data-type"] as ModularContentType);
+
+    return [createComponentBlock(uid().toString(), itemReference, modularContentType)];
 }
 
 const transformLink: TransformLinkFunction = (node) => {
