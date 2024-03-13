@@ -78,7 +78,7 @@ exports[`portable text transformer doesn't extend link mark to adjacent spans 1`
 ]
 `;
 
-exports[`portable text transformer extends component with additional data 1`] = `
+exports[`portable text transformer extends component block with additional data 1`] = `
 [
   {
     "_key": "guid",
@@ -88,6 +88,7 @@ exports[`portable text transformer extends component with additional data 1`] = 
       "_ref": "test_item",
       "_type": "reference",
     },
+    "dataType": "link",
   },
 ]
 `;
@@ -270,6 +271,108 @@ exports[`portable text transformer resolves lists 1`] = `
     "listItem": "number",
     "markDefs": [],
     "style": "normal",
+  },
+]
+`;
+
+exports[`portable text transformer transforms a linked item and a component from DAPI with corresponding dataType 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Some text at the first level, followed by a component. ",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "n27ec1626_93ac_0129_64e5_1beeda45416c",
+      "_type": "reference",
+    },
+    "dataType": "component",
+  },
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "and a linked item",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "commercet",
+      "_type": "reference",
+    },
+    "dataType": "link",
+  },
+]
+`;
+
+exports[`portable text transformer transforms a linked item and a component from MAPI with corresponding dataType 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Some text at the first level, followed by a component. ",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "d6a10cb4-3639-429f-b6b0-b7fea6dec252",
+      "_type": "reference",
+    },
+    "dataType": "component",
+  },
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "and a linked item",
+      },
+    ],
+    "markDefs": [],
+    "style": "normal",
+  },
+  {
+    "_key": "guid",
+    "_type": "component",
+    "component": {
+      "_ref": "99e17fe7-a215-400d-813a-dc3608ee0294",
+      "_type": "reference",
+    },
+    "dataType": "item",
   },
 ]
 `;
@@ -676,6 +779,7 @@ exports[`portable text transformer transforms complex rich text into portable te
       "_ref": "test_item",
       "_type": "reference",
     },
+    "dataType": "link",
   },
 ]
 `;
@@ -820,68 +924,6 @@ exports[`portable text transformer transforms item links 1`] = `
       },
     ],
     "style": "normal",
-  },
-]
-`;
-
-exports[`portable text transformer transforms linked item and a component from MAPI 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "Some text at the first level, followed by a component. ",
-      },
-    ],
-    "markDefs": [],
-    "style": "normal",
-  },
-  {
-    "_key": "guid",
-    "_type": "component",
-    "component": {
-      "_ref": "d6a10cb4-3639-429f-b6b0-b7fea6dec252",
-      "_type": "reference",
-    },
-  },
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "and a linked item",
-      },
-    ],
-    "markDefs": [],
-    "style": "normal",
-  },
-  {
-    "_key": "guid",
-    "_type": "component",
-    "component": {
-      "_ref": "99e17fe7-a215-400d-813a-dc3608ee0294",
-      "_type": "reference",
-    },
-  },
-]
-`;
-
-exports[`portable text transformer transforms linked items/components 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "component",
-    "component": {
-      "_ref": "test_item",
-      "_type": "reference",
-    },
   },
 ]
 `;

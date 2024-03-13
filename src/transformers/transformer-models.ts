@@ -108,6 +108,10 @@ export interface PortableTextTableCell extends ArbitraryTypedObject {
 export interface PortableTextComponent extends ArbitraryTypedObject {
   _type: "component";
   /**
+   * `component` for components or `item | link` for linked items
+   */
+  dataType: ModularContentType;
+  /**
    * Reference to a component or a linked item.
    */
   component: Reference;
@@ -191,6 +195,14 @@ export type PortableTextInternalObject =
  * Union of all default portable text object types.
  */
 export type PortableTextItem = PortableTextObject | PortableTextInternalObject;
+
+/**
+ * `component` represents a rich text inline component
+ * 
+ * `link` and `item` represent a rich text linked item
+ * in delivery and management API respectively
+ */
+export type ModularContentType = "component" | "item" | "link";
 
 
 /**
