@@ -368,4 +368,20 @@ describe("portable text transformer", () => {
     expect(transformedResult).toMatchSnapshot();
     expect(nodeResult).toMatchObject(browserResult);
   })
+
+  it("transforms linked item and a component from MAPI", () => {
+    const input = `<p>Some text at the first level, followed by a component.&nbsp;</p>\n<object type=\"application/kenticocloud\" data-type=\"component\" data-id=\"d6a10cb4-3639-429f-b6b0-b7fea6dec252\"></object>\n<p>and a linked item</p>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-id=\"99e17fe7-a215-400d-813a-dc3608ee0294\"></object>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms asset from MAPI", () => {
+    const input = `<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"#\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"></figure>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
 })
