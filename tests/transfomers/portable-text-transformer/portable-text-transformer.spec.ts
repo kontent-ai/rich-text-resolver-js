@@ -385,4 +385,20 @@ describe("portable text transformer", () => {
     expect(nodeResult).toMatchSnapshot();
     expect(nodeResult).toMatchObject(browserResult);
   })
+
+  it("transforms a link to an asset in DAPI", () => {
+    const input = `<p>Link to an <a data-asset-id=\"bc6f3ce5-935d-4446-82d4-ce77436dd412\" href=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg\">asset</a></p>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
+
+  it("transforms a link to an asset in MAPI", () => {
+    const input = `<p>Link to an <a data-asset-id=\"bc6f3ce5-935d-4446-82d4-ce77436dd412\">asset</a></p>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
 })
