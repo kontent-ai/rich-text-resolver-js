@@ -275,6 +275,73 @@ exports[`portable text transformer resolves lists 1`] = `
 ]
 `;
 
+exports[`portable text transformer transforms a link to an asset in DAPI 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Link to an ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "asset",
+      },
+    ],
+    "markDefs": [
+      {
+        "_key": "guid",
+        "_type": "link",
+        "data-asset-id": "bc6f3ce5-935d-4446-82d4-ce77436dd412",
+        "href": "https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg",
+      },
+    ],
+    "style": "normal",
+  },
+]
+`;
+
+exports[`portable text transformer transforms a link to an asset in MAPI 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Link to an ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "asset",
+      },
+    ],
+    "markDefs": [
+      {
+        "_key": "guid",
+        "_type": "link",
+        "data-asset-id": "bc6f3ce5-935d-4446-82d4-ce77436dd412",
+      },
+    ],
+    "style": "normal",
+  },
+]
+`;
+
 exports[`portable text transformer transforms a linked item and a component from DAPI with corresponding dataType 1`] = `
 [
   {
