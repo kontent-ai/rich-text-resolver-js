@@ -28,7 +28,7 @@ export interface AssetReference extends Reference {
   /**
    * Alternate image text.
    */
-  alt: string;
+  alt?: string;
 }
 
 /**
@@ -197,12 +197,16 @@ export type PortableTextInternalObject =
 export type PortableTextItem = PortableTextObject | PortableTextInternalObject;
 
 /**
- * `component` represents a rich text inline component
- * 
  * `link` and `item` represent a rich text linked item
  * in delivery and management API respectively
  */
-export type ModularContentType = "component" | "item" | "link";
+type DeliveryLinkedItem = "link";
+type ManagementLinkedItem = "item";
+
+/**
+ * `component` represents a rich text inline component
+ */
+export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLinkedItem;
 
 
 /**

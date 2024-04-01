@@ -1,4 +1,4 @@
-import { DomHtmlNode, DomNode, DomTextNode } from "../index.js";
+import { DomHtmlNode, DomNode, DomTextNode, ItemLinkElementAttributes } from "../index.js";
 
 export const isOrderedListBlock = (node: DomHtmlNode): boolean =>
     node.tagName === 'ol';
@@ -46,7 +46,7 @@ export const isImage = (node: DomNode): boolean =>
     node.attributes['data-image-id'] ? true : false;
 
 /**
- * Returns `true` if the node is a link to a content item.
+ * Returns `true` if the node is a link to a content item and narrows type guard.
  */
-export const isItemLink = (node: DomHtmlNode): boolean =>
-    isAnchor(node) && !isExternalLink(node);
+export const isItemLink = (node: DomHtmlNode): node is DomHtmlNode<ItemLinkElementAttributes> =>
+    isAnchor(node) && node.attributes['data-item-id'] !== undefined;

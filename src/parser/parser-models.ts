@@ -17,7 +17,7 @@ export interface DomTextNode {
 /**
  * Represents a HTML tag.
  */
-export interface DomHtmlNode {
+export interface DomHtmlNode<TAttributes = Record<string, string | undefined>> {
   type: "tag";
   /**
    * Name of the HTML tag.
@@ -26,7 +26,7 @@ export interface DomHtmlNode {
   /**
    * Record of all the HTML tag's attributes and their values.
    */
-  attributes: Record<string, string>;
+  attributes: TAttributes & Record<string, string | undefined>;
   /**
    * Array of childnodes.
    */
@@ -39,3 +39,47 @@ export interface DomHtmlNode {
 export interface ParseResult {
   children: DomNode[];
 }
+
+type DeliverObjectElementAttributes = {
+  'data-rel': 'component' | 'link';
+  'data-type': 'item';
+  'data-codename': string;
+  'data-id': undefined;
+}
+
+type ManagementObjectElementAttributes = {
+  'data-rel': undefined;
+  'data-type': 'item' | 'component';
+  'data-id': string;
+  'data-codename': undefined;
+}
+
+export type AssetLinkElementAttributes = {
+  'data-asset-id': string;
+  'href'?: string;
+}
+
+export type ItemLinkElementAttributes = {
+  'data-item-id': string;
+  'href'?: string;
+}
+
+export type FigureElementAttributes = {
+  'data-asset-id': string;
+  'data-image-id'?: string;
+}
+
+export type ImgElementAttributes = {
+  'src': string;
+  'data-asset-id': string;
+  'data-image-id'?: string;
+  'alt'?: string;
+}
+
+export type InternalLinkElementAttributes =
+  | AssetLinkElementAttributes
+  | ItemLinkElementAttributes;
+
+export type ObjectElementAttributes = 
+  | DeliverObjectElementAttributes 
+  | ManagementObjectElementAttributes;

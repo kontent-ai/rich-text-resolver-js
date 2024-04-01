@@ -1,6 +1,6 @@
 import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
-import { DomHtmlNode, DomNode, ParseResult } from "../../parser/index.js"
+import { DomHtmlNode, DomNode, FigureElementAttributes, ImgElementAttributes,ItemLinkElementAttributes, ObjectElementAttributes, ParseResult } from "../../parser/index.js"
 import {
     ModularContentType,
     PortableTextItem,
@@ -30,7 +30,7 @@ import {
     IgnoredElement,
     ignoredElements,
     isElement,
-    isExternalLink,
+    isItemLink,
     isListBlock,
     isListItem,
     isText,
@@ -258,8 +258,8 @@ const transformElement = (node: DomHtmlNode, depth: number, listType?: PortableT
     return transformFunction(node, depth, listType!);
 }
 
-const transformImage: TransformElementFunction = (node) => {
-    const imageTag = node.children[0] as DomHtmlNode;
+const transformImage: TransformElementFunction<FigureElementAttributes> = (node) => {
+    const imageTag = node.children[0] as DomHtmlNode<ImgElementAttributes>;
     const block = createImageBlock(uid().toString());
 
     block.asset._ref = node.attributes['data-asset-id'];
@@ -291,12 +291,12 @@ const transformTableCell: TransformTableCellFunction = (node) => {
     return [tableCell];
 };
 
-const transformItem: TransformElementFunction = (node) => {
+const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) => {
     // data-codename reference is for DAPI, data-id for MAPI
     const itemReference: Reference = {
-        _type: 'reference',
-        _ref: node.attributes['data-codename'] ?? node.attributes['data-id']
-    }
+      _type: "reference",
+      _ref: node.attributes["data-codename"] ?? node.attributes["data-id"],
+    };
 
     /**
      * data-rel is only present in DAPI and acts as a differentiator
@@ -305,22 +305,18 @@ const transformItem: TransformElementFunction = (node) => {
      * data-type is present in both DAPI and MAPI but differentiates
      * only in the latter
      */
-    const modularContentType =
-    (node.attributes["data-rel"] as ModularContentType) ??
-    (node.attributes["data-type"] as ModularContentType);
+    const modularContentType = (node.attributes["data-rel"] ?? node.attributes["data-type"]) as ModularContentType;
 
     return [createComponentBlock(uid().toString(), itemReference, modularContentType)];
 }
 
 const transformLink: TransformLinkFunction = (node) => {
-    if (isExternalLink(node)) {
-        return transformExternalLink(node);
-    } else {
-        return transformInternalLink(node);
-    }
+    return isItemLink(node)
+    ? transformItemLink(node)
+    : transformExternalLink(node);
 }
 
-const transformInternalLink: TransformLinkFunction = (node) => {
+const transformItemLink: TransformLinkFunction<ItemLinkElementAttributes> = (node) => {
     const link = createItemLink(uid().toString(), node.attributes['data-item-id']);
     const mark = createLinkMark(uid().toString(), link._key, node.children.length);
 
@@ -358,7 +354,7 @@ const transformLineBreak: TransformElementFunction = () =>
     [createSpan(uid().toString(), [], '\n')];
 
 const transformListItem: TransformListItemFunction = (_, depth, listType) =>
-    [createListBlock(uid().toString(), depth, listType!)];
+    [createListBlock(uid().toString(), depth, listType)];
 
 const ignoreElement: TransformElementFunction = () => [];
 

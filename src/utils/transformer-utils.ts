@@ -55,12 +55,12 @@ export type IgnoredElement = typeof ignoredElements[number];
 export type MarkElement = typeof markElements[number];
 export type ValidElement = typeof allElements[number];
 
-export type TransformLinkFunction = (node: DomHtmlNode) => [PortableTextLink, PortableTextMark];
-export type TransformElementFunction = (node: DomHtmlNode) => PortableTextItem[];
+export type TransformLinkFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => [PortableTextLink, PortableTextMark];
+export type TransformElementFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => PortableTextItem[];
 export type TransformListItemFunction = (node: DomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
 export type TransformTextFunction = (node: DomTextNode) => PortableTextSpan;
 export type TransformTableCellFunction = (node: DomHtmlNode) => PortableTextItem[];
-export type TransformFunction = TransformElementFunction | TransformListItemFunction;
+export type TransformFunction = TransformElementFunction<any> | TransformListItemFunction;
 
 export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextItem>) => PortableTextItem[];
 export type ResolverFunction<T extends ArbitraryTypedObject> = (value: T) => string;
@@ -217,7 +217,7 @@ export const createTableCell = (
 
 export const createExternalLink = (
   guid: string,
-  attributes: Readonly<Record<string, string>>
+  attributes: Readonly<Record<string, string | undefined>>
 ): PortableTextExternalLink => {
   return {
     _key: guid,
