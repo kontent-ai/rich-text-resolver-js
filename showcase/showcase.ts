@@ -6,7 +6,8 @@ import { PortableTextComponent, PortableTextImage, PortableTextInternalLink, Por
     component: {
       _ref: "linkedItemOrComponentCodename",
       _type: "reference",
-    }
+    },
+    dataType: "component"
   };
   
   const portableTextImage: PortableTextImage = {
