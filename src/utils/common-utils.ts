@@ -1,4 +1,4 @@
-import { DomHtmlNode, DomNode, DomTextNode, ItemLinkElementAttributes } from "../index.js";
+import { DomHtmlNode, DomNode, DomTextNode, FigureElementAttributes, ItemLinkElementAttributes, ObjectElementAttributes } from "../index.js";
 
 export const isOrderedListBlock = (node: DomHtmlNode): boolean =>
     node.tagName === 'ol';
@@ -31,19 +31,20 @@ export const isElement = (node: DomNode): node is DomHtmlNode =>
     node.type === 'tag';
 
 /**
- * Returns `true` if the node is a linked item node (`<object></object>`).
+ * Returns `true` if the node is a linked item node (`<object></object>`) and narrows type guard.
  */ 
-export const isLinkedItem = (node: DomNode): boolean =>
+export const isLinkedItem = (node: DomNode): node is DomHtmlNode<ObjectElementAttributes> =>
     isElement(node) && 
     node.tagName === 'object' &&
     node.attributes['type'] === 'application/kenticocloud';
+
 /**
- * Returns `true` if the node is a rich text image node (`<figure></figure>`).
+ * Returns `true` if the node is a rich text image node (`<figure></figure>`) and narrows type guard.
  */ 
-export const isImage = (node: DomNode): boolean =>
+export const isImage = (node: DomNode): node is DomHtmlNode<FigureElementAttributes> =>
     isElement(node) &&
     node.tagName === 'figure' &&
-    node.attributes['data-image-id'] ? true : false;
+    node.attributes['data-asset-id'] !== undefined;
 
 /**
  * Returns `true` if the node is a link to a content item and narrows type guard.
