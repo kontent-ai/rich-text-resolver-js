@@ -295,7 +295,7 @@ const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) 
     // data-codename reference is for DAPI, data-id for MAPI
     const itemReference: Reference = {
       _type: "reference",
-      _ref: node.attributes["data-codename"] ?? node.attributes["data-id"],
+      _ref: node.attributes["data-codename"] || node.attributes["data-id"],
     };
 
     /**
@@ -305,7 +305,7 @@ const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) 
      * data-type is present in both DAPI and MAPI but differentiates
      * only in the latter
      */
-    const modularContentType = (node.attributes["data-rel"] ?? node.attributes["data-type"]) as ModularContentType;
+    const modularContentType = node.attributes['data-rel'] ?? node.attributes['data-type'] as ModularContentType;
 
     return [createComponentBlock(uid().toString(), itemReference, modularContentType)];
 }

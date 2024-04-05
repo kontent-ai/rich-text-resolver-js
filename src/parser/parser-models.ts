@@ -44,14 +44,14 @@ type DeliverObjectElementAttributes = {
   'data-rel': 'component' | 'link';
   'data-type': 'item';
   'data-codename': string;
-  'data-id': undefined;
+  'data-id': never;
 }
 
 type ManagementObjectElementAttributes = {
   'data-rel': undefined;
   'data-type': 'item' | 'component';
   'data-id': string;
-  'data-codename': undefined;
+  'data-codename': never;
 }
 
 export type AssetLinkElementAttributes = {
