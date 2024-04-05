@@ -270,6 +270,15 @@ export const compose = <T>(
     firstFunction
   );
 
+export const findLastIndex = <T>(arr: T[], predicate: (value: T) => boolean): number => {
+  for (let i = arr.length - 1; i >= 0; i--) {
+      if (predicate(arr[i])) {
+          return i;
+      }
+  }
+  return -1;
+}
+
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
 
 export const uid = new ShortUniqueId.default({length: 16});

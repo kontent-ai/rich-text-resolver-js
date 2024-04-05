@@ -26,6 +26,7 @@ import {
     createTable,
     createTableCell,
     createTableRow,
+    findLastIndex,
     IgnoredElement,
     ignoredElements,
     isElement,
@@ -76,7 +77,7 @@ export const transformToPortableText = (parsedTree: ParseResult): PortableTextOb
  * @param {PortableTextLink} linkItem - The link item (either internal or external) to be added to the text block's mark definitions.
  */
 const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink) => {
-    const lastBlockIndex = mergedItems.findLastIndex(item => item._type === 'block');
+    const lastBlockIndex = findLastIndex(mergedItems, item => item._type === 'block');
     if (lastBlockIndex !== -1) {
         const lastBlock = mergedItems[lastBlockIndex] as PortableTextBlock;
         lastBlock.markDefs = lastBlock.markDefs || [];
