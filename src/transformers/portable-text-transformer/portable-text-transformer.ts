@@ -126,9 +126,10 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
                  * 
                  * in this case, a link can have multiple child nodes if some of its text is styled. 
                  * as a result, keeping a counter for the link's children and decrementing it with each subsequent span occurrence
-                 * is required so that the link mark doesn't extend beyond its scope. 
+                 * is required so that the link mark doesn't extend beyond its scope. links array is reset when the counter reaches zero.
                  */
-                item.marks = [...marks, ...(linkChildCount > 0 ? links : [])];
+                links = linkChildCount > 0 ? links : [];
+                item.marks = [...marks, ...links];
                 // ensures the child count doesn't go below zero
                 linkChildCount = Math.max(0, linkChildCount - 1);
                 mergedItems.push(item);
