@@ -12227,3 +12227,61 @@ exports[`portable text transformer transforms table with input <table><tbody><tr
   },
 ]
 `;
+
+exports[`portable text transformer with multiple links in a paragraph, doesn't extend linkmark beyond the first 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": "Text ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "inner text 1",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": " text between ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "inner text 2",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [],
+        "text": ".",
+      },
+    ],
+    "markDefs": [
+      {
+        "_key": "guid",
+        "_type": "link",
+        "href": "https://example.com",
+      },
+      {
+        "_key": "guid",
+        "_type": "link",
+        "href": "https://example.org",
+      },
+    ],
+    "style": "normal",
+  },
+]
+`;

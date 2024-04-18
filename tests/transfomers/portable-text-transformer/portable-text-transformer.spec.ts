@@ -401,4 +401,12 @@ describe("portable text transformer", () => {
     expect(nodeResult).toMatchSnapshot();
     expect(nodeResult).toMatchObject(browserResult);
   })
+
+  it("with multiple links in a paragraph, doesn't extend linkmark beyond the first", () => {
+    const input = `<p>Text <a href="https://example.com">inner text 1</a> text between <a href="https://example.org">inner text 2</a>.</p>`;
+    const { nodeResult, browserResult } = transformInput(input);
+
+    expect(nodeResult).toMatchSnapshot();
+    expect(nodeResult).toMatchObject(browserResult);
+  })
 })
