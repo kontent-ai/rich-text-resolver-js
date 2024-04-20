@@ -1,12 +1,13 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
   "author": "Daniel Pokorny",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esnext/index.js",
+  "browser": "./dist/legacy/index.js",
   "types": "./dist/esnext/index.d.ts",
   "type": "module",
   "repository": {
