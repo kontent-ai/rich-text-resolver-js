@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`portable text transformer doesn't create duplicates for nested spans 1`] = `
+exports[`Portable Text Transformer doesn't create duplicates for nested spans 1`] = `
 [
   {
     "_key": "guid",
@@ -27,7 +27,7 @@ exports[`portable text transformer doesn't create duplicates for nested spans 1`
 ]
 `;
 
-exports[`portable text transformer doesn't extend link mark to adjacent spans 1`] = `
+exports[`Portable Text Transformer doesn't extend link mark to adjacent spans 1`] = `
 [
   {
     "_key": "guid",
@@ -51,8 +51,8 @@ exports[`portable text transformer doesn't extend link mark to adjacent spans 1`
         "_key": "guid",
         "_type": "span",
         "marks": [
-          "strong",
           "guid",
+          "strong",
         ],
         "text": "today",
       },
@@ -78,7 +78,7 @@ exports[`portable text transformer doesn't extend link mark to adjacent spans 1`
 ]
 `;
 
-exports[`portable text transformer extends component block with additional data 1`] = `
+exports[`Portable Text Transformer extends component block with additional data 1`] = `
 [
   {
     "_key": "guid",
@@ -93,7 +93,7 @@ exports[`portable text transformer extends component block with additional data 
 ]
 `;
 
-exports[`portable text transformer extends link nested in a table with additional data 1`] = `
+exports[`Portable Text Transformer extends link nested in a table with additional data 1`] = `
 [
   {
     "_key": "guid",
@@ -141,7 +141,7 @@ exports[`portable text transformer extends link nested in a table with additiona
 ]
 `;
 
-exports[`portable text transformer resolves adjacent styled fonts in table cell 1`] = `
+exports[`Portable Text Transformer resolves adjacent styled fonts in table cell 1`] = `
 [
   {
     "_key": "guid",
@@ -190,7 +190,7 @@ exports[`portable text transformer resolves adjacent styled fonts in table cell 
 ]
 `;
 
-exports[`portable text transformer resolves lists 1`] = `
+exports[`Portable Text Transformer resolves lists 1`] = `
 [
   {
     "_key": "guid",
@@ -275,7 +275,7 @@ exports[`portable text transformer resolves lists 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms a link to an asset in DAPI 1`] = `
+exports[`Portable Text Transformer transforms a link to an asset in DAPI 1`] = `
 [
   {
     "_key": "guid",
@@ -309,7 +309,7 @@ exports[`portable text transformer transforms a link to an asset in DAPI 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms a link to an asset in MAPI 1`] = `
+exports[`Portable Text Transformer transforms a link to an asset in MAPI 1`] = `
 [
   {
     "_key": "guid",
@@ -342,7 +342,7 @@ exports[`portable text transformer transforms a link to an asset in MAPI 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms a linked item and a component from DAPI with corresponding dataType 1`] = `
+exports[`Portable Text Transformer transforms a linked item and a component from DAPI with corresponding dataType 1`] = `
 [
   {
     "_key": "guid",
@@ -393,7 +393,7 @@ exports[`portable text transformer transforms a linked item and a component from
 ]
 `;
 
-exports[`portable text transformer transforms a linked item and a component from MAPI with corresponding dataType 1`] = `
+exports[`Portable Text Transformer transforms a linked item and a component from MAPI with corresponding dataType 1`] = `
 [
   {
     "_key": "guid",
@@ -444,7 +444,7 @@ exports[`portable text transformer transforms a linked item and a component from
 ]
 `;
 
-exports[`portable text transformer transforms asset from MAPI 1`] = `
+exports[`Portable Text Transformer transforms asset from MAPI 1`] = `
 [
   {
     "_key": "guid",
@@ -459,7 +459,7 @@ exports[`portable text transformer transforms asset from MAPI 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms complex rich text into portable text 1`] = `
+exports[`Portable Text Transformer transforms complex rich text into portable text 1`] = `
 [
   {
     "_key": "guid",
@@ -601,8 +601,8 @@ exports[`portable text transformer transforms complex rich text into portable te
                     "_key": "guid",
                     "_type": "span",
                     "marks": [
-                      "strong",
                       "guid",
+                      "strong",
                     ],
                     "text": "strong",
                   },
@@ -798,8 +798,8 @@ exports[`portable text transformer transforms complex rich text into portable te
         "_key": "guid",
         "_type": "span",
         "marks": [
-          "strong",
           "guid",
+          "strong",
         ],
         "text": "bold",
       },
@@ -851,7 +851,7 @@ exports[`portable text transformer transforms complex rich text into portable te
 ]
 `;
 
-exports[`portable text transformer transforms empty rich text 1`] = `
+exports[`Portable Text Transformer transforms empty rich text 1`] = `
 [
   {
     "_key": "guid",
@@ -871,7 +871,7 @@ exports[`portable text transformer transforms empty rich text 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms external links 1`] = `
+exports[`Portable Text Transformer transforms external links 1`] = `
 [
   {
     "_key": "guid",
@@ -903,8 +903,8 @@ exports[`portable text transformer transforms external links 1`] = `
         "_key": "guid",
         "_type": "span",
         "marks": [
-          "strong",
           "guid",
+          "strong",
         ],
         "text": "GitHub repository.",
       },
@@ -925,7 +925,7 @@ exports[`portable text transformer transforms external links 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms images 1`] = `
+exports[`Portable Text Transformer transforms images 1`] = `
 [
   {
     "_key": "guid",
@@ -956,7 +956,7 @@ exports[`portable text transformer transforms images 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms item links 1`] = `
+exports[`Portable Text Transformer transforms item links 1`] = `
 [
   {
     "_key": "guid",
@@ -974,8 +974,8 @@ exports[`portable text transformer transforms item links 1`] = `
         "_key": "guid",
         "_type": "span",
         "marks": [
-          "strong",
           "guid",
+          "strong",
         ],
         "text": "link to an item",
       },
@@ -995,7 +995,7 @@ exports[`portable text transformer transforms item links 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms lists 1`] = `
+exports[`Portable Text Transformer transforms lists 1`] = `
 [
   {
     "_key": "guid",
@@ -1114,7 +1114,7 @@ exports[`portable text transformer transforms lists 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms nested styles 1`] = `
+exports[`Portable Text Transformer transforms nested styles 1`] = `
 [
   {
     "_key": "guid",
@@ -1154,7 +1154,7 @@ exports[`portable text transformer transforms nested styles 1`] = `
 ]
 `;
 
-exports[`portable text transformer transforms table with input <p>Text</p>
+exports[`Portable Text Transformer transforms tables with input <p>Text</p>
  <p><strong>Bold text</strong></p>
  <p><strong>Bold text </strong><em><strong>with itallic</strong></em><strong> in it</strong></p>
  <p><strong>Overlapping bold </strong><em><strong>over</strong></em><em> itallic text</em></p>
@@ -1353,10 +1353,10 @@ exports[`portable text transformer transforms table with input <p>Text</p>
         "_key": "guid",
         "_type": "span",
         "marks": [
+          "guid",
           "em",
           "strong",
           "sub",
-          "guid",
         ],
         "text": "s",
       },
@@ -1364,8 +1364,8 @@ exports[`portable text transformer transforms table with input <p>Text</p>
         "_key": "guid",
         "_type": "span",
         "marks": [
-          "em",
           "guid",
+          "em",
         ],
         "text": "t with s",
       },
@@ -1652,8 +1652,8 @@ exports[`portable text transformer transforms table with input <p>Text</p>
                     "_key": "guid",
                     "_type": "span",
                     "marks": [
-                      "em",
                       "guid",
+                      "em",
                     ],
                     "text": "ith lin",
                   },
@@ -1973,7 +1973,7 @@ exports[`portable text transformer transforms table with input <p>Text</p>
 ]
 `;
 
-exports[`portable text transformer transforms table with input <table>
+exports[`Portable Text Transformer transforms tables with input <table>
       <tbody>
         <tr>
           <td>column</td>
@@ -2688,7 +2688,7 @@ exports[`portable text transformer transforms table with input <table>
 ]
 `;
 
-exports[`portable text transformer transforms table with input <table>
+exports[`Portable Text Transformer transforms tables with input <table>
     <tbody>
        <tr>
           <td><br></td>
@@ -2777,8 +2777,8 @@ exports[`portable text transformer transforms table with input <table>
                     "_key": "guid",
                     "_type": "span",
                     "marks": [
-                      "strong",
                       "guid",
+                      "strong",
                     ],
                     "text": "NanoBlade X",
                   },
@@ -2820,8 +2820,8 @@ exports[`portable text transformer transforms table with input <table>
                     "_key": "guid",
                     "_type": "span",
                     "marks": [
-                      "strong",
                       "guid",
+                      "strong",
                     ],
                     "text": "NanoBlade V",
                   },
@@ -3215,7 +3215,7 @@ exports[`portable text transformer transforms table with input <table>
 ]
 `;
 
-exports[`portable text transformer transforms table with input <table><tbody>
+exports[`Portable Text Transformer transforms tables with input <table><tbody>
  <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
  <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
  <tr><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td><td><br></td></tr>
@@ -12168,7 +12168,7 @@ exports[`portable text transformer transforms table with input <table><tbody>
 ]
 `;
 
-exports[`portable text transformer transforms table with input <table><tbody><tr><td>cell content1</td><td>cell 2</td></tr></tbody></table> 1`] = `
+exports[`Portable Text Transformer transforms tables with input <table><tbody><tr><td>cell content1</td><td>cell 2</td></tr></tbody></table> 1`] = `
 [
   {
     "_key": "guid",
@@ -12228,7 +12228,7 @@ exports[`portable text transformer transforms table with input <table><tbody><tr
 ]
 `;
 
-exports[`portable text transformer with multiple links in a paragraph, doesn't extend linkmark beyond the first 1`] = `
+exports[`Portable Text Transformer with multiple links in a paragraph, doesn't extend linkmark beyond the first 1`] = `
 [
   {
     "_key": "guid",
