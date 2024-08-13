@@ -16,12 +16,10 @@ import {
   PortableTextInternalLink,
   PortableTextItem,
   PortableTextLink,
-  PortableTextLinkMark,
-  PortableTextMark,
   PortableTextObject,
   PortableTextStrictBlock,
   PortableTextStrictListItemBlock,
-  PortableTextStyleMark,
+  PortableTextMark,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
@@ -226,27 +224,16 @@ export const createExternalLink = (
   };
 };
 
-export const createStyleMark = (
+export const createMark = (
   guid: string,
-  value: TextStyleElement,
-): PortableTextStyleMark => {
+  value: TextStyleElement | string,
+  childCount: number
+): PortableTextMark => {
   return {
     _type: "mark",
     _key: guid,
-    value: value
-  };
-};
-
-export const createLinkMark = (
-    guid: string,
-    value: string,
-    childCount: number
-): PortableTextLinkMark => {
-  return {
-      _type: "linkMark",
-      _key: guid,
-      value: value,
-      childCount: childCount
+    value: value,
+    childCount: childCount
   };
 };
 

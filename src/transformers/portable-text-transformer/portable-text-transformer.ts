@@ -1,6 +1,14 @@
 import { PortableTextBlock,PortableTextListItemType } from '@portabletext/types'
 
-import { DomHtmlNode, DomNode, FigureElementAttributes, ImgElementAttributes,ItemLinkElementAttributes, ObjectElementAttributes, ParseResult } from "../../parser/index.js"
+import {
+    DomHtmlNode,
+    DomNode,
+    FigureElementAttributes,
+    ImgElementAttributes,
+    ItemLinkElementAttributes,
+    ObjectElementAttributes,
+    ParseResult,
+} from "../../parser/index.js";
 import {
     ModularContentType,
     PortableTextItem,
@@ -10,11 +18,13 @@ import {
     PortableTextTable,
     PortableTextTableRow,
     Reference,
+    TextMarkType,
 } from "../../transformers/index.js"
 import {
     BlockElement,
     blockElements,
     compose,
+    countChildTextNodes,
     createBlock,
     createComponentBlock,
     createExternalLink,
@@ -23,7 +33,7 @@ import {
     createLinkMark,
     createListBlock,
     createSpan,
-    createStyleMark,
+    createMark,
     createTable,
     createTableCell,
     createTableRow,
@@ -90,50 +100,38 @@ const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink
 }
 
 /**
- * Merges spans and marks into an array of PortableTextObjects.
- * 
- * This function processes an array of PortableTextObjects and merges span elements with their corresponding 
- * style marks (e.g., 'strong', 'em') and link marks. It handles the scenarios where links may contain multiple 
- * child nodes, some of which may be styled text, ensuring that marks are correctly associated with their respective spans.
+ * Merges spans and marks into an array of `PortableTextObjects`.
  *
  * @param {ReadonlyArray<PortableTextItem>} itemsToMerge - The array of PortableTextItems to be merged.
  * @returns {PortableTextItem[]} The array of PortableTextItems after merging spans and marks.
  */
 const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
-    let marks: string[] = [];
-    let links: string[] = [];
-    let linkChildCount = 0;
+    /**
+     * mutable array of tuples, each containing either a style mark or a guid reference to an anchor link,
+     * in a number corresponding to total number of child text nodes that the mark should affect.
+     */
+    let markSets: TextMarkType[][] = [];
 
-    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
+    return itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         switch (item._type) {
             case 'internalLink':
             case 'link':
                 handleLinks(mergedItems, item);
                 break;
             case 'mark':
-                marks.push(item.value);
-                break;
-            case 'linkMark':
-                links.push(item.value);
-                linkChildCount = item.childCount;
+                /**
+                 * push a tuple of marks, sized to match the number of affected child text nodes
+                 */
+                markSets.push(Array(item.childCount).fill(item.value));
                 break;
             case 'span':
                 /**
-                 * both styles (strong, em, etc.) and links are represented as "marks" in portable text.
-                 * the logic below handles the following situation (note the duplication of <strong> tag pairs):
-                 * 
-                 * <p><strong>bold text </strong><a href=""><strong>bold text link</strong> regular text link</a> regular text</p>
-                 * 
-                 * in this case, a link can have multiple child nodes if some of its text is styled. 
-                 * as a result, keeping a counter for the link's children and decrementing it with each subsequent span occurrence
-                 * is required so that the link mark doesn't extend beyond its scope. links array is reset when the counter reaches zero.
+                 * mutate markSets array by popping a single mark from each tuple and assign it
+                 * to the span's marks array. remove empty tuples.
                  */
-                links = linkChildCount > 0 ? links : [];
-                item.marks = [...marks, ...links];
-                // ensures the child count doesn't go below zero
-                linkChildCount = Math.max(0, linkChildCount - 1);
+                markSets = markSets.filter(marks => marks.length > 0);
+                item.marks = markSets.map(marks => marks.pop()).filter((mark): mark is string => Boolean(mark));
                 mergedItems.push(item);
-                marks = [];
                 break;
             default:
                 links = [];
@@ -319,14 +317,14 @@ const transformLink: TransformLinkFunction = (node) => {
 
 const transformItemLink: TransformLinkFunction<ItemLinkElementAttributes> = (node) => {
     const link = createItemLink(uid().toString(), node.attributes['data-item-id']);
-    const mark = createLinkMark(uid().toString(), link._key, node.children.length);
+    const mark = createMark(uid().toString(), link._key, countChildTextNodes(node));
 
     return [link, mark];
 }
 
 const transformExternalLink: TransformLinkFunction = (node) => {
     const link = createExternalLink(uid().toString(), node.attributes)
-    const mark = createLinkMark(uid().toString(), link._key, node.children.length);
+    const mark = createMark(uid().toString(), link._key, countChildTextNodes(node));
 
     return [link, mark];
 }
@@ -349,7 +347,7 @@ const transformBlock: TransformElementFunction = (node) =>
     [createBlock(uid().toString(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node) =>
-    [createStyleMark(uid().toString(), node.tagName as TextStyleElement)];
+    [createMark(uid().toString(), node.tagName as TextStyleElement, countChildTextNodes(node))];
 
 const transformLineBreak: TransformElementFunction = () =>
     [createSpan(uid().toString(), [], '\n')];

@@ -51,3 +51,14 @@ export const isImage = (node: DomNode): node is DomHtmlNode<FigureElementAttribu
  */
 export const isItemLink = (node: DomHtmlNode): node is DomHtmlNode<ItemLinkElementAttributes> =>
     isAnchor(node) && node.attributes['data-item-id'] !== undefined;
+
+/**
+ * Recursively counts the number of text nodes within a given DOM node and all of its descendants.
+ *
+ * @param node - Node to start counting from
+ * @returns The total number of text nodes found within the provided node and its children
+ */
+export const countChildTextNodes = (node: DomNode): number =>
+    node.type === "text"
+      ? 1
+      : node.children.reduce((count, child) => count + countChildTextNodes(child), 0);
