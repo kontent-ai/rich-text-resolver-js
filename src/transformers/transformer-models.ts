@@ -118,28 +118,11 @@ export interface PortableTextComponent extends ArbitraryTypedObject {
 }
 
 /**
- * Represents a mark that styles the text (`strong`, `em`, etc.)
+ * Represents either a style (strong, em, etc.) or references a link object in markDefs array
  */
-export interface PortableTextStyleMark extends ArbitraryTypedObject {
+export interface PortableTextMark extends ArbitraryTypedObject {
   _type: "mark";
-  value: "strong" | "em" | "sub" | "sup" | "code"; // TODO: formerly TextStyleElement, is circular import okay in this case?
-}
-
-/**
- * Represents a mark that references a link type object in `markDefs` array via a guid.
- */
-export interface PortableTextLinkMark extends ArbitraryTypedObject {
-  _type: "linkMark";
-  /**
-   * Short guid pointing to a corresponding object in `markDefs` array.
-   */
-  value: string;
-  /**
-   * Number of spans the link extends to.
-   *
-   * This is required for merging process as one link can potentially have multiple spans,
-   * in case parts of the link text are styled.
-   */
+  value: TextMarkType;
   childCount: number;
 }
 
@@ -167,7 +150,6 @@ export type PortableTextLink =
   | PortableTextInternalLink
   | PortableTextExternalLink;
 
-export type PortableTextMark = PortableTextLinkMark | PortableTextStyleMark;
 
 /**
  * Union of all default, top-level portable text object types.
@@ -215,3 +197,6 @@ export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLi
  */
 export * from "@portabletext/types";
 
+export type TextMarkType = "strong" | "em" | "sub" | "sup" | "code" | ShortGuid;
+
+type ShortGuid = string;
