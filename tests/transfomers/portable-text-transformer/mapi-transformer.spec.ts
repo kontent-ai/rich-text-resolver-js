@@ -9,11 +9,11 @@ import {
 import { toManagementApiFormat } from "../../../src/utils/resolution/mapi";
 
 jest.mock("short-unique-id", () => {
-  return {
-    default: jest.fn().mockImplementation(() => {
-      return () => "guid";
-    }),
-  };
+  return jest.fn().mockImplementation(() => {
+    return {
+      randomUUID: jest.fn().mockReturnValue("guid")
+    };
+  });
 });
 
 const isSpan = (object: ArbitraryTypedObject): object is PortableTextSpan =>
@@ -72,8 +72,44 @@ describe("portabletext to MAPI resolver", () => {
     convertAndCompare(richTextContent);
   });
 
-  it("handles a complex rich text", () => {
-    const richTextContent = `<p><em><strong>also italic and this is also </strong></em><strong><em><sup>superscript</sup></em></strong></p>`;
-    convertAndCompare(richTextContent);
+  it("duplicates a link under specific style conditions", () => {
+    /**
+     * tl;dr 
+     * 
+     * under very specific rich text inputs, neither MAPI rich text restored from portableText,
+     * nor the portable text output transformed from the restored MAPI match their original 
+     * counterparts, despite both resulting in visually identical, MAPI-valid HTML representations.
+     * this makes equality testing rather problematic.
+     * 
+     * more info
+     * 
+     * toHTML method automatically merges adjacent style tag pairs of the same type. 
+     * such duplicates are a common occurrence in rich text content created via the in-app editor, 
+     * as is the case with the below richTextContent.
+     * 
+     * in the below scenario, toHTML keeps only the first and last strong tags. to avoid nesting violation, it ends the anchor link right before
+     * the closing </strong>. this would remove the link from the remaining unstyled text, so to maintain functionality, 
+     * it is wrapped into an identical, duplicate anchor link.
+     * 
+     * while richTextContent and mapiFormat visual outputs are the same, the underlying portable text and html semantics are not, as seen
+     * in mapiFormat snapshot.
+     */
+    const richTextContent = `<p><strong>strong text </strong><a href="https://example.com"><strong>example strong link text</strong>not strong link text</a></p>`
+    const tree = nodeParse(richTextContent);
+    const portableText = transformToPortableText(tree);
+    const mapiFormat = toManagementApiFormat(portableText);
+
+    const secondParseTree = nodeParse(mapiFormat);
+    const secondParsePortableText = transformToPortableText(secondParseTree);
+    const secondParseMapiFormat = toManagementApiFormat(secondParsePortableText);
+
+    expect(mapiFormat).toMatchInlineSnapshot(`"<p><strong>strong text <a href="https://example.com">example strong link text</a></strong><a href="https://example.com">not strong link text</a></p>"`);
+
+    expect(richTextContent).not.toEqual(secondParseMapiFormat);
+    expect(portableText).not.toEqual(secondParsePortableText);
+
+    // duplicate markdefinition
+    expect(secondParsePortableText[0].markDefs[0]).toEqual(secondParsePortableText[0].markDefs[1]);
   });
 });
+

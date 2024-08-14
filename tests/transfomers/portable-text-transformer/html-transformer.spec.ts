@@ -26,11 +26,11 @@ import {
 } from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
-  return {
-    default: jest.fn().mockImplementation(() => {
-      return () => "guid";
-    }),
-  };
+  return jest.fn().mockImplementation(() => {
+    return {
+      randomUUID: jest.fn().mockReturnValue("guid")
+    };
+  });
 });
 
 type CustomResolvers = {
