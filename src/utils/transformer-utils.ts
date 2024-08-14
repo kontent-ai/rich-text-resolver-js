@@ -24,34 +24,9 @@ import {
   PortableTextTableCell,
   PortableTextTableRow,
   Reference,
-} from "../transformers/transformer-models.js";
-
-export const textStyleElements = ['strong', 'em', 'sub', 'sup', 'code'] as const;
-export const blockElements = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
-export const ignoredElements = ['img', 'tbody', 'ol', 'ul'] as const;
-export const tableElements = ['table', 'td', 'tr'] as const;
-export const lineBreakElement = 'br' as const;
-export const anchorElement = 'a' as const;
-export const objectElement = 'object' as const;
-export const assetElement = 'figure' as const;
-export const listItemElement = 'li' as const;
-export const markElements = [...textStyleElements, anchorElement] as const;
-export const allElements = [
-    ...blockElements,
-    ...ignoredElements,
-    ...markElements,
-    ...tableElements,
-    assetElement,
-    objectElement,
-    lineBreakElement,
-    listItemElement,
-  ] as const;
-
-export type TextStyleElement = typeof textStyleElements[number];
-export type BlockElement = typeof blockElements[number];
-export type IgnoredElement = typeof ignoredElements[number];
-export type MarkElement = typeof markElements[number];
-export type ValidElement = typeof allElements[number];
+  TextStyleElement,
+  ShortGuid,
+} from "../transformers/index.js";
 
 export type TransformLinkFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => [PortableTextLink, PortableTextMark];
 export type TransformElementFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => PortableTextItem[];
@@ -96,7 +71,7 @@ export const traversePortableText = <T extends ArbitraryTypedObject = PortableTe
 };
 
 export const createSpan = (
-  guid: string,
+  guid: ShortGuid,
   marks?: string[],
   text?: string
 ): PortableTextSpan => {
@@ -109,7 +84,7 @@ export const createSpan = (
 };
 
 export const createBlock = (
-  guid: string,
+  guid: ShortGuid,
   markDefs?: PortableTextMarkDefinition[],
   style?: PortableTextBlockStyle,
   children?: PortableTextSpan[]
@@ -124,7 +99,7 @@ export const createBlock = (
 };
 
 export const createListBlock = (
-  guid: string,
+  guid: ShortGuid,
   level: number,
   listItem: PortableTextListItemType,
   markDefs?: PortableTextMarkDefinition[],
@@ -142,21 +117,21 @@ export const createListBlock = (
   };
 };
 
-export const createImageBlock = (guid: string): PortableTextImage => {
+export const createImageBlock = (guid: ShortGuid, reference: string, url: string, alt?: string): PortableTextImage => {
   return {
     _type: "image",
     _key: guid,
     asset: {
       _type: "reference",
-      _ref: "",
-      url: "",
-      alt: "",
+      _ref: reference,
+      url,
+      alt,
     },
   };
 };
 
 export const createTableBlock = (
-  guid: string,
+  guid: ShortGuid,
   columns: number
 ): PortableTextTable => {
   return {
@@ -167,8 +142,19 @@ export const createTableBlock = (
   };
 };
 
+export const createExternalLink = (
+  guid: ShortGuid,
+  attributes: Readonly<Record<string, string | undefined>>
+): PortableTextExternalLink => {
+  return {
+    _key: guid,
+    _type: "link",
+    ...attributes,
+  };
+};
+
 export const createItemLink = (
-  guid: string,
+  guid: ShortGuid,
   reference: string
 ): PortableTextInternalLink => {
   return {
@@ -182,7 +168,7 @@ export const createItemLink = (
 };
 
 export const createTable = (
-  guid: string,
+  guid: ShortGuid,
   numColumns: number
 ): PortableTextTable => {
   return {
@@ -193,7 +179,7 @@ export const createTable = (
   };
 };
 
-export const createTableRow = (guid: string): PortableTextTableRow => {
+export const createTableRow = (guid: ShortGuid): PortableTextTableRow => {
   return {
     _key: guid,
     _type: "row",
@@ -202,7 +188,7 @@ export const createTableRow = (guid: string): PortableTextTableRow => {
 };
 
 export const createTableCell = (
-  guid: string,
+  guid: ShortGuid,
   childCount: number
 ): PortableTextTableCell => {
   return {
@@ -213,19 +199,8 @@ export const createTableCell = (
   };
 };
 
-export const createExternalLink = (
-  guid: string,
-  attributes: Readonly<Record<string, string | undefined>>
-): PortableTextExternalLink => {
-  return {
-    _key: guid,
-    _type: "link",
-    ...attributes,
-  };
-};
-
 export const createMark = (
-  guid: string,
+  guid: ShortGuid,
   value: TextStyleElement | string,
   childCount: number
 ): PortableTextMark => {
@@ -238,7 +213,7 @@ export const createMark = (
 };
 
 export const createComponentBlock = (
-  guid: string,
+  guid: ShortGuid,
   reference: Reference,
   dataType: ModularContentType
 ): PortableTextComponent => {
@@ -262,5 +237,5 @@ export const compose = <T>(
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
 
-export const uid = new ShortUniqueId.default({length: 16});
+export const { randomUUID } = new ShortUniqueId({ length: 10 });
 

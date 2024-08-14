@@ -5,11 +5,13 @@ import {
     DomNode,
     FigureElementAttributes,
     ImgElementAttributes,
-    ItemLinkElementAttributes,
     ObjectElementAttributes,
     ParseResult,
 } from "../../parser/index.js";
 import {
+    BlockElement,
+    IgnoredElement,
+    MarkElement,
     ModularContentType,
     PortableTextItem,
     PortableTextLink,
@@ -18,10 +20,11 @@ import {
     PortableTextTable,
     PortableTextTableRow,
     Reference,
-    TextMarkType,
+    ShortGuid,
+    TextStyleElement,
+    ValidElement,
 } from "../../transformers/index.js"
 import {
-    BlockElement,
     blockElements,
     compose,
     countChildTextNodes,
@@ -30,14 +33,12 @@ import {
     createExternalLink,
     createImageBlock,
     createItemLink,
-    createLinkMark,
     createListBlock,
     createSpan,
     createMark,
     createTable,
     createTableCell,
     createTableRow,
-    IgnoredElement,
     ignoredElements,
     isElement,
     isItemLink,
@@ -46,10 +47,8 @@ import {
     isText,
     isUnorderedListBlock,
     lineBreakElement,
-    MarkElement,
     markElements,
     MergePortableTextItemsFunction,
-    TextStyleElement,
     textStyleElements,
     TransformElementFunction,
     TransformFunction,
@@ -57,8 +56,7 @@ import {
     TransformListItemFunction,
     TransformTableCellFunction,
     TransformTextFunction,
-    uid,
-    ValidElement
+    randomUUID
 } from "../../utils/index.js"
 
 /**
@@ -70,34 +68,24 @@ import {
  * @param {ParseResult} parsedTree The parsed tree structure representing the rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (parsedTree: ParseResult): PortableTextObject[] => {
-    const flattened = flatten(parsedTree.children);
-
-    return composeAndMerge(flattened) as PortableTextObject[];
-}
+export const transformToPortableText = (parsedTree: ParseResult): PortableTextObject[] =>
+    composeAndMerge(flatten(parsedTree.children)) as PortableTextObject[];
 
 /**
- * Processes and attaches a link type (internal or external) to the most recent text block, or creates a new block if necessary.
- * 
- * This function iterates through the array of PortableTextObjects to find the last text block. If found, it adds the link item 
- * to the mark definitions of the block. If no text block is found (which can happen in structures like tables), a new text 
- * block is created with the link item.
+ * Iterates over the array of `PortableTextObjects` to find the last text block. If found, it adds a link item 
+ * to its `markDef` array. If no text block is found (which can happen in structures like tables), a new text 
+ * block is created with the link item and pushed to `mergedItems` array.
  *
  * @param {PortableTextItem[]} mergedItems - The array of PortableTextItems being processed.
  * @param {PortableTextLink} linkItem - The link item (either internal or external) to be added to the text block's mark definitions.
  */
 const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink) => {
-    const lastBlockIndex = mergedItems.findLastIndex(item => item._type === 'block');
-    if (lastBlockIndex !== -1) {
-        const lastBlock = mergedItems[lastBlockIndex] as PortableTextBlock;
-        lastBlock.markDefs = lastBlock.markDefs || [];
-        lastBlock.markDefs.push(linkItem);
-    } else {
-        const newBlock = createBlock(uid().toString());
-        newBlock.markDefs = [linkItem];
-        mergedItems.push(newBlock);
-    }
-}
+    const lastBlock = mergedItems.findLast((item): item is PortableTextStrictBlock => item._type === 'block');
+
+    lastBlock
+        ? (lastBlock.markDefs ||= []).push(linkItem)
+        : mergedItems.push(createBlock(randomUUID(), [linkItem]));
+};
 
 /**
  * Merges spans and marks into an array of `PortableTextObjects`.
@@ -110,7 +98,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
      * mutable array of tuples, each containing either a style mark or a guid reference to an anchor link,
      * in a number corresponding to total number of child text nodes that the mark should affect.
      */
-    let markSets: TextMarkType[][] = [];
+    let markSets: (TextStyleElement | ShortGuid)[][] = [];
 
     return itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         switch (item._type) {
@@ -120,7 +108,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
                 break;
             case 'mark':
                 /**
-                 * push a tuple of marks, sized to match the number of affected child text nodes
+                 * push a tuple filled marks, sized to match the number of affected child text nodes
                  */
                 markSets.push(Array(item.childCount).fill(item.value));
                 break;
@@ -130,76 +118,55 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
                  * to the span's marks array. remove empty tuples.
                  */
                 markSets = markSets.filter(marks => marks.length > 0);
-                item.marks = markSets.map(marks => marks.pop()).filter((mark): mark is string => Boolean(mark));
+                item.marks = markSets.map(marks => marks.pop()).filter((mark): mark is (TextStyleElement | ShortGuid) => Boolean(mark));
                 mergedItems.push(item);
                 break;
             default:
-                links = [];
                 mergedItems.push(item);
                 break;
         }
         return mergedItems;
     }, []);
-
-    return mergedItems;
 };
 
-const mergeBlocksAndSpans: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
-        if (item._type === 'span') {
-            const previousBlock = mergedItems.pop() as PortableTextStrictBlock;
-            previousBlock.children.push(item);
-            mergedItems.push(previousBlock);
+const mergeBlocksAndSpans: MergePortableTextItemsFunction = (itemsToMerge) =>
+    itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
+        const lastItem = mergedItems[mergedItems.length - 1];
+        if (item._type === 'span' && lastItem?._type === 'block') {
+            lastItem.children.push(item);
         } else {
             mergedItems.push(item);
         }
-
         return mergedItems;
-    }, [])
+    }, []);
 
-    return mergedItems;
-}
-
-const mergeTablesAndRows: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
+const mergeTablesAndRows: MergePortableTextItemsFunction = (itemsToMerge) =>
+    itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'row') {
-            const tableBlock = mergedItems.pop() as PortableTextTable;
+            const tableBlock = mergedItems[mergedItems.length - 1] as PortableTextTable;
             tableBlock.rows.push(item);
-            mergedItems.push(tableBlock);
         } else {
             mergedItems.push(item);
         }
-
         return mergedItems;
-    }, [])
+    }, []);
 
-    return mergedItems;
-}
-
-const mergeRowsAndCells: MergePortableTextItemsFunction = (itemsToMerge) => {
-    const mergedItems = itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
+const mergeRowsAndCells: MergePortableTextItemsFunction = (itemsToMerge) =>
+    itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
         if (item._type === 'cell') {
-            const tableRow = mergedItems.pop() as PortableTextTableRow;
+            const tableRow = mergedItems[mergedItems.length - 1] as PortableTextTableRow;
             tableRow.cells.push(item);
-            mergedItems.push(tableRow);
         } else {
             mergedItems.push(item);
         }
-
         return mergedItems;
-    }, [])
-
-    return mergedItems;
-}
+    }, []);
 
 const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBlocksAndSpans, mergeSpansAndMarks);
 
 /**
- * Flattens a tree of DomNodes into an array of PortableTextObjects.
- * 
- * This function recursively processes a tree structure, transforming each node to its corresponding 
- * PortableTextItem, picking a suitable method using `transformNode`. The resulting array is flat, to be
- * processed with subsequent merge methods.
+ * Recursively traverses a tree structure, converting each `DomNode` into its corresponding `PortableTextItem` using an appropriate method from `transformMap`. 
+ * The output is a flattened array, specifically organized for later merging operations.
  * 
  * @param {DomNode[]} nodes - The array of DomNodes to be flattened.
  * @param {number} [depth=0] - The current depth in the tree, used for list items.
@@ -207,24 +174,22 @@ const composeAndMerge = compose(mergeTablesAndRows, mergeRowsAndCells, mergeBloc
  * @param {PortableTextListItemType} [listType] - The type of the current list being processed (bullet or number).
  * @returns {PortableTextItem[]} The flattened array of PortableTextItems.
  */
-const flatten = (nodes: DomNode[], depth = 0, lastListElement?: DomHtmlNode, listType?: PortableTextListItemType): PortableTextItem[] => {
-    return nodes.flatMap((node: DomNode): PortableTextItem[] => {
+const flatten = (nodes: DomNode[], depth = 0, lastListElement?: DomHtmlNode, listType?: PortableTextListItemType): PortableTextItem[] =>
+    nodes.flatMap((node: DomNode): PortableTextItem[] => {
         let currentListType = listType;
 
         if (isElement(node)) {
             if (node.tagName === 'td') {
-                // table cells are resolved recursively in transformTableCell
                 return transformTableCell(node);
             }
 
             if (isListBlock(node)) {
-                // if a list block is found, set a corresponding list type and lastListElement
                 lastListElement = node;
                 currentListType = isUnorderedListBlock(node) ? 'bullet' : 'number';
             } 
             
             if (isListItem(node)) {
-                // set depth to 1 for the first list item encountered and increment for each nested list found
+                // set depth to 1 for the first list item, increment for each nested list
                 if (lastListElement && isListBlock(lastListElement)) {
                     depth++;
                 }
@@ -235,44 +200,47 @@ const flatten = (nodes: DomNode[], depth = 0, lastListElement?: DomHtmlNode, lis
             // Recursively flatten children and concatenate with the transformed node.
             const transformedNode = transformNode(node, depth, currentListType);
             const transformedChildren = flatten(node.children, depth, lastListElement, currentListType);
+            
             return [...transformedNode, ...transformedChildren];
         }
 
-        // If not an element, transform as text and return as array
         return [transformText(node)]
     });
-};
 
-const transformNode = (node: DomNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
-    if (isText(node)) {
-        return [transformText(node)];
-    } else {
-        return transformElement(node, depth, listType);
-    }
-}
+const transformNode = (node: DomNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] =>
+    isText(node) ? [transformText(node)] : transformElement(node, depth, listType);
 
 const transformElement = (node: DomHtmlNode, depth: number, listType?: PortableTextListItemType): PortableTextItem[] => {
     const transformFunction = transformMap[node.tagName as ValidElement];
 
-    return transformFunction(node, depth, listType!);
+    return listType !== undefined
+        ? (transformFunction as TransformListItemFunction)(node, depth, listType)
+        : (transformFunction as TransformElementFunction)(node);
 }
 
 const transformImage: TransformElementFunction<FigureElementAttributes> = (node) => {
     const imageTag = node.children[0] as DomHtmlNode<ImgElementAttributes>;
-    const block = createImageBlock(uid().toString());
+    if (imageTag?.tagName !== "img") {
+        throw new Error("Expected the first child of <figure> to be an <img> element.");
+    }
 
-    block.asset._ref = node.attributes['data-asset-id'];
-    block.asset.url = imageTag.attributes['src'];
-    block.asset.alt = imageTag.attributes['alt'];
+    const block = createImageBlock(
+        randomUUID(),
+        node.attributes["data-asset-id"],
+        imageTag.attributes.src,
+        imageTag.attributes.alt
+    );
 
     return [block];
 }
 
 const transformTableCell: TransformTableCellFunction = (node) => {
     const cellContent = flatten(node.children);
-    const isFirstChildText = (
-        node.children[0]?.type === 'text' ||
-        [lineBreakElement, ...markElements].includes(node.children[0]?.tagName as (MarkElement | 'br'))
+    const firstChild = node.children[0];
+    const isFirstChildText = firstChild && (
+        isText(firstChild) || 
+        firstChild.tagName === lineBreakElement || 
+        markElements.includes(firstChild.tagName as MarkElement)
     );
     
     /**
@@ -281,10 +249,10 @@ const transformTableCell: TransformTableCellFunction = (node) => {
      * in such cases, a block has to be created manually first.
      */
     if(isFirstChildText)
-        cellContent.unshift(createBlock(uid().toString()));
+        cellContent.unshift(createBlock(randomUUID()));
 
     const mergedCellContent = composeAndMerge(cellContent);
-    const tableCell = createTableCell(uid().toString(), mergedCellContent.length);
+    const tableCell = createTableCell(randomUUID(), mergedCellContent.length);
     tableCell.content = mergedCellContent as PortableTextBlock[];
 
     return [tableCell];
@@ -306,54 +274,53 @@ const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) 
      */
     const modularContentType = node.attributes['data-rel'] ?? node.attributes['data-type'] as ModularContentType;
 
-    return [createComponentBlock(uid().toString(), itemReference, modularContentType)];
+    return [createComponentBlock(randomUUID(), itemReference, modularContentType)];
 }
 
 const transformLink: TransformLinkFunction = (node) => {
-    return isItemLink(node)
-    ? transformItemLink(node)
-    : transformExternalLink(node);
-}
+    const linkId = randomUUID();
+    const link = isItemLink(node)
+        ? createItemLink(linkId, node.attributes['data-item-id'])
+        : createExternalLink(linkId, node.attributes);
 
-const transformItemLink: TransformLinkFunction<ItemLinkElementAttributes> = (node) => {
-    const link = createItemLink(uid().toString(), node.attributes['data-item-id']);
-    const mark = createMark(uid().toString(), link._key, countChildTextNodes(node));
-
-    return [link, mark];
-}
-
-const transformExternalLink: TransformLinkFunction = (node) => {
-    const link = createExternalLink(uid().toString(), node.attributes)
-    const mark = createMark(uid().toString(), link._key, countChildTextNodes(node));
+    const mark = createMark(randomUUID(), link._key, countChildTextNodes(node));
 
     return [link, mark];
 }
 
 const transformTable: TransformElementFunction = (node) => {
     const tableBody = node.children[0] as DomHtmlNode;
+    if (tableBody?.tagName !== "tbody") {
+        throw new Error("Expected the first child to be a <tbody> element.");
+    }
+
     const tableRow = tableBody.children[0] as DomHtmlNode;
+    if (tableRow?.tagName !== "tr") {
+        throw new Error("Expected the first child of <tbody> to be a <tr> element.");
+    }
+
     const numCols = tableRow.children.length;
 
-    return [createTable(uid().toString(), numCols)];
+    return [createTable(randomUUID(), numCols)];
 }
 
 const transformTableRow: TransformElementFunction = (): PortableTextTableRow[] =>
-    [createTableRow(uid().toString())];
+    [createTableRow(randomUUID())];
 
 const transformText: TransformTextFunction = (node) =>
-    createSpan(uid().toString(), [], node.content);
+    createSpan(randomUUID(), [], node.content);
 
 const transformBlock: TransformElementFunction = (node) =>
-    [createBlock(uid().toString(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
+    [createBlock(randomUUID(), undefined, node.tagName === 'p' ? 'normal' : node.tagName)];
 
 const transformTextMark: TransformElementFunction = (node) =>
-    [createMark(uid().toString(), node.tagName as TextStyleElement, countChildTextNodes(node))];
+    [createMark(randomUUID(), node.tagName as TextStyleElement, countChildTextNodes(node))];
 
 const transformLineBreak: TransformElementFunction = () =>
-    [createSpan(uid().toString(), [], '\n')];
+    [createSpan(randomUUID(), [], '\n')];
 
 const transformListItem: TransformListItemFunction = (_, depth, listType) =>
-    [createListBlock(uid().toString(), depth, listType)];
+    [createListBlock(randomUUID(), depth, listType)];
 
 const ignoreElement: TransformElementFunction = () => [];
 
@@ -363,10 +330,10 @@ const transformMap: Record<ValidElement, TransformFunction> = {
     ) as Record<BlockElement, TransformFunction>,
     ...Object.fromEntries(
         textStyleElements.map(tagName => [tagName, transformTextMark])
-    )as Record<TextStyleElement, TransformFunction>,
+    ) as Record<TextStyleElement, TransformFunction>,
     ...Object.fromEntries(
         ignoredElements.map(tagName => [tagName, ignoreElement])
-    )as Record<IgnoredElement, TransformFunction>,
+    ) as Record<IgnoredElement, TransformFunction>,
     'a': transformLink,
     'li': transformListItem,
     'table': transformTable,

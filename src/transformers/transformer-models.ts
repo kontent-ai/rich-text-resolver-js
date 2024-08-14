@@ -5,6 +5,13 @@ import {
   PortableTextMarkDefinition,
   PortableTextSpan,
 } from "@portabletext/types";
+import {
+  textStyleElements,
+  blockElements,
+  ignoredElements,
+  markElements,
+  allElements,
+} from "../index.js";
 
 /**
  * Represents a content item linked to from rich text (not a linked item).
@@ -122,7 +129,7 @@ export interface PortableTextComponent extends ArbitraryTypedObject {
  */
 export interface PortableTextMark extends ArbitraryTypedObject {
   _type: "mark";
-  value: TextMarkType;
+  value: TextStyleElement | ShortGuid;
   childCount: number;
 }
 
@@ -197,6 +204,9 @@ export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLi
  */
 export * from "@portabletext/types";
 
-export type TextMarkType = "strong" | "em" | "sub" | "sup" | "code" | ShortGuid;
-
-type ShortGuid = string;
+export type TextStyleElement = typeof textStyleElements[number];
+export type BlockElement = typeof blockElements[number];
+export type IgnoredElement = typeof ignoredElements[number];
+export type MarkElement = typeof markElements[number];
+export type ValidElement = typeof allElements[number];
+export type ShortGuid = string;
