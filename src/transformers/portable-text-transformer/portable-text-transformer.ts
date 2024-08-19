@@ -109,9 +109,6 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
         handleLinks(mergedItems, item);
         break;
       case "mark":
-        /**
-         * push a tuple filled marks, sized to match the number of affected child text nodes
-         */
         markSets.push(Array(item.childCount).fill(item.value));
         break;
       case "span":

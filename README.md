@@ -46,21 +46,21 @@ Besides default blocks for common elements, Portable text supports custom blocks
 
 #### Component/linked item
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L3-L10
+https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L3-L11
 
 #### Image
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L12-L20
+https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L13-L22
 
 > 💡 For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations for HTML and Vue, `toHTMLImageDefault` and `toVueImageDefault` respectively.
 
 #### Item link
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L22-L29
+https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L24-L31
 
 #### Table
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/14dcf88e5cb5233b1ff529b350341dfac79a888b/showcase/showcase.ts#L31-L58
+https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L33-L59
 
 > 💡 For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`)
 
@@ -266,6 +266,25 @@ const components: PortableTextComponents = {
   <PortableText :value="props.value" :components="components" />
 </template>
 ```
+
+### MAPI transformation
+
+`toManagementApiFormat` is a custom transformation method built upon `toHTML` package, allowing you to restore portable text previously created from management API rich text back into MAPI supported format.
+
+```ts
+  const richTextContent =
+    `<p>Here is an <a data-item-id="12345"><strong>internal link</strong></a> in some text.</p>`;
+
+  const tree = nodeParse(richTextContent);
+  const portableText = transformToPortableText(tree);
+
+  const validManagementApiFormat = toManagementApiFormat(portableText);
+```
+
+> [!WARNING]  
+> MAPI transformation logic expects Portable Text that had been previously created from management API rich text and performs only minimal validation.
+>
+> Transformation from other formats (such as delivery API) is not supported unless the blocks are manually adjusted to be MAPI compatible prior to running the method.
 
 [last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge
 [contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/rich-text-resolver-js?style=for-the-badge
