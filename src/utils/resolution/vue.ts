@@ -1,11 +1,6 @@
 import { PortableTextBlock } from "@portabletext/types";
 
-import {
-  PortableTextImage,
-  PortableTextTable,
-  PortableTextTableCell,
-  PortableTextTableRow,
-} from "../../index.js";
+import { PortableTextImage, PortableTextTable, PortableTextTableCell, PortableTextTableRow } from "../../index.js";
 
 /**
  * Renders a portable text table to a Vue virtual DOM node.
@@ -19,7 +14,7 @@ import {
 export const resolveTable = (
   table: PortableTextTable,
   vueRenderFunction: Function,
-  resolver: (value: PortableTextBlock[]) => string
+  resolver: (value: PortableTextBlock[]) => string,
 ) => {
   const renderCell = (cell: PortableTextTableCell) => {
     const cellContent = resolver(cell.content);
@@ -48,7 +43,7 @@ export const resolveTable = (
 export const resolveImage = (
   image: PortableTextImage,
   vueRenderFunction: Function,
-  resolver: (image: PortableTextImage) => VueImage
+  resolver: (image: PortableTextImage) => VueImage,
 ) => vueRenderFunction("img", resolver(image));
 
 /**

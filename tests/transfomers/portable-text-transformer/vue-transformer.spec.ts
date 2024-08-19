@@ -1,29 +1,14 @@
-import {
-  PortableText,
-  PortableTextComponentProps,
-  PortableTextComponents,
-  toPlainText,
-} from "@portabletext/vue";
+import { PortableText, PortableTextComponentProps, PortableTextComponents, toPlainText } from "@portabletext/vue";
 import { mount, VueWrapper } from "@vue/test-utils";
 import { h } from "vue";
-import {
-  nodeParse,
-  PortableTextImage,
-  PortableTextTable,
-  transformToPortableText,
-} from "../../../src";
-import {
-  resolveImage,
-  resolveTable,
-  toVueImageDefault,
-} from "../../../src/utils/resolution/vue";
+
+import { nodeParse, PortableTextImage, PortableTextTable, transformToPortableText } from "../../../src";
+import { resolveImage, resolveTable, toVueImageDefault } from "../../../src/utils/resolution/vue";
 
 const components: PortableTextComponents = {
   types: {
-    image: ({ value }: PortableTextComponentProps<PortableTextImage>) =>
-      resolveImage(value, h, toVueImageDefault),
-    table: ({ value }: PortableTextComponentProps<PortableTextTable>) =>
-      resolveTable(value, h, toPlainText),
+    image: ({ value }: PortableTextComponentProps<PortableTextImage>) => resolveImage(value, h, toVueImageDefault),
+    table: ({ value }: PortableTextComponentProps<PortableTextTable>) => resolveTable(value, h, toPlainText),
   },
 };
 
@@ -32,7 +17,7 @@ describe("PortableText Vue Renderer", () => {
 
   const renderPortableText = (
     richTextValue: string,
-    customComponents = components
+    customComponents = components,
   ) => {
     const jsonTree = nodeParse(richTextValue);
     const portableText = transformToPortableText(jsonTree);
@@ -53,7 +38,8 @@ describe("PortableText Vue Renderer", () => {
   });
 
   it("renders an image", () => {
-    const richTextValue = `<p>some text before an asset</p><figure data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg" data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" alt="alternative_text"></figure>`;
+    const richTextValue =
+      `<p>some text before an asset</p><figure data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg" data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" alt="alternative_text"></figure>`;
     wrapper = renderPortableText(richTextValue);
 
     expect(wrapper.html()).toMatchSnapshot();

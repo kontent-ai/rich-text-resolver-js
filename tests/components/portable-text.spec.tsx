@@ -1,13 +1,13 @@
-import { Elements, ElementType } from '@kontent-ai/delivery-sdk';
+import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import {
   PortableText,
   PortableTextMarkComponentProps,
   PortableTextReactComponents,
   PortableTextTypeComponentProps,
-  toPlainText
-} from '@portabletext/react';
-import React from 'react';
-import TestRenderer from 'react-test-renderer';
+  toPlainText,
+} from "@portabletext/react";
+import React from "react";
+import TestRenderer from "react-test-renderer";
 
 import {
   nodeParse,
@@ -16,9 +16,9 @@ import {
   PortableTextImage,
   PortableTextInternalLink,
   PortableTextTable,
-  transformToPortableText
-} from '../../src';
-import { resolveImage, resolveTable, toHTMLImageDefault } from '../../src/utils/resolution/html';
+  transformToPortableText,
+} from "../../src";
+import { resolveImage, resolveTable, toHTMLImageDefault } from "../../src/utils/resolution/html";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",
@@ -37,19 +37,19 @@ const dummyRichText: Elements.RichTextElement = {
         sitemapLocations: [],
         lastModified: "2022-10-11T11:27:25.4033512Z",
         workflowStep: "published",
-        workflow: "default"
+        workflow: "default",
       },
       elements: {
         text_element: {
           type: ElementType.Text,
           name: "text element",
-          value: "random text value"
-        }
-      }
-    }
+          value: "random text value",
+        },
+      },
+    },
   ],
   links: [],
-  name: "dummy"
+  name: "dummy",
 };
 
 const portableTextComponents: Partial<PortableTextReactComponents> = {
@@ -65,13 +65,19 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
     image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
       const imageString = resolveImage(value, toHTMLImageDefault);
       return <>{imageString}</>;
-    }
+    },
   },
   marks: {
     link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
-      const target = (value?.href || '').startsWith('http') ? '_blank' : undefined;
+      const target = (value?.href || "").startsWith("http") ? "_blank" : undefined;
       return (
-        <a href={value?.href} target={target} rel={value?.rel} title={value?.title} data-new-window={value?.['data-new-window']}>
+        <a
+          href={value?.href}
+          target={target}
+          rel={value?.rel}
+          title={value?.title}
+          data-new-window={value?.["data-new-window"]}
+        >
           {children}
         </a>
       );
@@ -83,8 +89,8 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
           {children}
         </a>
       );
-    }
-  }
+    },
+  },
 };
 
 describe("portable text React resolver", () => {
@@ -101,7 +107,9 @@ describe("portable text React resolver", () => {
   });
 
   it("renders a resolved linked item", () => {
-    const tree = renderPortableText('<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>');
+    const tree = renderPortableText(
+      "<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object>",
+    );
     expect(tree).toMatchSnapshot();
   });
 
