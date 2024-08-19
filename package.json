@@ -67,8 +67,8 @@
     }
   },
   "scripts": {
-    "build:commonjs": "tsc -m commonjs --outDir dist/cjs && node create-cjs-package-json.cjs",
-    "build:esnext": "tsc -m es6 --outDir dist/esnext",
+    "build:commonjs": "tsc -p tsconfig.cjs.json && node create-cjs-package-json.cjs",
+    "build:esnext": "tsc -p tsconfig.esm.json",
     "build:legacy": "babel dist/esnext --out-dir dist/legacy",
     "build": "npm run build:commonjs && npm run build:esnext && npm run build:legacy",
     "test": "jest",
@@ -86,6 +86,8 @@
     "@kontent-ai/delivery-sdk": "^14.11.0",
     "@portabletext/react": "^3.1.0",
     "@portabletext/vue": "^1.0.11",
+    "@swc/core": "^1.7.12",
+    "@swc/jest": "^0.2.36",
     "@testing-library/jest-dom": "^6.4.8",
     "@types/jest": "^29.5.12",
     "@types/react": "^18.3.3",
@@ -102,7 +104,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "react": "^18.3.1",
     "react-test-renderer": "^18.3.1",
-    "ts-jest": "^29.2.4",
     "typescript": "^5.5.4",
     "vue": "^3.4.38"
   },
