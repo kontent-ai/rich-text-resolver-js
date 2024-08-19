@@ -1,10 +1,10 @@
 import {
-ArbitraryTypedObject,
-PortableTextBlockStyle,
-PortableTextListItemType,
-PortableTextMarkDefinition,
-PortableTextSpan
-} from "@portabletext/types"
+  ArbitraryTypedObject,
+  PortableTextBlockStyle,
+  PortableTextListItemType,
+  PortableTextMarkDefinition,
+  PortableTextSpan,
+} from "@portabletext/types";
 import ShortUniqueId from "short-unique-id";
 
 import { DomHtmlNode, DomTextNode } from "../parser/index.js";
@@ -16,21 +16,29 @@ import {
   PortableTextInternalLink,
   PortableTextItem,
   PortableTextLink,
+  PortableTextMark,
   PortableTextObject,
   PortableTextStrictBlock,
   PortableTextStrictListItemBlock,
-  PortableTextMark,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
   Reference,
-  TextStyleElement,
   ShortGuid,
+  TextStyleElement,
 } from "../transformers/index.js";
 
-export type TransformLinkFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => [PortableTextLink, PortableTextMark];
-export type TransformElementFunction<TElementAttributes = Record<string, string | undefined>> = (node: DomHtmlNode<TElementAttributes>) => PortableTextItem[];
-export type TransformListItemFunction = (node: DomHtmlNode, depth: number, listType: PortableTextListItemType) => PortableTextStrictListItemBlock[];
+export type TransformLinkFunction<TElementAttributes = Record<string, string | undefined>> = (
+  node: DomHtmlNode<TElementAttributes>,
+) => [PortableTextLink, PortableTextMark];
+export type TransformElementFunction<TElementAttributes = Record<string, string | undefined>> = (
+  node: DomHtmlNode<TElementAttributes>,
+) => PortableTextItem[];
+export type TransformListItemFunction = (
+  node: DomHtmlNode,
+  depth: number,
+  listType: PortableTextListItemType,
+) => PortableTextStrictListItemBlock[];
 export type TransformTextFunction = (node: DomTextNode) => PortableTextSpan;
 export type TransformTableCellFunction = (node: DomHtmlNode) => PortableTextItem[];
 export type TransformFunction = TransformElementFunction<any> | TransformListItemFunction;
@@ -39,30 +47,30 @@ export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<Portab
 export type ResolverFunction<T extends ArbitraryTypedObject> = (value: T) => string;
 
 /**
- * Recursively traverses and optionally transforms a Portable Text structure using a provided 
- * callback function. The callback is applied to each node in the structure. If the callback 
+ * Recursively traverses and optionally transforms a Portable Text structure using a provided
+ * callback function. The callback is applied to each node in the structure. If the callback
  * does not modify a node, the original node is used.
  *
  * @template T The type of the Portable Text nodes, defaulting to PortableTextObject.
- * @param {T} object - The root node of the Portable Text structure to be traversed. 
+ * @param {T} object - The root node of the Portable Text structure to be traversed.
  *   It can be a default Portable Text object or a custom type that extends from it.
- * @param {(object: T) => ArbitraryTypedObject | undefined} callback - A callback function 
- *   invoked for each node in the Portable Text structure. It can return a modified version 
+ * @param {(object: T) => ArbitraryTypedObject | undefined} callback - A callback function
+ *   invoked for each node in the Portable Text structure. It can return a modified version
  *   of the node or `undefined` if no modifications are to be made.
  * @returns {ArbitraryTypedObject} - A modified copy of the original portable text structure.
  */
 export const traversePortableText = <T extends ArbitraryTypedObject = PortableTextObject>(
   object: T,
-  callback: (object: T) => ArbitraryTypedObject | undefined
+  callback: (object: T) => ArbitraryTypedObject | undefined,
 ): ArbitraryTypedObject => {
   // ensure a deep copy is created instead of modifying the original object
-  const traversedObject = callback(object) ?? {...object};
+  const traversedObject = callback(object) ?? { ...object };
 
   Object.keys(traversedObject).forEach((key) => {
     // marks is an array of strings that shouldn't be modified, therefore omit from traversal
     if (Array.isArray(traversedObject[key]) && key !== "marks") {
       traversedObject[key] = traversedObject[key].map(
-        (child: T) => traversePortableText(child, callback)
+        (child: T) => traversePortableText(child, callback),
       );
     }
   });
@@ -73,7 +81,7 @@ export const traversePortableText = <T extends ArbitraryTypedObject = PortableTe
 export const createSpan = (
   guid: ShortGuid,
   marks?: string[],
-  text?: string
+  text?: string,
 ): PortableTextSpan => {
   return {
     _type: "span",
@@ -87,7 +95,7 @@ export const createBlock = (
   guid: ShortGuid,
   markDefs?: PortableTextMarkDefinition[],
   style?: PortableTextBlockStyle,
-  children?: PortableTextSpan[]
+  children?: PortableTextSpan[],
 ): PortableTextStrictBlock => {
   return {
     _type: "block",
@@ -104,7 +112,7 @@ export const createListBlock = (
   listItem: PortableTextListItemType,
   markDefs?: PortableTextMarkDefinition[],
   style?: string,
-  children?: PortableTextSpan[]
+  children?: PortableTextSpan[],
 ): PortableTextStrictListItemBlock => {
   return {
     _type: "block",
@@ -132,7 +140,7 @@ export const createImageBlock = (guid: ShortGuid, reference: string, url: string
 
 export const createTableBlock = (
   guid: ShortGuid,
-  columns: number
+  columns: number,
 ): PortableTextTable => {
   return {
     _type: "table",
@@ -144,7 +152,7 @@ export const createTableBlock = (
 
 export const createExternalLink = (
   guid: ShortGuid,
-  attributes: Readonly<Record<string, string | undefined>>
+  attributes: Readonly<Record<string, string | undefined>>,
 ): PortableTextExternalLink => {
   return {
     _key: guid,
@@ -155,7 +163,7 @@ export const createExternalLink = (
 
 export const createItemLink = (
   guid: ShortGuid,
-  reference: string
+  reference: string,
 ): PortableTextInternalLink => {
   return {
     _key: guid,
@@ -169,7 +177,7 @@ export const createItemLink = (
 
 export const createTable = (
   guid: ShortGuid,
-  numColumns: number
+  numColumns: number,
 ): PortableTextTable => {
   return {
     _key: guid,
@@ -189,7 +197,7 @@ export const createTableRow = (guid: ShortGuid): PortableTextTableRow => {
 
 export const createTableCell = (
   guid: ShortGuid,
-  childCount: number
+  childCount: number,
 ): PortableTextTableCell => {
   return {
     _key: guid,
@@ -202,20 +210,20 @@ export const createTableCell = (
 export const createMark = (
   guid: ShortGuid,
   value: TextStyleElement | string,
-  childCount: number
+  childCount: number,
 ): PortableTextMark => {
   return {
     _type: "mark",
     _key: guid,
     value: value,
-    childCount: childCount
+    childCount: childCount,
   };
 };
 
 export const createComponentBlock = (
   guid: ShortGuid,
   reference: Reference,
-  dataType: ModularContentType
+  dataType: ModularContentType,
 ): PortableTextComponent => {
   return {
     _type: "component",
@@ -230,12 +238,10 @@ export const compose = <T>(
   ...functions: ReadonlyArray<(argument: T) => T>
 ) =>
   functions.reduce(
-    (previousFunction, nextFunction) => (value) =>
-      previousFunction(nextFunction(value)),
-    firstFunction
+    (previousFunction, nextFunction) => (value) => previousFunction(nextFunction(value)),
+    firstFunction,
   );
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
 
 export const { randomUUID } = new ShortUniqueId({ length: 10 });
-

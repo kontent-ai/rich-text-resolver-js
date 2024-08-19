@@ -41,45 +41,45 @@ export interface ParseResult {
 }
 
 type DeliverObjectElementAttributes = {
-  'data-rel': 'component' | 'link';
-  'data-type': 'item';
-  'data-codename': string;
-  'data-id': never;
-}
+  "data-rel": "component" | "link";
+  "data-type": "item";
+  "data-codename": string;
+  "data-id": never;
+};
 
 type ManagementObjectElementAttributes = {
-  'data-rel': undefined;
-  'data-type': 'item' | 'component';
-  'data-id': string;
-  'data-codename': never;
-}
+  "data-rel": undefined;
+  "data-type": "item" | "component";
+  "data-id": string;
+  "data-codename": never;
+};
 
 export type AssetLinkElementAttributes = {
-  'data-asset-id': string;
-  'href'?: string;
-}
+  "data-asset-id": string;
+  href?: string;
+};
 
 export type ItemLinkElementAttributes = {
-  'data-item-id': string;
-  'href'?: string;
-}
+  "data-item-id": string;
+  href?: string;
+};
 
 export type FigureElementAttributes = {
-  'data-asset-id': string;
-  'data-image-id'?: string;
-}
+  "data-asset-id": string;
+  "data-image-id"?: string;
+};
 
 export type ImgElementAttributes = {
-  'src': string;
-  'data-asset-id': string;
-  'data-image-id'?: string;
-  'alt'?: string;
-}
+  src: string;
+  "data-asset-id": string;
+  "data-image-id"?: string;
+  alt?: string;
+};
 
 export type InternalLinkElementAttributes =
   | AssetLinkElementAttributes
   | ItemLinkElementAttributes;
 
-export type ObjectElementAttributes = 
-  | DeliverObjectElementAttributes 
+export type ObjectElementAttributes =
+  | DeliverObjectElementAttributes
   | ManagementObjectElementAttributes;

@@ -1,11 +1,6 @@
 import { PortableTextBlock } from "@portabletext/types";
 
-import {
-  PortableTextImage,
-  PortableTextTable,
-  PortableTextTableCell,
-  PortableTextTableRow,
-} from "../../index.js";
+import { PortableTextImage, PortableTextTable, PortableTextTableCell, PortableTextTableRow } from "../../index.js";
 
 /**
  * Renders a portable text table to HTML.
@@ -17,7 +12,7 @@ import {
  */
 export const resolveTable = (
   table: PortableTextTable,
-  resolver: (value: PortableTextBlock[]) => string
+  resolver: (value: PortableTextBlock[]) => string,
 ) => {
   const renderCell = (cell: PortableTextTableCell) => {
     const cellContent = resolver(cell.content);
@@ -43,7 +38,7 @@ export const resolveTable = (
  */
 export const resolveImage = (
   image: PortableTextImage,
-  resolver: (image: PortableTextImage) => string
+  resolver: (image: PortableTextImage) => string,
 ): string => resolver(image);
 
 /**

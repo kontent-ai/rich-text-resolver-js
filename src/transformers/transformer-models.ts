@@ -5,13 +5,8 @@ import {
   PortableTextMarkDefinition,
   PortableTextSpan,
 } from "@portabletext/types";
-import {
-  textStyleElements,
-  blockElements,
-  ignoredElements,
-  markElements,
-  allElements,
-} from "../index.js";
+
+import { allElements, blockElements, ignoredElements, markElements, textStyleElements } from "../index.js";
 
 /**
  * Represents a content item linked to from rich text (not a linked item).
@@ -138,8 +133,7 @@ export interface PortableTextMark extends ArbitraryTypedObject {
  *
  * Narrows the `_type` to `block` for type guard purposes.
  */
-export interface PortableTextStrictBlock
-  extends Omit<PortableTextBlock, "_type">, ArbitraryTypedObject {
+export interface PortableTextStrictBlock extends Omit<PortableTextBlock, "_type">, ArbitraryTypedObject {
   _type: "block";
 }
 
@@ -157,7 +151,6 @@ export type PortableTextLink =
   | PortableTextInternalLink
   | PortableTextExternalLink;
 
-
 /**
  * Union of all default, top-level portable text object types.
  */
@@ -167,7 +160,6 @@ export type PortableTextObject =
   | PortableTextTable
   | PortableTextStrictBlock
   | PortableTextStrictListItemBlock;
-
 
 /**
  * Union of all nested portable text object types.
@@ -196,7 +188,6 @@ type ManagementLinkedItem = "item";
  * `component` represents a rich text inline component
  */
 export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLinkedItem;
-
 
 /**
  * Re-exports all types from the package, to allow both custom types and
