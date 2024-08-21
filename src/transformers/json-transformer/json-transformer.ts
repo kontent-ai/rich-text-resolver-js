@@ -17,25 +17,18 @@ export type TransformDomNodeType = (
 export const transformToJson = (
   result: ParseResult,
   customResolvers?: CustomResolversType,
-) => {
-  if (!customResolvers) {
-    return result.children;
-  }
-
-  return result.children.map(node => transformDomNode(node, customResolvers));
-};
+) => customResolvers ? result.children.map(node => transformDomNode(node, customResolvers)) : result.children;
 
 const nodeIdentity = (node: DomNode) => node;
 
 const transformDomNode: TransformDomNodeType = (
   node: DomNode,
-  customResolvers: CustomResolversType,
+  { resolveDomHtmlNode, resolveDomTextNode }: CustomResolversType,
 ) => {
-  const { resolveDomHtmlNode, resolveDomTextNode } = customResolvers;
   if (isText(node)) {
-    return resolveDomTextNode ? resolveDomTextNode(node) : nodeIdentity(node);
+    return resolveDomTextNode?.(node) ?? nodeIdentity(node);
   }
-  return resolveDomHtmlNode
-    ? resolveDomHtmlNode(node, (node) => transformDomNode(node, customResolvers))
-    : nodeIdentity(node);
+
+  return resolveDomHtmlNode?.(node, (node) => transformDomNode(node, { resolveDomHtmlNode, resolveDomTextNode }))
+    ?? nodeIdentity(node);
 };

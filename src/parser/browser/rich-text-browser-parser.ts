@@ -4,22 +4,18 @@ import {
   isElementNode,
   isRootNode,
   isTextNode,
+  throwError,
 } from "../../utils/index.js";
 import { DomNode, ParseResult } from "../parser-models.js";
 
 export const parse = (input: string): ParseResult => {
   const parser = new DOMParser();
   const sanitizedInput = input.replaceAll(getAllNewLineAndWhiteSpace, "");
-
   const document = parser.parseFromString(sanitizedInput, "text/html");
 
-  if (isRootNode(document) && document.body.firstChild) {
-    return {
-      children: Array.from(document.body.children).flatMap(parseInternal),
-    };
-  } else {
-    throw new Error("Cannot parse a node that is not a root node.");
-  }
+  return isRootNode(document) && document.body.firstChild
+    ? { children: Array.from(document.body.children).flatMap(parseInternal) }
+    : throwError("Cannot parse a node that is not a root node");
 };
 
 const parseInternal = (document: Node): DomNode => {

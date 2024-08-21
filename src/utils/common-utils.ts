@@ -61,3 +61,7 @@ export const countChildTextNodes = (node: DomNode): number =>
   node.type === "text"
     ? 1
     : node.children.reduce((count, child) => count + countChildTextNodes(child), 0);
+
+export const throwError = (msg: string) => {
+  throw new Error(msg);
+};

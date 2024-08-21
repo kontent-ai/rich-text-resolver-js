@@ -1,5 +1,5 @@
 import { PortableText, PortableTextComponentProps, PortableTextComponents, toPlainText } from "@portabletext/vue";
-import { mount, VueWrapper } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import { h } from "vue";
 
 import { nodeParse, PortableTextImage, PortableTextTable, transformToPortableText } from "../../../src";
@@ -13,8 +13,6 @@ const components: PortableTextComponents = {
 };
 
 describe("PortableText Vue Renderer", () => {
-  let wrapper: VueWrapper;
-
   const renderPortableText = (
     richTextValue: string,
     customComponents = components,
@@ -31,8 +29,8 @@ describe("PortableText Vue Renderer", () => {
   };
 
   it("renders simple HTML from portable text", () => {
-    const richTextValue = `<p>some text in a paragraph</p>`,
-      wrapper = renderPortableText(richTextValue);
+    const richTextValue = `<p>some text in a paragraph</p>`;
+    const wrapper = renderPortableText(richTextValue);
 
     expect(wrapper.html()).toMatchSnapshot();
   });
@@ -40,7 +38,7 @@ describe("PortableText Vue Renderer", () => {
   it("renders an image", () => {
     const richTextValue =
       `<p>some text before an asset</p><figure data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412"><img src="https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/7d534724-edb8-4a6d-92f6-feb52be61d37/image1_w_metadata.jpg" data-asset-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" data-image-id="bc6f3ce5-935d-4446-82d4-ce77436dd412" alt="alternative_text"></figure>`;
-    wrapper = renderPortableText(richTextValue);
+    const wrapper = renderPortableText(richTextValue);
 
     expect(wrapper.html()).toMatchSnapshot();
   });
@@ -48,7 +46,7 @@ describe("PortableText Vue Renderer", () => {
   it("renders a table", () => {
     const richTextValue =
       "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
-    wrapper = renderPortableText(richTextValue);
+    const wrapper = renderPortableText(richTextValue);
 
     expect(wrapper.html()).toMatchSnapshot();
   });
