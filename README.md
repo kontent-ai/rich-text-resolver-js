@@ -277,6 +277,8 @@ const components: PortableTextComponents = {
 
   const tree = nodeParse(richTextContent);
   const portableText = transformToPortableText(tree);
+  
+  // your logic to modify the portable text
 
   const validManagementApiFormat = toManagementApiFormat(portableText);
 ```
