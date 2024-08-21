@@ -4,7 +4,6 @@ import {
   DomHtmlNode,
   DomNode,
   FigureElementAttributes,
-  ImgElementAttributes,
   ObjectElementAttributes,
   ParseResult,
 } from "../../parser/index.js";
@@ -44,6 +43,7 @@ import {
   isItemLink,
   isListBlock,
   isListItem,
+  isNestedImg,
   isText,
   isUnorderedListBlock,
   lineBreakElement,
@@ -229,8 +229,9 @@ const transformElement = (
 };
 
 const transformImage: TransformElementFunction<FigureElementAttributes> = (node) => {
-  const imageTag = node.children[0] as DomHtmlNode<ImgElementAttributes> | undefined;
-  if (!imageTag || imageTag.tagName !== "img") {
+  const imageTag = node.children[0];
+
+  if (!isNestedImg(imageTag)) {
     throw new Error("Expected the first child of <figure> to be an <img> element.");
   }
 
