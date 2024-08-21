@@ -1,0 +1,17 @@
+{
+    "jsc": {
+      "parser": {
+        "syntax": "typescript"
+      }
+    },
+    "module": {
+      "type": "commonjs", 
+      "strict": true
+    },
+    "env": {
+      "targets": "> 0.25%, not dead",
+      "mode": "usage",
+      "coreJs": "3.37"
+    }
+  }
+  
