@@ -3,6 +3,7 @@ import {
   DomNode,
   DomTextNode,
   FigureElementAttributes,
+  ImgElementAttributes,
   ItemLinkElementAttributes,
   ObjectElementAttributes,
 } from "../index.js";
@@ -50,6 +51,15 @@ export const isImage = (node: DomNode): node is DomHtmlNode<FigureElementAttribu
  */
 export const isItemLink = (node: DomHtmlNode): node is DomHtmlNode<ItemLinkElementAttributes> =>
   isAnchor(node) && node.attributes["data-item-id"] !== undefined;
+
+/**
+ * Returns `true` if the node is a Kontent.ai rich text `img` node and narrows type guard.
+ */
+export const isNestedImg = (node?: DomNode): node is DomHtmlNode<ImgElementAttributes> =>
+  node !== undefined
+  && isElement(node)
+  && node.tagName === "img"
+  && node.attributes["data-asset-id"] !== undefined;
 
 /**
  * Recursively counts the number of text nodes within a given DOM node and all of its descendants.
