@@ -82,29 +82,25 @@ export const createSpan = (
   guid: ShortGuid,
   marks?: string[],
   text?: string,
-): PortableTextSpan => {
-  return {
-    _type: "span",
-    _key: guid,
-    marks: marks || [],
-    text: text || "",
-  };
-};
+): PortableTextSpan => ({
+  _type: "span",
+  _key: guid,
+  marks: marks || [],
+  text: text || "",
+});
 
 export const createBlock = (
   guid: ShortGuid,
   markDefs?: PortableTextMarkDefinition[],
   style?: PortableTextBlockStyle,
   children?: PortableTextSpan[],
-): PortableTextStrictBlock => {
-  return {
-    _type: "block",
-    _key: guid,
-    markDefs: markDefs || [],
-    style: style || "normal",
-    children: children || [],
-  };
-};
+): PortableTextStrictBlock => ({
+  _type: "block",
+  _key: guid,
+  markDefs: markDefs || [],
+  style: style || "normal",
+  children: children || [],
+});
 
 export const createListBlock = (
   guid: ShortGuid,
@@ -113,125 +109,105 @@ export const createListBlock = (
   markDefs?: PortableTextMarkDefinition[],
   style?: string,
   children?: PortableTextSpan[],
-): PortableTextStrictListItemBlock => {
-  return {
-    _type: "block",
-    _key: guid,
-    markDefs: markDefs || [],
-    level: level,
-    listItem: listItem,
-    style: style || "normal",
-    children: children || [],
-  };
-};
+): PortableTextStrictListItemBlock => ({
+  _type: "block",
+  _key: guid,
+  markDefs: markDefs || [],
+  level: level,
+  listItem: listItem,
+  style: style || "normal",
+  children: children || [],
+});
 
-export const createImageBlock = (guid: ShortGuid, reference: string, url: string, alt?: string): PortableTextImage => {
-  return {
-    _type: "image",
-    _key: guid,
-    asset: {
-      _type: "reference",
-      _ref: reference,
-      url,
-      alt,
-    },
-  };
-};
+export const createImageBlock = (guid: ShortGuid, reference: string, url: string, alt?: string): PortableTextImage => ({
+  _type: "image",
+  _key: guid,
+  asset: {
+    _type: "reference",
+    _ref: reference,
+    url,
+    alt,
+  },
+});
 
 export const createTableBlock = (
   guid: ShortGuid,
   columns: number,
-): PortableTextTable => {
-  return {
-    _type: "table",
-    _key: guid,
-    numColumns: columns,
-    rows: [],
-  };
-};
+): PortableTextTable => ({
+  _type: "table",
+  _key: guid,
+  numColumns: columns,
+  rows: [],
+});
 
 export const createExternalLink = (
   guid: ShortGuid,
   attributes: Readonly<Record<string, string | undefined>>,
-): PortableTextExternalLink => {
-  return {
-    _key: guid,
-    _type: "link",
-    ...attributes,
-  };
-};
+): PortableTextExternalLink => ({
+  _key: guid,
+  _type: "link",
+  ...attributes,
+});
 
 export const createItemLink = (
   guid: ShortGuid,
   reference: string,
-): PortableTextInternalLink => {
-  return {
-    _key: guid,
-    _type: "internalLink",
-    reference: {
-      _type: "reference",
-      _ref: reference,
-    },
-  };
-};
+): PortableTextInternalLink => ({
+  _key: guid,
+  _type: "internalLink",
+  reference: {
+    _type: "reference",
+    _ref: reference,
+  },
+});
 
 export const createTable = (
   guid: ShortGuid,
   numColumns: number,
-): PortableTextTable => {
-  return {
-    _key: guid,
-    _type: "table",
-    numColumns: numColumns,
-    rows: [],
-  };
-};
+): PortableTextTable => ({
+  _key: guid,
+  _type: "table",
+  numColumns: numColumns,
+  rows: [],
+});
 
-export const createTableRow = (guid: ShortGuid): PortableTextTableRow => {
-  return {
-    _key: guid,
-    _type: "row",
-    cells: [],
-  };
-};
+export const createTableRow = (guid: ShortGuid): PortableTextTableRow => ({
+  _key: guid,
+  _type: "row",
+  cells: [],
+});
 
 export const createTableCell = (
   guid: ShortGuid,
   childCount: number,
-): PortableTextTableCell => {
-  return {
-    _key: guid,
-    _type: "cell",
-    content: [],
-    childBlocksCount: childCount,
-  };
-};
+): PortableTextTableCell => ({
+  _key: guid,
+  _type: "cell",
+  content: [],
+  childBlocksCount: childCount,
+});
 
 export const createMark = (
   guid: ShortGuid,
   value: TextStyleElement | string,
   childCount: number,
-): PortableTextMark => {
-  return {
-    _type: "mark",
-    _key: guid,
-    value: value,
-    childCount: childCount,
-  };
-};
+): PortableTextMark => ({
+  _type: "mark",
+  _key: guid,
+  value: value,
+  childCount: childCount,
+});
 
 export const createComponentBlock = (
   guid: ShortGuid,
   reference: Reference,
   dataType: ModularContentType,
-): PortableTextComponent => {
-  return {
-    _type: "component",
-    _key: guid,
-    dataType,
-    component: reference,
-  };
-};
+): PortableTextComponent => ({
+  _type: "component",
+  _key: guid,
+  dataType,
+  component: reference,
+});
 
 export const compose = <T>(
   firstFunction: (argument: T) => T,

@@ -13,6 +13,7 @@ import {
   PortableTextMark,
   PortableTextObject,
   PortableTextTable,
+  throwError,
 } from "../../index.js";
 import { resolveTable } from "./html.js";
 
@@ -25,14 +26,14 @@ const toManagementApiTable = (table: PortableTextTable) =>
   resolveTable(table, (blocks) => toHTML(blocks, portableTextComponents));
 
 const toManagementApiExternalLink = (children: string, link?: PortableTextExternalLink) =>
-  link ? `<a ${createExternalLinkAttributes(link)}>${children}</a>` : (() => {
-    throw new Error("Mark definition for external link not found.");
-  })();
+  link
+    ? `<a ${createExternalLinkAttributes(link)}>${children}</a>`
+    : throwError("Mark definition for external link not found.");
 
 const toManagementApiInternalLink = (children: string, link?: PortableTextInternalLink) =>
-  link ? `<a data-item-id="${link.reference._ref}">${children}</a>` : (() => {
-    throw new Error("Mark definition for item link not found.");
-  })();
+  link
+    ? `<a data-item-id="${link.reference._ref}">${children}</a>`
+    : throwError("Mark definition for item link not found.");
 
 const createImgTag = (assetId: string) => `<img src="#" data-asset-id="${assetId}">`;
 
@@ -41,6 +42,9 @@ const createFigureTag = (assetId: string) => `<figure data-asset-id="${assetId}"
 const createExternalLinkAttributes = (link: PortableTextExternalLink) =>
   Object.entries(link).filter(([k]) => k !== "_type" && k !== "_key").map(([k, v]) => `${k}="${v}"`).join(" ");
 
+/**
+ * specifies resolution for custom types and marks that are not part of `toHTML` default implementation.
+ */
 const portableTextComponents: PortableTextOptions = {
   components: {
     types: {
@@ -62,4 +66,13 @@ const portableTextComponents: PortableTextOptions = {
   },
 };
 
+/**
+ * Transforms Portable Text initially created from Kontent.ai management API rich text back to MAPI-compatible format.
+ *
+ * This function performs only minimal checks for compatibility and is therefore not suited for conversion of generic HTML
+ * or any other rich text other than MAPI format.
+ *
+ * @param blocks portable text array
+ * @returns MAPI-compatible rich text string
+ */
 export const toManagementApiFormat = (blocks: PortableTextObject[]) => toHTML(blocks, portableTextComponents);

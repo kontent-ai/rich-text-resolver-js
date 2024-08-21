@@ -133,7 +133,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
 const mergeBlocksAndSpans: MergePortableTextItemsFunction = (itemsToMerge) =>
   itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
     const lastItem = mergedItems[mergedItems.length - 1];
-    if (item._type === "span" && lastItem._type === "block") {
+    if (item._type === "span" && lastItem && lastItem._type === "block") {
       lastItem.children.push(item);
     } else {
       mergedItems.push(item);
@@ -229,8 +229,8 @@ const transformElement = (
 };
 
 const transformImage: TransformElementFunction<FigureElementAttributes> = (node) => {
-  const imageTag = node.children[0] as DomHtmlNode<ImgElementAttributes>;
-  if (imageTag.tagName !== "img") {
+  const imageTag = node.children[0] as DomHtmlNode<ImgElementAttributes> | undefined;
+  if (!imageTag || imageTag.tagName !== "img") {
     throw new Error("Expected the first child of <figure> to be an <img> element.");
   }
 
@@ -247,7 +247,8 @@ const transformImage: TransformElementFunction<FigureElementAttributes> = (node)
 const transformTableCell: TransformTableCellFunction = (node) => {
   const cellContent = flatten(node.children);
   const firstChild = node.children[0];
-  const isFirstChildText = isText(firstChild)
+  const requiresNewBlock = !firstChild
+    || isText(firstChild)
     || firstChild.tagName === lineBreakElement
     || markElements.includes(firstChild.tagName as MarkElement);
 
@@ -256,7 +257,7 @@ const transformTableCell: TransformTableCellFunction = (node) => {
    * styled text (e.g. <strong>), anchor or a line break.
    * in such cases, a block has to be created manually first.
    */
-  if (isFirstChildText) {
+  if (requiresNewBlock) {
     cellContent.unshift(createBlock(randomUUID()));
   }
 

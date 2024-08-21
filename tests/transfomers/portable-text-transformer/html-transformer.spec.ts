@@ -42,7 +42,7 @@ const customResolvers: Partial<CustomResolvers> = {
   image: (image) => `<img src="${image.asset.url}" alt="${image.asset.rel ?? ""}" height="800">`,
 };
 
-describe("HTML converter", () => {
+describe("HTML transformer", () => {
   let richTextInput: Elements.RichTextElement;
 
   beforeEach(() => {
@@ -130,7 +130,7 @@ describe("HTML converter", () => {
     },
   });
 
-  const testConversion = (
+  const transformAndCompare = (
     richTextValue: string,
     customResolvers: CustomResolvers = {},
   ) => {
@@ -154,37 +154,37 @@ describe("HTML converter", () => {
   };
 
   it("builds basic portable text into HTML", () => {
-    testConversion(
+    transformAndCompare(
       "<p><br></p><p>text<a href=\"http://google.com\" data-new-window=\"true\" title=\"linktitle\" target=\"_blank\" rel=\"noopener noreferrer\"><strong>link</strong></a></p><h1>heading</h1><p><br></p>",
     );
   });
 
   it("resolves internal link", () => {
-    testConversion(
+    transformAndCompare(
       "<p><a data-item-id=\"23f71096-fa89-4f59-a3f9-970e970944ec\" href=\"\"><em>item</em></a></p>",
     );
   });
 
   it("resolves a linked item", () => {
-    testConversion(
+    transformAndCompare(
       "<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"link\" data-codename=\"test_item\"></object><p>text after component</p>",
     );
   });
 
   it("resolves a table", () => {
-    testConversion(
+    transformAndCompare(
       "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>",
     );
   });
 
   it("resolves an asset", () => {
-    testConversion(
+    transformAndCompare(
       "<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" alt=\"\"></figure>",
     );
   });
 
   it("resolves an asset with custom resolver", () => {
-    testConversion(
+    transformAndCompare(
       "<figure data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\"><img src=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/3594632c-d9bb-4197-b7da-2698b0dab409/Riesachsee_Dia_1_1963_%C3%96sterreich_16k_3063.jpg\" data-asset-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" data-image-id=\"62ba1f17-13e9-43c0-9530-6b44e38097fc\" alt=\"\"></figure>",
       customResolvers,
     );
