@@ -217,6 +217,26 @@ describe("Json Transfomer Tests", () => {
     expect(output).toEqual(expectedOutput);
   });
 
+  it("Test text transformer returning null", () => {
+    const testValue: ParseResult = {
+      children: [
+        {
+          type: "text",
+          content: "test value",
+        },
+      ],
+    };
+
+    const result = transformToJson(testValue, {
+      resolveDomTextNode: () => null,
+      resolveDomHtmlNode: null,
+    });
+
+    const expected = [null];
+
+    expect(result).toEqual(expected);
+  });
+
   it("Test RichText", () => {
     const parsed = browserParse(dummy.value);
     const transformed = transformJsonWithCustomResolvers(parsed);
