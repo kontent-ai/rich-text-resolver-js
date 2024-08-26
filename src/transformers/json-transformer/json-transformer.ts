@@ -26,9 +26,10 @@ const transformDomNode: TransformDomNodeType = (
   { resolveDomHtmlNode, resolveDomTextNode }: CustomResolversType,
 ) => {
   if (isText(node)) {
-    return resolveDomTextNode?.(node) ?? nodeIdentity(node);
+    return resolveDomTextNode ? resolveDomTextNode(node) : nodeIdentity(node);
   }
 
-  return resolveDomHtmlNode?.(node, (node) => transformDomNode(node, { resolveDomHtmlNode, resolveDomTextNode }))
-    ?? nodeIdentity(node);
+  return resolveDomHtmlNode
+    ? resolveDomHtmlNode(node, (node) => transformDomNode(node, { resolveDomHtmlNode, resolveDomTextNode }))
+    : nodeIdentity(node);
 };
