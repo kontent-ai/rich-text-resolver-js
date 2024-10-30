@@ -10,11 +10,11 @@ import ShortUniqueId from "short-unique-id";
 import { DomHtmlNode, DomTextNode } from "../parser/index.js";
 import {
   ModularContentType,
-  PortableTextComponent,
+  PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
-  PortableTextInternalLink,
   PortableTextItem,
+  PortableTextItemLink,
   PortableTextLink,
   PortableTextMark,
   PortableTextObject,
@@ -152,9 +152,9 @@ export const createExternalLink = (
 export const createItemLink = (
   guid: ShortGuid,
   reference: string,
-): PortableTextInternalLink => ({
+): PortableTextItemLink => ({
   _key: guid,
-  _type: "internalLink",
+  _type: "contentItemLink",
   reference: {
     _type: "reference",
     _ref: reference,
@@ -198,12 +198,12 @@ export const createMark = (
   childCount: childCount,
 });
 
-export const createComponentBlock = (
+export const createComponentOrItemBlock = (
   guid: ShortGuid,
   reference: Reference,
   dataType: ModularContentType,
-): PortableTextComponent => ({
-  _type: "component",
+): PortableTextComponentOrItem => ({
+  _type: "componentOrItem",
   _key: guid,
   dataType,
   component: reference,

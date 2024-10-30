@@ -28,7 +28,7 @@ import {
   compose,
   countChildTextNodesAndLineBreaks,
   createBlock,
-  createComponentBlock,
+  createComponentOrItemBlock,
   createExternalLink,
   createImageBlock,
   createItemLink,
@@ -79,8 +79,13 @@ export const transformToPortableText = (parsedTree: ParseResult): PortableTextOb
  * @param {PortableTextItem[]} mergedItems - The array of PortableTextItems being processed.
  * @param {PortableTextLink} linkItem - The link item (either internal or external) to be added to the text block's mark definitions.
  */
-const handleLinks = (mergedItems: PortableTextItem[], linkItem: PortableTextLink) => {
-  const lastBlock = mergedItems.findLast((item): item is PortableTextStrictBlock => item._type === "block");
+const handleLinks = (
+  mergedItems: PortableTextItem[],
+  linkItem: PortableTextLink,
+) => {
+  const lastBlock = mergedItems.findLast(
+    (item): item is PortableTextStrictBlock => item._type === "block",
+  );
 
   if (lastBlock) {
     (lastBlock.markDefs ||= []).push(linkItem);
@@ -104,7 +109,7 @@ const mergeSpansAndMarks: MergePortableTextItemsFunction = (itemsToMerge) => {
 
   return itemsToMerge.reduce<PortableTextItem[]>((mergedItems, item) => {
     switch (item._type) {
-      case "internalLink":
+      case "contentItemLink":
       case "link":
         handleLinks(mergedItems, item);
         break;
@@ -269,7 +274,9 @@ const transformTableCell: TransformTableCellFunction = (node) => {
   return [tableCell];
 };
 
-const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) => {
+const transformComponentOrItem: TransformElementFunction<ObjectElementAttributes> = (
+  node,
+) => {
   // data-codename reference is for DAPI, data-id for MAPI
   const itemReference: Reference = {
     _type: "reference",
@@ -285,7 +292,9 @@ const transformItem: TransformElementFunction<ObjectElementAttributes> = (node) 
    */
   const modularContentType = node.attributes["data-rel"] ?? node.attributes["data-type"] as ModularContentType;
 
-  return [createComponentBlock(randomUUID(), itemReference, modularContentType)];
+  return [
+    createComponentOrItemBlock(randomUUID(), itemReference, modularContentType),
+  ];
 };
 
 const transformLink: TransformLinkFunction = (node) => {
@@ -354,5 +363,5 @@ const transformMap: Record<ValidElement, TransformFunction> = {
   td: transformTableCell,
   br: transformLineBreak,
   figure: transformImage,
-  object: transformItem,
+  object: transformComponentOrItem,
 };

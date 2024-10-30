@@ -9,12 +9,12 @@ import {
 import { allElements, blockElements, ignoredElements, markElements, textStyleElements } from "../index.js";
 
 /**
- * Represents a content item linked to from rich text (not a linked item).
+ * A reference to various Kontent.ai objects in rich text
  */
 export interface Reference extends ArbitraryTypedObject {
   _type: "reference";
   /**
-   * Holds an ID of the item being linked to.
+   * An identifier of the referenced object
    */
   _ref: string;
 }
@@ -46,8 +46,8 @@ export interface PortableTextExternalLink extends PortableTextMarkDefinition {
 /**
  * Represents a mark definition for a link to a content item in rich text element.
  */
-export interface PortableTextInternalLink extends PortableTextMarkDefinition {
-  _type: "internalLink";
+export interface PortableTextItemLink extends PortableTextMarkDefinition {
+  _type: "contentItemLink";
   reference: Reference;
 }
 
@@ -107,8 +107,8 @@ export interface PortableTextTableCell extends ArbitraryTypedObject {
 /**
  * Represents a component or a linked item used in rich text.
  */
-export interface PortableTextComponent extends ArbitraryTypedObject {
-  _type: "component";
+export interface PortableTextComponentOrItem extends ArbitraryTypedObject {
+  _type: "componentOrItem";
   /**
    * `component` for components or `item | link` for linked items
    */
@@ -148,14 +148,14 @@ export interface PortableTextStrictListItemBlock
 }
 
 export type PortableTextLink =
-  | PortableTextInternalLink
+  | PortableTextItemLink
   | PortableTextExternalLink;
 
 /**
  * Union of all default, top-level portable text object types.
  */
 export type PortableTextObject =
-  | PortableTextComponent
+  | PortableTextComponentOrItem
   | PortableTextImage
   | PortableTextTable
   | PortableTextStrictBlock
@@ -178,14 +178,17 @@ export type PortableTextInternalObject =
 export type PortableTextItem = PortableTextObject | PortableTextInternalObject;
 
 /**
- * `link` and `item` represent a rich text linked item
- * in delivery and management API respectively
+ * `link` represent a rich text linked item in delivery API context
  */
 type DeliveryLinkedItem = "link";
+
+/**
+ * `item` represents a rich text linked item in management API context
+ */
 type ManagementLinkedItem = "item";
 
 /**
- * `component` represents a rich text inline component
+ * Represents type of modular content (items, components) in different rich text contexts
  */
 export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLinkedItem;
 
