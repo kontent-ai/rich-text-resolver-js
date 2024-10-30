@@ -11,10 +11,10 @@ import {
   browserParse,
   nodeParse,
   PortableTextBlock,
-  PortableTextComponent,
+  PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
-  PortableTextInternalLink,
+  PortableTextItemLink,
   PortableTextTable,
   ResolverFunction,
   transformToPortableText,
@@ -33,8 +33,8 @@ type CustomResolvers = {
   image?: ResolverFunction<PortableTextImage>;
   block?: ResolverFunction<PortableTextBlock>;
   table?: ResolverFunction<PortableTextTable>;
-  component?: ResolverFunction<PortableTextComponent>;
-  internalLink?: ResolverFunction<PortableTextInternalLink>;
+  component?: ResolverFunction<PortableTextComponentOrItem>;
+  contentItemLink?: ResolverFunction<PortableTextItemLink>;
   link?: ResolverFunction<PortableTextExternalLink>;
 };
 
@@ -92,9 +92,9 @@ describe("HTML transformer", () => {
             ? customResolvers.image(value)
             : resolveImage(value, toHTMLImageDefault);
         },
-        component: ({
+        componentOrItem: ({
           value,
-        }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
+        }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) => {
           const linkedItem = element.linkedItems.find(
             (item) => item.system.codename === value.component._ref,
           );
@@ -114,10 +114,10 @@ describe("HTML transformer", () => {
         },
       },
       marks: {
-        internalLink: ({
+        contentItemLink: ({
           children,
           value,
-        }: PortableTextMarkComponentOptions<PortableTextInternalLink>) => {
+        }: PortableTextMarkComponentOptions<PortableTextItemLink>) => {
           return `<a href="https://website.com/${value?.reference._ref}">${children}</a>`;
         },
         link: ({

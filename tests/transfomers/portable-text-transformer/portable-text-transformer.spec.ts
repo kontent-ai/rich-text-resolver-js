@@ -306,7 +306,7 @@ describe("Portable Text Transformer", () => {
       `<object type="application/kenticocloud" data-type="item" data-rel="link" data-codename="test_item"></object>`;
 
     const processBlock = (block: PortableTextObject) => {
-      if (block._type === "component") {
+      if (block._type === "componentOrItem") {
         return {
           ...block,
           additionalData: "data",

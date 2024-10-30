@@ -11,10 +11,10 @@ import TestRenderer from "react-test-renderer";
 
 import {
   nodeParse,
-  PortableTextComponent,
+  PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
-  PortableTextInternalLink,
+  PortableTextItemLink,
   PortableTextTable,
   transformToPortableText,
 } from "../../src";
@@ -54,7 +54,7 @@ const dummyRichText: Elements.RichTextElement = {
 
 const portableTextComponents: Partial<PortableTextReactComponents> = {
   types: {
-    component: ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => {
+    componentOrItem: ({ value }: PortableTextTypeComponentProps<PortableTextComponentOrItem>) => {
       const item = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
@@ -82,7 +82,7 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
         </a>
       );
     },
-    internalLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextInternalLink>) => {
+    contentItemLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextItemLink>) => {
       const item = dummyRichText.linkedItems.find(item => item.system.id === value?.reference._ref);
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
