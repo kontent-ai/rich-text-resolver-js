@@ -43,9 +43,9 @@ describe("portabletext to MAPI resolver", () => {
 
     // Compare the original Portable Text to the re-parsed Portable Text after MAPI conversion
     expect(
-      secondParsePortableText.map((p) => traversePortableText(p, sortMarks)),
+      traversePortableText(secondParsePortableText, sortMarks),
     ).toStrictEqual(
-      nodePortableText.map((p) => traversePortableText(p, sortMarks)),
+      traversePortableText(nodePortableText, sortMarks),
     );
   };
 

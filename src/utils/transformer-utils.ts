@@ -7,7 +7,8 @@ import {
 } from "@portabletext/types";
 import ShortUniqueId from "short-unique-id";
 
-import { DomHtmlNode, DomTextNode } from "../parser/index.js";
+import { isElement } from "../index.js";
+import { DomHtmlNode, DomNode, DomTextNode } from "../parser/index.js";
 import {
   ModularContentType,
   PortableTextComponentOrItem,
@@ -59,24 +60,49 @@ export type ResolverFunction<T extends ArbitraryTypedObject> = (value: T) => str
  *   of the node or `undefined` if no modifications are to be made.
  * @returns {ArbitraryTypedObject} - A modified copy of the original portable text structure.
  */
-export const traversePortableText = <T extends ArbitraryTypedObject = PortableTextObject>(
-  object: T,
-  callback: (object: T) => ArbitraryTypedObject | undefined,
-): ArbitraryTypedObject => {
-  // ensure a deep copy is created instead of modifying the original object
-  const traversedObject = callback(object) ?? { ...object };
+export const traversePortableText = <
+  T extends ArbitraryTypedObject = PortableTextObject,
+>(
+  nodes: T[],
+  callback: (node: T) => ArbitraryTypedObject | undefined,
+): ArbitraryTypedObject[] => {
+  return nodes.map((node) => {
+    // Apply the callback to the current node. If it returns undefined, clone the node.
+    const traversedNode = callback(node) ?? { ...node };
 
-  Object.keys(traversedObject).forEach((key) => {
-    // marks is an array of strings that shouldn't be modified, therefore omit from traversal
-    if (Array.isArray(traversedObject[key]) && key !== "marks") {
-      traversedObject[key] = traversedObject[key].map(
-        (child: T) => traversePortableText(child, callback),
-      );
-    }
+    Object.keys(traversedNode).forEach((key) => {
+      // marks is an array of strings that shouldn't be modified, therefore omit from traversal
+      if (Array.isArray(traversedNode[key]) && key !== "marks") {
+        traversedNode[key] = traversePortableText(
+          traversedNode[key],
+          callback,
+        );
+      }
+    });
+
+    return traversedNode;
   });
-
-  return traversedObject;
 };
+
+/**
+ * Recursively traverses a tree of DomNodes, applies a transformation callback to each node,
+ * and returns a flattened array of transformed items.
+ *
+ * @param nodes - The array of DomNodes to traverse.
+ * @param callback - A function that transforms a DomNode into a desired type T. Returns null or undefined to skip the node.
+ * @returns An array of transformed items of type T.
+ */
+export const traverseJsonTree = <T>(
+  nodes: DomNode[],
+  callback: (node: DomNode) => T | null | undefined,
+): T[] =>
+  nodes.flatMap((node) => {
+    const transformed = callback(node);
+    const children = isElement(node)
+      ? traverseJsonTree(node.children, callback)
+      : [];
+    return transformed ? [transformed, ...children] : children;
+  });
 
 export const createSpan = (
   guid: ShortGuid,

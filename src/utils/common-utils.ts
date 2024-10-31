@@ -20,6 +20,10 @@ export const isExternalLink = (node: DomHtmlNode): boolean => isAnchor(node) && 
 
 export const isAnchor = (node: DomHtmlNode): boolean => node.tagName === "a";
 
+export const isTableCell = (node: DomHtmlNode): boolean => isElement(node) && node.tagName === "td";
+
+export const isLineBreak = (node: DomHtmlNode): boolean => isElement(node) && node.tagName === "br";
+
 /**
  * Returns `true` for text nodes and type guards the node as `DomTextNode`.
  */
