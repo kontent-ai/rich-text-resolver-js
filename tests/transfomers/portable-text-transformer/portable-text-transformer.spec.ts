@@ -315,7 +315,7 @@ describe("Portable Text Transformer", () => {
     };
 
     const { nodeResult } = transformInput(input);
-    const modifiedResult = nodeResult.map((block) => traversePortableText(block, processBlock));
+    const modifiedResult = traversePortableText(nodeResult, processBlock);
 
     expect(modifiedResult).toMatchSnapshot();
     expect(modifiedResult).toMatchObject(nodeResult);
@@ -334,7 +334,7 @@ describe("Portable Text Transformer", () => {
     };
 
     const { nodeResult } = transformInput(input);
-    const transformedResult = nodeResult.map((block) => traversePortableText(block, processBlock));
+    const transformedResult = traversePortableText(nodeResult, processBlock);
 
     expect(transformedResult).toMatchSnapshot();
     expect(transformedResult).toMatchObject(nodeResult);
