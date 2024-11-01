@@ -87,7 +87,7 @@ describe("HTML transformer", () => {
       types: {
         image: ({
           value,
-        }: PortableTextTypeComponentOptions<PortableTextImage>) => {
+        }: PortableTextTypeComponentOptions<PortableTextImage>) => { // TODO: extend type to be more accurate
           return customResolvers.image
             ? customResolvers.image(value)
             : resolveImage(value, toHTMLImageDefault);

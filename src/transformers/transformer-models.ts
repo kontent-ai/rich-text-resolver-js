@@ -6,7 +6,14 @@ import {
   PortableTextSpan,
 } from "@portabletext/types";
 
-import { allElements, blockElements, ignoredElements, markElements, textStyleElements } from "../index.js";
+import {
+  blockElements,
+  ignoredElements,
+  listTypeElements,
+  markElements,
+  textStyleElements,
+  validElements,
+} from "../index.js";
 
 /**
  * A reference to various Kontent.ai objects in rich text
@@ -31,6 +38,10 @@ export interface AssetReference extends Reference {
    * Alternate image text.
    */
   alt?: string;
+  /**
+   * Type of reference (codename, id or external id)
+   */
+  referenceType?: "codename" | "external-id" | "id"; // TODO: add referenceType to image block, check API output when asset is added via <figure> element alone
 }
 
 /**
@@ -68,10 +79,6 @@ export interface PortableTextImage extends ArbitraryTypedObject {
 export interface PortableTextTable extends ArbitraryTypedObject {
   _type: "table";
   /**
-   * The number of columns the table has.
-   */
-  numColumns: number;
-  /**
    * Array of table row objects.
    */
   rows: PortableTextTableRow[];
@@ -94,14 +101,9 @@ export interface PortableTextTableRow extends ArbitraryTypedObject {
 export interface PortableTextTableCell extends ArbitraryTypedObject {
   _type: "cell";
   /**
-   * Number of blocks that belong to a table cell.
-   * Helps with table resolution.
-   */
-  childBlocksCount: number;
-  /**
    * All blocks belonging to a cell.
    */
-  content: PortableTextBlock[];
+  content: PortableTextItem[];
 }
 
 /**
@@ -202,5 +204,6 @@ export type TextStyleElement = typeof textStyleElements[number];
 export type BlockElement = typeof blockElements[number];
 export type IgnoredElement = typeof ignoredElements[number];
 export type MarkElement = typeof markElements[number];
-export type ValidElement = typeof allElements[number];
+export type ValidElement = typeof validElements[number];
+export type ListTypeElement = typeof listTypeElements[number];
 export type ShortGuid = string;
