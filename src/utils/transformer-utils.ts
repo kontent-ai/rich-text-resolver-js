@@ -7,8 +7,7 @@ import {
 } from "@portabletext/types";
 import ShortUniqueId from "short-unique-id";
 
-import { isElement } from "../index.js";
-import { DomHtmlNode, DomNode, DomTextNode } from "../parser/index.js";
+import { DomNode } from "../parser/index.js";
 import {
   ModularContentType,
   PortableTextComponentOrItem,
@@ -16,7 +15,6 @@ import {
   PortableTextImage,
   PortableTextItem,
   PortableTextItemLink,
-  PortableTextLink,
   PortableTextMark,
   PortableTextObject,
   PortableTextStrictBlock,
@@ -29,23 +27,47 @@ import {
   TextStyleElement,
 } from "../transformers/index.js";
 
-export type TransformLinkFunction<TElementAttributes = Record<string, string | undefined>> = (
-  node: DomHtmlNode<TElementAttributes>,
-) => [PortableTextLink, PortableTextMark];
-export type TransformElementFunction<TElementAttributes = Record<string, string | undefined>> = (
-  node: DomHtmlNode<TElementAttributes>,
-) => PortableTextItem[];
-export type TransformListItemFunction = (
-  node: DomHtmlNode,
-  depth: number,
-  listType: PortableTextListItemType,
-) => PortableTextStrictListItemBlock[];
-export type TransformTextFunction = (node: DomTextNode) => PortableTextSpan;
-export type TransformTableCellFunction = (node: DomHtmlNode) => PortableTextItem[];
-export type TransformFunction = TransformElementFunction<any> | TransformListItemFunction;
+export type ResolverFunction<T extends ArbitraryTypedObject> = (
+  value: T,
+) => string;
 
-export type MergePortableTextItemsFunction = (itemsToMerge: ReadonlyArray<PortableTextItem>) => PortableTextItem[];
-export type ResolverFunction<T extends ArbitraryTypedObject> = (value: T) => string;
+export type TransformNodeFunction<T extends DomNode, U, V> = (
+  node: T,
+  processedItems: V[],
+  context?: U,
+) => V[];
+
+/**
+ * Recursively traverses an array of `DomNode` elements, transforming each node using the provided `transform` function.
+ * You can optionally provide a context object and a handler to update it before a node is processed.
+ *
+ * @template TContext - The type of the context object used during traversal.
+ *
+ * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
+ * @param {TransformNodeFunction<DomNode, TContext, any>} transform - The function applied to each node to transform it.
+ * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler` empty object by default.
+ * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
+ *
+ * @returns {ReturnType<typeof transform>} - The transformed result after applying the `transform` function to all nodes.
+ *
+ * @remarks
+ * - The function traverses the nodes in a depth-first manner.
+ * - If a `contextHandler` is provided, it **clones** and updates the context before passing it to child nodes traversal.
+ */
+export const traverseAndTransformNodes = <TContext>(
+  nodes: DomNode[],
+  transform: TransformNodeFunction<DomNode, TContext, any>,
+  context: TContext = {} as TContext,
+  contextHandler?: (node: DomNode, context: TContext) => TContext,
+): ReturnType<typeof transform> =>
+  nodes.flatMap(node => {
+    const updatedContext = contextHandler?.(node, context) ?? {...context};
+    const children = node.type === "tag"
+      ? traverseAndTransformNodes(node.children, transform, updatedContext, contextHandler)
+      : [];
+
+    return transform(node, children, updatedContext);
+  });
 
 /**
  * Recursively traverses and optionally transforms a Portable Text structure using a provided
@@ -84,26 +106,6 @@ export const traversePortableText = <
   });
 };
 
-/**
- * Recursively traverses a tree of DomNodes, applies a transformation callback to each node,
- * and returns a flattened array of transformed items.
- *
- * @param nodes - The array of DomNodes to traverse.
- * @param callback - A function that transforms a DomNode into a desired type T. Returns null or undefined to skip the node.
- * @returns An array of transformed items of type T.
- */
-export const traverseJsonTree = <T>(
-  nodes: DomNode[],
-  callback: (node: DomNode) => T | null | undefined,
-): T[] =>
-  nodes.flatMap((node) => {
-    const transformed = callback(node);
-    const children = isElement(node)
-      ? traverseJsonTree(node.children, callback)
-      : [];
-    return transformed ? [transformed, ...children] : children;
-  });
-
 export const createSpan = (
   guid: ShortGuid,
   marks?: string[],
@@ -130,8 +132,8 @@ export const createBlock = (
 
 export const createListBlock = (
   guid: ShortGuid,
-  level: number,
-  listItem: PortableTextListItemType,
+  level?: number,
+  listItem?: PortableTextListItemType,
   markDefs?: PortableTextMarkDefinition[],
   style?: string,
   children?: PortableTextSpan[],
@@ -140,12 +142,17 @@ export const createListBlock = (
   _key: guid,
   markDefs: markDefs || [],
   level: level,
-  listItem: listItem,
+  listItem: listItem ?? "unknown",
   style: style || "normal",
   children: children || [],
 });
 
-export const createImageBlock = (guid: ShortGuid, reference: string, url: string, alt?: string): PortableTextImage => ({
+export const createImageBlock = (
+  guid: ShortGuid,
+  reference: string,
+  url: string,
+  alt?: string,
+): PortableTextImage => ({
   _type: "image",
   _key: guid,
   asset: {
@@ -154,16 +161,6 @@ export const createImageBlock = (guid: ShortGuid, reference: string, url: string
     url,
     alt,
   },
-});
-
-export const createTableBlock = (
-  guid: ShortGuid,
-  columns: number,
-): PortableTextTable => ({
-  _type: "table",
-  _key: guid,
-  numColumns: columns,
-  rows: [],
 });
 
 export const createExternalLink = (
@@ -189,28 +186,26 @@ export const createItemLink = (
 
 export const createTable = (
   guid: ShortGuid,
-  numColumns: number,
+  rows?: PortableTextTableRow[],
 ): PortableTextTable => ({
   _key: guid,
   _type: "table",
-  numColumns: numColumns,
-  rows: [],
+  rows: rows ?? [],
 });
 
-export const createTableRow = (guid: ShortGuid): PortableTextTableRow => ({
+export const createTableRow = (guid: ShortGuid, cells?: PortableTextTableCell[]): PortableTextTableRow => ({
   _key: guid,
   _type: "row",
-  cells: [],
+  cells: cells ?? [],
 });
 
 export const createTableCell = (
   guid: ShortGuid,
-  childCount: number,
+  content?: PortableTextItem[],
 ): PortableTextTableCell => ({
   _key: guid,
   _type: "cell",
-  content: [],
-  childBlocksCount: childCount,
+  content: content ?? [],
 });
 
 export const createMark = (
@@ -234,15 +229,6 @@ export const createComponentOrItemBlock = (
   dataType,
   component: reference,
 });
-
-export const compose = <T>(
-  firstFunction: (argument: T) => T,
-  ...functions: ReadonlyArray<(argument: T) => T>
-) =>
-  functions.reduce(
-    (previousFunction, nextFunction) => (value) => previousFunction(nextFunction(value)),
-    firstFunction,
-  );
 
 export const getAllNewLineAndWhiteSpace = /\n\s*/g;
 

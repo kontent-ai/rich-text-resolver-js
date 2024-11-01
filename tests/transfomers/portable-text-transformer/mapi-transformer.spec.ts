@@ -104,6 +104,50 @@ describe("portabletext to MAPI resolver", () => {
     const secondParsePortableText = transformToPortableText(secondParseTree);
     const secondParseMapiFormat = toManagementApiFormat(secondParsePortableText);
 
+    expect(portableText).toMatchInlineSnapshot(`
+[
+  {
+    "_key": "guid",
+    "_type": "block",
+    "children": [
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "strong",
+        ],
+        "text": "strong text ",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "strong",
+          "guid",
+        ],
+        "text": "example strong link text",
+      },
+      {
+        "_key": "guid",
+        "_type": "span",
+        "marks": [
+          "guid",
+        ],
+        "text": "not strong link text",
+      },
+    ],
+    "markDefs": [
+      {
+        "_key": "guid",
+        "_type": "link",
+        "href": "https://example.com",
+      },
+    ],
+    "style": "normal",
+  },
+]
+`);
+
     expect(mapiFormat).toMatchInlineSnapshot(
       `"<p><strong>strong text <a href="https://example.com">example strong link text</a></strong><a href="https://example.com">not strong link text</a></p>"`,
     );
@@ -112,6 +156,6 @@ describe("portabletext to MAPI resolver", () => {
     expect(portableText).not.toEqual(secondParsePortableText);
 
     // duplicate markdefinition
-    expect(secondParsePortableText[0].markDefs[0]).toEqual(secondParsePortableText[0].markDefs[1]);
+    expect(secondParsePortableText[0].markDefs[0]).toEqual(secondParsePortableText[0].markDefs[1]); // TODO: fix types
   });
 });

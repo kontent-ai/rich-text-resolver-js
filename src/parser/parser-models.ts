@@ -73,6 +73,8 @@ export type ImgElementAttributes = {
   src: string;
   "data-asset-id": string;
   "data-image-id"?: string;
+  "data-asset-codename"?: string;
+  "data-asset-external-id"?: string; // TODO: ensure all potential attributes are accounted for
   alt?: string;
 };
 
