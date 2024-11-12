@@ -17,7 +17,7 @@ export const resolveTable = (
   resolver: (value: PortableTextBlock[]) => string,
 ) => {
   const renderCell = (cell: PortableTextTableCell) => {
-    const cellContent = resolver(cell.content);
+    const cellContent = resolver(cell.content); // TODO: fix types
     return vueRenderFunction("td", {}, cellContent);
   };
 
