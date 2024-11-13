@@ -1,11 +1,4 @@
-import {
-  browserParse,
-  nodeParse,
-  PortableTextItem,
-  PortableTextObject,
-  transformToPortableText,
-  traversePortableText,
-} from "../../../src";
+import { browserParse, nodeParse, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
@@ -397,5 +390,11 @@ describe("Portable Text Transformer", () => {
 
   it("transforms list with two items", () => {
     transformAndCompare("<ul><li>first</li><li>second</li></ul>");
+  });
+
+  it("transforms table cell with text and image", () => {
+    transformAndCompare(
+      "<table><tbody><tr><td><figure data-asset-id=\"521428d2-87fd-4d72-8cff-e4d090a5d109\" data-image-id=\"521428d2-87fd-4d72-8cff-e4d090a5d109\"><img src=\"https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/fd9202fe-84f9-43ee-b990-152269df9d75/Screenshot%202022-06-01%20134556.jpg\" data-asset-id=\"521428d2-87fd-4d72-8cff-e4d090a5d109\" data-image-id=\"521428d2-87fd-4d72-8cff-e4d090a5d109\" alt=\"\"></figure>\n<p>c</p></td></tr></tbody></table>",
+    );
   });
 });

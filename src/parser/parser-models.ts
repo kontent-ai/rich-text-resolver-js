@@ -45,6 +45,7 @@ type DeliverObjectElementAttributes = {
   "data-type": "item";
   "data-codename": string;
   "data-id": never;
+  "data-external-id": never;
 };
 
 type ManagementObjectElementAttributes = {
@@ -52,6 +53,7 @@ type ManagementObjectElementAttributes = {
   "data-type": "item" | "component";
   "data-id": string;
   "data-codename": never;
+  "data-external-id"?: string;
 };
 
 export type AssetLinkElementAttributes = {

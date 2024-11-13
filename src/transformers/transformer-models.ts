@@ -24,6 +24,10 @@ export interface Reference extends ArbitraryTypedObject {
    * An identifier of the referenced object
    */
   _ref: string;
+  /**
+   * Type of reference (codename, id or external id)
+   */
+  referenceType?: "codename" | "external-id" | "id";
 }
 
 /**
@@ -38,10 +42,6 @@ export interface AssetReference extends Reference {
    * Alternate image text.
    */
   alt?: string;
-  /**
-   * Type of reference (codename, id or external id)
-   */
-  referenceType?: "codename" | "external-id" | "id"; // TODO: add referenceType to image block, check API output when asset is added via <figure> element alone
 }
 
 /**

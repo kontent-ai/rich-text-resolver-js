@@ -45,10 +45,10 @@ export type TransformNodeFunction<T extends DomNode, U, V> = (
  *
  * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
  * @param {TransformNodeFunction<DomNode, TContext, any>} transform - The function applied to each node to transform it.
- * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler` empty object by default.
+ * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
  *
- * @returns {ReturnType<typeof transform>} - The transformed result after applying the `transform` function to all nodes.
+ * @returns {ReturnType<typeof transform>} The transformed result after applying the `transform` function to all nodes.
  *
  * @remarks
  * - The function traverses the nodes in a depth-first manner.
@@ -61,7 +61,7 @@ export const traverseAndTransformNodes = <TContext>(
   contextHandler?: (node: DomNode, context: TContext) => TContext,
 ): ReturnType<typeof transform> =>
   nodes.flatMap(node => {
-    const updatedContext = contextHandler?.(node, context) ?? {...context};
+    const updatedContext = contextHandler?.(node, context) ?? { ...context };
     const children = node.type === "tag"
       ? traverseAndTransformNodes(node.children, transform, updatedContext, contextHandler)
       : [];
@@ -152,6 +152,7 @@ export const createImageBlock = (
   reference: string,
   url: string,
   alt?: string,
+  referenceType?: "codename" | "external-id" | "id",
 ): PortableTextImage => ({
   _type: "image",
   _key: guid,
@@ -160,6 +161,7 @@ export const createImageBlock = (
     _ref: reference,
     url,
     alt,
+    referenceType,
   },
 });
 

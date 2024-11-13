@@ -87,6 +87,7 @@ exports[`Portable Text Transformer extends component block with additional data 
     "component": {
       "_ref": "test_item",
       "_type": "reference",
+      "referenceType": "codename",
     },
     "dataType": "link",
   },
@@ -360,6 +361,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
     "component": {
       "_ref": "n27ec1626_93ac_0129_64e5_1beeda45416c",
       "_type": "reference",
+      "referenceType": "codename",
     },
     "dataType": "component",
   },
@@ -383,6 +385,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
     "component": {
       "_ref": "commercet",
       "_type": "reference",
+      "referenceType": "codename",
     },
     "dataType": "link",
   },
@@ -411,6 +414,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
     "component": {
       "_ref": "d6a10cb4-3639-429f-b6b0-b7fea6dec252",
       "_type": "reference",
+      "referenceType": "id",
     },
     "dataType": "component",
   },
@@ -434,6 +438,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
     "component": {
       "_ref": "99e17fe7-a215-400d-813a-dc3608ee0294",
       "_type": "reference",
+      "referenceType": "id",
     },
     "dataType": "item",
   },
@@ -506,6 +511,7 @@ exports[`Portable Text Transformer transforms asset from MAPI 1`] = `
       "_ref": "62ba1f17-13e9-43c0-9530-6b44e38097fc",
       "_type": "reference",
       "alt": undefined,
+      "referenceType": "id",
       "url": "#",
     },
   },
@@ -886,6 +892,7 @@ exports[`Portable Text Transformer transforms complex rich text into portable te
     "component": {
       "_ref": "test_item",
       "_type": "reference",
+      "referenceType": "codename",
     },
     "dataType": "link",
   },
@@ -975,6 +982,7 @@ exports[`Portable Text Transformer transforms images 1`] = `
       "_ref": "7d866175-d3db-4a02-b0eb-891fb06b6ab0",
       "_type": "reference",
       "alt": "",
+      "referenceType": "id",
       "url": "https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg",
     },
   },
@@ -1289,6 +1297,54 @@ exports[`Portable Text Transformer transforms simplest list 1`] = `
     "listItem": "bullet",
     "markDefs": [],
     "style": "normal",
+  },
+]
+`;
+
+exports[`Portable Text Transformer transforms table cell with text and image 1`] = `
+[
+  {
+    "_key": "guid",
+    "_type": "table",
+    "rows": [
+      {
+        "_key": "guid",
+        "_type": "row",
+        "cells": [
+          {
+            "_key": "guid",
+            "_type": "cell",
+            "content": [
+              {
+                "_key": "guid",
+                "_type": "image",
+                "asset": {
+                  "_ref": "521428d2-87fd-4d72-8cff-e4d090a5d109",
+                  "_type": "reference",
+                  "alt": "",
+                  "referenceType": "id",
+                  "url": "https://assets-us-01.kc-usercontent.com:443/cec32064-07dd-00ff-2101-5bde13c9e30c/fd9202fe-84f9-43ee-b990-152269df9d75/Screenshot%202022-06-01%20134556.jpg",
+                },
+              },
+              {
+                "_key": "guid",
+                "_type": "block",
+                "children": [
+                  {
+                    "_key": "guid",
+                    "_type": "span",
+                    "marks": [],
+                    "text": "c",
+                  },
+                ],
+                "markDefs": [],
+                "style": "normal",
+              },
+            ],
+          },
+        ],
+      },
+    ],
   },
 ]
 `;
@@ -1621,6 +1677,7 @@ exports[`Portable Text Transformer transforms tables with input <p>Text</p>
       "_ref": "8c35b61a-8fcb-4089-a576-5a5e7a158bf2",
       "_type": "reference",
       "alt": "",
+      "referenceType": "id",
       "url": "https://example.com/image.png",
     },
   },
@@ -1853,6 +1910,7 @@ exports[`Portable Text Transformer transforms tables with input <p>Text</p>
                   "_ref": "8c35b61a-8fcb-4089-a576-5a5e7a158bf2",
                   "_type": "reference",
                   "alt": "",
+                  "referenceType": "id",
                   "url": "https://example.com/image.png",
                 },
               },
@@ -2897,6 +2955,7 @@ exports[`Portable Text Transformer transforms tables with input <table>
                   "_ref": "bb79f32d-4fed-4d46-bec3-71b1c285ca30",
                   "_type": "reference",
                   "alt": "",
+                  "referenceType": "id",
                   "url": "https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/2af0a87f-d750-4f6c-b6ff-8f895fa7d235/scalpel_blade_12.jpg",
                 },
               },
@@ -2939,6 +2998,7 @@ exports[`Portable Text Transformer transforms tables with input <table>
                   "_ref": "f6827ddf-7b07-49c3-819d-5270f1ac0164",
                   "_type": "reference",
                   "alt": "",
+                  "referenceType": "id",
                   "url": "https://qa-preview-assets-eu-01.devkontentmasters.com:443/0a12060e-20af-0124-a95d-871d26379561/653b1fc7-466a-4d91-945a-964ae4f9570a/scalpel_blade_11.jpg",
                 },
               },

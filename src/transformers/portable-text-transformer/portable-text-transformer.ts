@@ -47,6 +47,7 @@ import {
   isValidElement,
   randomUUID,
   textStyleElements,
+  throwError,
   TransformNodeFunction,
   traverseAndTransformNodes,
 } from "../../utils/index.js";
@@ -54,6 +55,11 @@ import {
 type ListContext = {
   depth: number;
   type: "number" | "bullet" | "unknown";
+};
+
+type ReferenceData = {
+  reference: string;
+  refType: "id" | "external-id" | "codename";
 };
 
 type NodeToPortableText<T extends DomNode> = TransformNodeFunction<T, ListContext, PortableTextItem>;
@@ -99,6 +105,23 @@ const categorizeItems = (items: PortableTextItem[]) =>
     },
   );
 
+const getReferenceData = (attributes: Record<string, string | undefined>): ReferenceData | undefined => {
+  const refAttributeTypes = [
+    { attr: "data-asset-id", refType: "id" },
+    { attr: "data-asset-external-id", refType: "external-id" },
+    { attr: "data-asset-codename", refType: "codename" },
+    { attr: "data-id", refType: "id" },
+    { attr: "data-external-id", refType: "external-id" },
+    { attr: "data-codename", refType: "codename" },
+  ] as const;
+
+  const refInfo = refAttributeTypes.find(({ attr }) => attributes[attr]);
+
+  return refInfo
+    ? { reference: attributes[refInfo.attr]!, refType: refInfo.refType }
+    : undefined;
+};
+
 const updateListContext = (node: DomNode, context: ListContext): ListContext =>
   (isElement(node) && isListBlock(node))
     ? { depth: context.depth + 1, type: node.tagName === "ol" ? "number" : "bullet" }
@@ -129,11 +152,7 @@ const transformListItem: NodeToPortableText<DomHtmlNode> = (_, processedItems, l
 };
 
 const transformBlockElement: NodeToPortableText<DomHtmlNode> = (node, processedItems) => {
-  const {
-    spans,
-    links,
-    contentItemLinks,
-  } = categorizeItems(processedItems);
+  const { spans, links, contentItemLinks } = categorizeItems(processedItems);
 
   return [
     createBlock(randomUUID(), [...links, ...contentItemLinks], node.tagName === "p" ? "normal" : node.tagName, spans),
@@ -141,11 +160,7 @@ const transformBlockElement: NodeToPortableText<DomHtmlNode> = (node, processedI
 };
 
 const transformMarkElement: NodeToPortableText<DomHtmlNode> = (node, processedItems) => {
-  const {
-    links,
-    contentItemLinks,
-    spans,
-  } = categorizeItems(processedItems);
+  const { links, contentItemLinks, spans } = categorizeItems(processedItems);
 
   const key = randomUUID();
   const mark = isExternalLink(node)
@@ -161,39 +176,57 @@ const transformMarkElement: NodeToPortableText<DomHtmlNode> = (node, processedIt
   return [...updatedSpans, ...links, ...contentItemLinks];
 };
 
-const transformImage: NodeToPortableText<DomHtmlNode<ImgElementAttributes>> = (node) => [
-  createImageBlock(
-    randomUUID(),
-    node.attributes["data-asset-id"],
-    node.attributes["src"],
-    node.attributes["alt"],
-  ),
-];
+const transformImage: NodeToPortableText<DomHtmlNode<ImgElementAttributes>> = (node) => {
+  /**
+   * data-asset-id is present in both MAPI and DAPI, unlike data-image-id, which is unique to DAPI, despite both having identical value.
+   * although assets in rich text can also be referenced by external-id or codename, only ID is always returned in the response.
+   * if a user plans to transform portable text to mapi compatible HTML format, codenames and ext-ids need to be taken into account anyway though.
+   */
+  const referenceData = getReferenceData(node.attributes)
+    ?? throwError("Error transforming <img> tag: Missing a valid asset reference.");
+  const { reference, refType } = referenceData;
+
+  return [
+    createImageBlock(
+      randomUUID(),
+      reference,
+      node.attributes["src"],
+      node.attributes["alt"],
+      refType,
+    ),
+  ];
+};
 
 const transformLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElementAttributes>> = (node) => {
+  const referenceData = getReferenceData(node.attributes)
+    ?? throwError("Error transforming <object> tag: Missing a valid item or component reference.");
+  const { reference, refType } = referenceData;
+
   const itemComponentReference: Reference = {
     _type: "reference",
-    _ref: node.attributes["data-codename"] || node.attributes["data-id"],
+    _ref: reference,
+    referenceType: refType,
   };
-  const modularContentType = node.attributes["data-rel"] ?? node.attributes["data-type"];
 
-  return [createComponentOrItemBlock(randomUUID(), itemComponentReference, modularContentType)];
+  // data-rel and data-type specify whether an object is a component or linked item in DAPI and MAPI respectively
+  return [
+    createComponentOrItemBlock(
+      randomUUID(),
+      itemComponentReference,
+      node.attributes["data-rel"] ?? node.attributes["data-type"],
+    ),
+  ];
 };
 
 const transformTableCell: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
-  const {
-    links,
-    contentItemLinks,
-    spans,
-  } = categorizeItems(processedItems);
+  const { links, contentItemLinks, spans } = categorizeItems(processedItems);
 
-  if (!spans.length) {
-    return [createTableCell(randomUUID(), processedItems)];
-  }
-  // in case there are orphaned spans (can happen as table cell content can be directly text, without any enclosing block tag such as <p>)
-  const block = createBlock(randomUUID(), [...links, ...contentItemLinks], "normal", spans);
+  // If there are spans, wrap them in a block; otherwise, return processed items directly in a table cell
+  const cellContent = spans.length
+    ? [createBlock(randomUUID(), [...links, ...contentItemLinks], "normal", spans)]
+    : processedItems;
 
-  return [createTableCell(randomUUID(), [block])];
+  return [createTableCell(randomUUID(), cellContent)];
 };
 
 const transformTableRow: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
@@ -220,7 +253,7 @@ const toPortableText: NodeToPortableText<DomNode> = (node, processedItems, listC
     ? transformText(node, processedItems)
     : isValidElement(node)
     ? transformElement(node, processedItems, listContext)
-    : [];
+    : throwError(`Unsupported tag encountered: ${node.tagName}`);
 
 /**
  * Transforms a parsed tree into an array of Portable Text Blocks.
