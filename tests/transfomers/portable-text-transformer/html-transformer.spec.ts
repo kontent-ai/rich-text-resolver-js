@@ -189,4 +189,10 @@ describe("HTML transformer", () => {
       customResolvers,
     );
   });
+
+  it("resolves styled text with line breaks", () => {
+    transformAndCompare(
+      "</p>\n<p><strong>Strong text with line break<br>\nStrong text with line break</strong></p>",
+    );
+  });
 });
