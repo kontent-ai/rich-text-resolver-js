@@ -13,7 +13,6 @@ import {
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
-  PortableTextItem,
   PortableTextItemLink,
   PortableTextMark,
   PortableTextObject,
@@ -51,7 +50,7 @@ export type TransformNodeFunction<T extends DomNode, U, V> = (
  * @returns {ReturnType<typeof transform>} The transformed result after applying the `transform` function to all nodes.
  *
  * @remarks
- * - The function traverses the nodes in a depth-first manner.
+ * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it **clones** and updates the context before passing it to child nodes traversal.
  */
 export const traverseAndTransformNodes = <TContext>(
@@ -203,7 +202,7 @@ export const createTableRow = (guid: ShortGuid, cells?: PortableTextTableCell[])
 
 export const createTableCell = (
   guid: ShortGuid,
-  content?: PortableTextItem[],
+  content?: PortableTextObject[],
 ): PortableTextTableCell => ({
   _key: guid,
   _type: "cell",

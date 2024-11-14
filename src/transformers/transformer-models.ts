@@ -103,7 +103,7 @@ export interface PortableTextTableCell extends ArbitraryTypedObject {
   /**
    * All blocks belonging to a cell.
    */
-  content: PortableTextItem[];
+  content: PortableTextObject[];
 }
 
 /**

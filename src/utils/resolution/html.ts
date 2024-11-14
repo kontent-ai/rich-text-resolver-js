@@ -1,21 +1,25 @@
-import { PortableTextBlock } from "@portabletext/types";
-
-import { PortableTextImage, PortableTextTable, PortableTextTableCell, PortableTextTableRow } from "../../index.js";
+import {
+  PortableTextImage,
+  PortableTextObject,
+  PortableTextTable,
+  PortableTextTableCell,
+  PortableTextTableRow,
+} from "../../index.js";
 
 /**
  * Renders a portable text table to HTML.
  *
  * @param {PortableTextTable} table - The portable text table object to render.
- * @param {(value: PortableTextBlock[]) => string} resolver - A function that resolves
+ * @param {(value: PortableTextObject[]) => string} resolver - A function that resolves
  *        the content of each cell in the table.
  * @returns {string} The rendered table as an HTML string.
  */
 export const resolveTable = (
   table: PortableTextTable,
-  resolver: (value: PortableTextBlock[]) => string,
+  resolver: (value: PortableTextObject[]) => string,
 ) => {
   const renderCell = (cell: PortableTextTableCell) => {
-    const cellContent = resolver(cell.content); // TODO: fix types
+    const cellContent = resolver(cell.content);
     return `<td>${cellContent}</td>`;
   };
 
