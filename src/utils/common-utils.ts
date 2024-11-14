@@ -62,15 +62,15 @@ export const isNestedImg = (node?: DomNode): node is DomHtmlNode<ImgElementAttri
   && node.attributes["data-asset-id"] !== undefined;
 
 /**
- * Recursively counts the number of text nodes within a given DOM node and all of its descendants.
+ * Recursively counts the number of text nodes and line breaks within a given DOM node and all of its descendants.
  *
  * @param node - Node to start counting from
  * @returns The total number of text nodes found within the provided node and its children
  */
-export const countChildTextNodes = (node: DomNode): number =>
-  node.type === "text"
+export const countChildTextNodesAndLineBreaks = (node: DomNode): number =>
+  node.type === "text" || node.tagName === "br"
     ? 1
-    : node.children.reduce((count, child) => count + countChildTextNodes(child), 0);
+    : node.children.reduce((count, child) => count + countChildTextNodesAndLineBreaks(child), 0);
 
 export const throwError = (msg: string) => {
   throw new Error(msg);

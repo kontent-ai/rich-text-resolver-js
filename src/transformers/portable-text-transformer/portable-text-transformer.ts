@@ -26,7 +26,7 @@ import {
 import {
   blockElements,
   compose,
-  countChildTextNodes,
+  countChildTextNodesAndLineBreaks,
   createBlock,
   createComponentBlock,
   createExternalLink,
@@ -294,7 +294,7 @@ const transformLink: TransformLinkFunction = (node) => {
     ? createItemLink(linkId, node.attributes["data-item-id"])
     : createExternalLink(linkId, node.attributes);
 
-  const mark = createMark(randomUUID(), link._key, countChildTextNodes(node));
+  const mark = createMark(randomUUID(), link._key, countChildTextNodesAndLineBreaks(node));
 
   return [link, mark];
 };
@@ -325,7 +325,7 @@ const transformBlock: TransformElementFunction = (
 
 const transformTextMark: TransformElementFunction = (
   node,
-) => [createMark(randomUUID(), node.tagName as TextStyleElement, countChildTextNodes(node))];
+) => [createMark(randomUUID(), node.tagName as TextStyleElement, countChildTextNodesAndLineBreaks(node))];
 
 const transformLineBreak: TransformElementFunction = () => [createSpan(randomUUID(), [], "\n")];
 
