@@ -1,24 +1,11 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import {
-  PortableText,
-  PortableTextMarkComponentProps,
-  PortableTextReactComponents,
-  PortableTextTypeComponentProps,
-  toPlainText,
-} from "@portabletext/react";
+import { PortableText, toPlainText } from "@portabletext/react";
 import React from "react";
 import TestRenderer from "react-test-renderer";
 
-import {
-  nodeParse,
-  PortableTextComponentOrItem,
-  PortableTextExternalLink,
-  PortableTextImage,
-  PortableTextItemLink,
-  PortableTextTable,
-  transformToPortableText,
-} from "../../src";
+import { nodeParse, transformToPortableText } from "../../src";
 import { resolveImage, resolveTable, toHTMLImageDefault } from "../../src/utils/resolution/html";
+import { PortableTextReactResolvers } from "../../src/utils/resolution/react";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",
@@ -52,23 +39,23 @@ const dummyRichText: Elements.RichTextElement = {
   name: "dummy",
 };
 
-const portableTextComponents: Partial<PortableTextReactComponents> = {
+const portableTextComponents: PortableTextReactResolvers = {
   types: {
-    componentOrItem: ({ value }: PortableTextTypeComponentProps<PortableTextComponentOrItem>) => {
+    componentOrItem: ({ value }) => {
       const item = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
-    table: ({ value }: PortableTextTypeComponentProps<PortableTextTable>) => {
+    table: ({ value }) => {
       const tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
     },
-    image: ({ value }: PortableTextTypeComponentProps<PortableTextImage>) => {
+    image: ({ value }) => {
       const imageString = resolveImage(value, toHTMLImageDefault);
       return <>{imageString}</>;
     },
   },
   marks: {
-    link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
+    link: ({ value, children }) => {
       const target = (value?.href || "").startsWith("http") ? "_blank" : undefined;
       return (
         <a
@@ -82,7 +69,7 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
         </a>
       );
     },
-    contentItemLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextItemLink>) => {
+    contentItemLink: ({ value, children }) => {
       const item = dummyRichText.linkedItems.find(item => item.system.id === value?.reference._ref);
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>

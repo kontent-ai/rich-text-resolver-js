@@ -1,10 +1,44 @@
 import {
+  PortableTextHtmlComponents,
+  PortableTextMarkComponent,
+  PortableTextOptions,
+  PortableTextTypeComponent,
+} from "@portabletext/to-html";
+
+import {
+  PortableTextComponentOrItem,
+  PortableTextExternalLink,
   PortableTextImage,
+  PortableTextItemLink,
   PortableTextObject,
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
 } from "../../index.js";
+
+type RichTextCustomBlocks = {
+  image: PortableTextTypeComponent<PortableTextImage>;
+  componentOrItem: PortableTextTypeComponent<PortableTextComponentOrItem>;
+  table: PortableTextTypeComponent<PortableTextTable>;
+};
+
+type RichTextCustomMarks = {
+  contentItemLink: PortableTextMarkComponent<PortableTextItemLink>;
+  link: PortableTextMarkComponent<PortableTextExternalLink>;
+};
+
+type RichTextHtmlComponents = Omit<PortableTextHtmlComponents, "types" | "marks"> & {
+  types: PortableTextHtmlComponents["types"] & RichTextCustomBlocks;
+  marks: PortableTextHtmlComponents["marks"] & RichTextCustomMarks;
+};
+
+/**
+ * Extends `PortableTextOptions` type from `toHTML` package with
+ * pre-defined types for resolution of Kontent.ai specific custom objects.
+ */
+export type PortableTextHtmlResolvers = Omit<PortableTextOptions, "components"> & {
+  components: Partial<RichTextHtmlComponents>;
+};
 
 /**
  * Renders a portable text table to HTML.

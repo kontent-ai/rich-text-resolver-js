@@ -1,11 +1,5 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import {
-  escapeHTML,
-  PortableTextMarkComponentOptions,
-  PortableTextOptions,
-  PortableTextTypeComponentOptions,
-  toHTML,
-} from "@portabletext/to-html";
+import { escapeHTML, PortableTextTypeComponentOptions, toHTML } from "@portabletext/to-html";
 
 import {
   browserParse,
@@ -19,7 +13,12 @@ import {
   ResolverFunction,
   transformToPortableText,
 } from "../../../src";
-import { resolveImage, resolveTable, toHTMLImageDefault } from "../../../src/utils/resolution/html";
+import {
+  PortableTextHtmlResolvers,
+  resolveImage,
+  resolveTable,
+  toHTMLImageDefault,
+} from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
@@ -82,12 +81,12 @@ describe("HTML transformer", () => {
   const getPortableTextComponents = (
     element: Elements.RichTextElement,
     customResolvers: CustomResolvers = {},
-  ): PortableTextOptions => ({
+  ): PortableTextHtmlResolvers => ({
     components: {
       types: {
         image: ({
           value,
-        }: PortableTextTypeComponentOptions<PortableTextImage>) => { // TODO: extend type to be more accurate
+        }) => {
           return customResolvers.image
             ? customResolvers.image(value)
             : resolveImage(value, toHTMLImageDefault);
@@ -117,13 +116,13 @@ describe("HTML transformer", () => {
         contentItemLink: ({
           children,
           value,
-        }: PortableTextMarkComponentOptions<PortableTextItemLink>) => {
+        }) => {
           return `<a href="https://website.com/${value?.reference._ref}">${children}</a>`;
         },
         link: ({
           children,
           value,
-        }: PortableTextMarkComponentOptions<PortableTextExternalLink>) => {
+        }) => {
           return `<a href=${escapeHTML(value?.href!)}">${children}</a>`;
         },
       },

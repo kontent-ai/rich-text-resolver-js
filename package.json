@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "1.2.2",
+  "version": "2.0.0-beta",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
@@ -49,6 +49,10 @@
       "import": "./dist/esnext/src/utils/resolution/html.js",
       "require": "./dist/cjs/src/utils/resolution/html.js"
     },
+    "./utils/react": {
+      "import": "./dist/esnext/src/utils/resolution/react.js",
+      "require": "./dist/cjs/src/utils/resolution/react.js"
+    },
     "./utils/mapi": {
       "import": "./dist/esnext/src/utils/resolution/mapi.js",
       "require": "./dist/cjs/src/utils/resolution/mapi.js"
@@ -77,8 +81,6 @@
   },
   "devDependencies": {
     "@kontent-ai/delivery-sdk": "^15.2.0",
-    "@portabletext/react": "^3.1.0",
-    "@portabletext/vue": "^1.0.11",
     "@swc/cli": "0.4.0",
     "@swc/core": "^1.7.40",
     "@swc/jest": "^0.2.36",
@@ -102,6 +104,8 @@
   },
   "dependencies": {
     "@portabletext/to-html": "^2.0.13",
+    "@portabletext/react": "^3.1.0",
+    "@portabletext/vue": "^1.0.11",
     "@portabletext/types": "^2.0.13",
     "node-html-parser": "^6.1.13",
     "short-unique-id": "^5.2.0"

@@ -1,6 +1,10 @@
-import { PortableTextBlock } from "@portabletext/types";
-
-import { PortableTextImage, PortableTextTable, PortableTextTableCell, PortableTextTableRow } from "../../index.js";
+import {
+  PortableTextImage,
+  PortableTextObject,
+  PortableTextTable,
+  PortableTextTableCell,
+  PortableTextTableRow,
+} from "../../index.js";
 
 /**
  * Renders a portable text table to a Vue virtual DOM node.
@@ -14,10 +18,10 @@ import { PortableTextImage, PortableTextTable, PortableTextTableCell, PortableTe
 export const resolveTable = (
   table: PortableTextTable,
   vueRenderFunction: Function,
-  resolver: (value: PortableTextBlock[]) => string,
+  resolver: (value: PortableTextObject[]) => string,
 ) => {
   const renderCell = (cell: PortableTextTableCell) => {
-    const cellContent = resolver(cell.content); // TODO: fix types
+    const cellContent = resolver(cell.content);
     return vueRenderFunction("td", {}, cellContent);
   };
 
@@ -44,7 +48,7 @@ export const resolveImage = (
   image: PortableTextImage,
   vueRenderFunction: Function,
   resolver: (image: PortableTextImage) => VueImage,
-) => vueRenderFunction("img", resolver(image));
+) => vueRenderFunction("img", resolver(image)); // TODO: add resolver as default value
 
 /**
  * Provides a default resolver function for an image object to Vue. This function can be used as
