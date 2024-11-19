@@ -4,7 +4,7 @@ import React from "react";
 import TestRenderer from "react-test-renderer";
 
 import { nodeParse, transformToPortableText } from "../../src";
-import { resolveImage, resolveTable, toHTMLImageDefault } from "../../src/utils/resolution/html";
+import { resolveImage, resolveTable } from "../../src/utils/resolution/html";
 import { PortableTextReactResolvers } from "../../src/utils/resolution/react";
 
 const dummyRichText: Elements.RichTextElement = {
@@ -50,7 +50,7 @@ const portableTextComponents: PortableTextReactResolvers = {
       return <>{tableString}</>;
     },
     image: ({ value }) => {
-      const imageString = resolveImage(value, toHTMLImageDefault);
+      const imageString = resolveImage(value);
       return <>{imageString}</>;
     },
   },

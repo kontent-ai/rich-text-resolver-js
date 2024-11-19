@@ -41,14 +41,15 @@ export const resolveTable = (
  * @param {PortableTextImage} image - The portable text image object to be rendered.
  * @param {Function} vueRenderFunction - A Vue render function, typically the `h` function from Vue.
  * @param {(image: PortableTextImage) => VueImage} resolver - A function that takes an image object
- *        and returns an object with `src` and `alt` properties, and possibly other HTML attributes.
+ *        and returns an object with `src` and `alt` properties, and possibly other HTML attributes. 
+ *        Default implementation provided if not specified.
  * @returns {VueNode} The resolved image as a Vue virtual DOM node.
  */
 export const resolveImage = (
   image: PortableTextImage,
   vueRenderFunction: Function,
-  resolver: (image: PortableTextImage) => VueImage,
-) => vueRenderFunction("img", resolver(image)); // TODO: add resolver as default value
+  resolver: (image: PortableTextImage) => VueImage = toVueImageDefault,
+) => vueRenderFunction("img", resolver(image));
 
 /**
  * Provides a default resolver function for an image object to Vue. This function can be used as

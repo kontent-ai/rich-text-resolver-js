@@ -71,12 +71,12 @@ export const resolveTable = (
  * Resolves an image object to HTML.
  *
  * @param {PortableTextImage} image - The portable text image object to be rendered.
- * @param {(image: PortableTextImage) => string} resolver - A resolver function that returns the image as an HTML string.
+ * @param {(image: PortableTextImage) => string} resolver - A resolver function that returns the image as an HTML string. Default implementation provided if not specified.
  * @returns {string} The resolved image as an HTML string.
  */
 export const resolveImage = (
   image: PortableTextImage,
-  resolver: (image: PortableTextImage) => string,
+  resolver: (image: PortableTextImage) => string = toHTMLImageDefault,
 ): string => resolver(image);
 
 /**

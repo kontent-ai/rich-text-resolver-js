@@ -17,7 +17,6 @@ import {
   PortableTextHtmlResolvers,
   resolveImage,
   resolveTable,
-  toHTMLImageDefault,
 } from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
@@ -89,7 +88,7 @@ describe("HTML transformer", () => {
         }) => {
           return customResolvers.image
             ? customResolvers.image(value)
-            : resolveImage(value, toHTMLImageDefault);
+            : resolveImage(value);
         },
         componentOrItem: ({
           value,

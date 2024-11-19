@@ -3,11 +3,11 @@ import { mount } from "@vue/test-utils";
 import { h } from "vue";
 
 import { nodeParse, PortableTextImage, PortableTextTable, transformToPortableText } from "../../../src";
-import { resolveImage, resolveTable, toVueImageDefault } from "../../../src/utils/resolution/vue";
+import { resolveImage, resolveTable } from "../../../src/utils/resolution/vue";
 
 const components: PortableTextComponents = {
   types: {
-    image: ({ value }: PortableTextComponentProps<PortableTextImage>) => resolveImage(value, h, toVueImageDefault),
+    image: ({ value }: PortableTextComponentProps<PortableTextImage>) => resolveImage(value, h),
     table: ({ value }: PortableTextComponentProps<PortableTextTable>) => resolveTable(value, h, toPlainText),
   },
 };
