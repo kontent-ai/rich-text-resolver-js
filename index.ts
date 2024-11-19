@@ -1,5 +1,5 @@
 export { PortableTextReactResolvers } from './src/utils/resolution/react.js';
-export { traversePortableText } from './src/utils/transformer-utils.js';
+export { traversePortableText, traverseAndTransformNodes, traverseAndTransformNodesAsync } from './src/utils/transformer-utils.js';
 export { transformToJson } from "./src/transformers/json-transformer/json-transformer.js";
 export { transformToPortableText } from "./src/transformers/portable-text-transformer/portable-text-transformer.js";
 export { parse as browserParse } from "./src/parser/browser/rich-text-browser-parser.js";

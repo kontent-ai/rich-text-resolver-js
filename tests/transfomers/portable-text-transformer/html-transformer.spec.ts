@@ -13,11 +13,7 @@ import {
   ResolverFunction,
   transformToPortableText,
 } from "../../../src";
-import {
-  PortableTextHtmlResolvers,
-  resolveImage,
-  resolveTable,
-} from "../../../src/utils/resolution/html";
+import { PortableTextHtmlResolvers, resolveImage, resolveTable } from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
