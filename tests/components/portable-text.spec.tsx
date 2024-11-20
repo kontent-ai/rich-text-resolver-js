@@ -3,7 +3,7 @@ import { PortableText, toPlainText } from "@portabletext/react";
 import React from "react";
 import TestRenderer from "react-test-renderer";
 
-import { nodeParse, transformToPortableText } from "../../src";
+import { nodeParse, nodesToPortableText } from "../../src";
 import { resolveImage, resolveTable } from "../../src/utils/resolution/html";
 import { PortableTextReactResolvers } from "../../src/utils/resolution/react";
 
@@ -84,7 +84,7 @@ describe("portable text React resolver", () => {
   const renderPortableText = (richTextValue: string, components = portableTextComponents) => {
     dummyRichText.value = richTextValue;
     const jsonTree = nodeParse(dummyRichText.value);
-    const portableText = transformToPortableText(jsonTree);
+    const portableText = nodesToPortableText(jsonTree);
     return TestRenderer.create(<PortableText value={portableText} components={components} />).toJSON();
   };
 

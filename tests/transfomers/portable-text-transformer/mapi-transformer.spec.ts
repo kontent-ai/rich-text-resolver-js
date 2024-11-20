@@ -3,7 +3,7 @@ import {
   browserParse,
   nodeParse,
   PortableTextSpan,
-  transformToPortableText,
+  nodesToPortableText,
   traversePortableText,
 } from "../../../src";
 import { toManagementApiFormat } from "../../../src/utils/resolution/mapi";
@@ -27,8 +27,8 @@ describe("portabletext to MAPI resolver", () => {
     const nodeTree = nodeParse(richTextContent);
 
     // Convert the tree to Portable Text
-    const nodePortableText = transformToPortableText(nodeTree);
-    const browserPortableText = transformToPortableText(browserTree);
+    const nodePortableText = nodesToPortableText(nodeTree);
+    const browserPortableText = nodesToPortableText(browserTree);
 
     // Convert Portable Text to MAPI format
     const nodeManagementApiFormat = toManagementApiFormat(nodePortableText);
@@ -36,7 +36,7 @@ describe("portabletext to MAPI resolver", () => {
 
     // Parse the MAPI format back into a tree and convert it to Portable Text
     const secondParseTree = nodeParse(nodeManagementApiFormat);
-    const secondParsePortableText = transformToPortableText(secondParseTree);
+    const secondParsePortableText = nodesToPortableText(secondParseTree);
 
     // Compare the MAPI formats to ensure consistency across platforms
     expect(nodeManagementApiFormat).toEqual(browserManagementApiFormat);
@@ -97,11 +97,11 @@ describe("portabletext to MAPI resolver", () => {
     const richTextContent =
       `<p><strong>strong text </strong><a href="https://example.com"><strong>example strong link text</strong>not strong link text</a></p>`;
     const tree = nodeParse(richTextContent);
-    const portableText = transformToPortableText(tree);
+    const portableText = nodesToPortableText(tree);
     const mapiFormat = toManagementApiFormat(portableText);
 
     const secondParseTree = nodeParse(mapiFormat);
-    const secondParsePortableText = transformToPortableText(secondParseTree);
+    const secondParsePortableText = nodesToPortableText(secondParseTree);
     const secondParseMapiFormat = toManagementApiFormat(secondParsePortableText);
 
     expect(portableText).toMatchInlineSnapshot(`

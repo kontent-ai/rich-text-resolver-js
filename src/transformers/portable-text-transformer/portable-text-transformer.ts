@@ -1,8 +1,12 @@
+import * as runtimeEnvironment from "browser-or-node";
+
 import {
+  browserParse,
   DomHtmlNode,
   DomNode,
   DomTextNode,
   ImgElementAttributes,
+  nodeParse,
   ObjectElementAttributes,
   ParseResult,
 } from "../../parser/index.js";
@@ -260,7 +264,7 @@ const toPortableText: NodeToPortableText<DomNode> = (node, processedItems, listC
  * @param {ParseResult} parsedTree The parsed tree structure representing the rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (
+export const nodesToPortableText = (
   parsedTree: ParseResult,
 ): PortableTextObject[] =>
   traverseAndTransformNodes(
@@ -269,6 +273,22 @@ export const transformToPortableText = (
     { depth: 0, type: "unknown" }, // initialization of list transformation context
     updateListContext,
   ) as PortableTextObject[];
+
+/**
+ * Transforms rich text HTML into an array of Portable Text Blocks.
+ *
+ * @param {string} richText HTML string of Kontent.ai rich text content.
+ * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
+ */
+export const transformToPortableText = (
+  richText: string,
+): PortableTextObject[] => {
+  const parseResult = runtimeEnvironment.isBrowser
+    ? browserParse(richText)
+    : nodeParse(richText);
+
+  return nodesToPortableText(parseResult);
+};
 
 const transformMap: Record<ValidElement, NodeToPortableText<DomHtmlNode<any>>> = {
   ...(Object.fromEntries(

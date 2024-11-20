@@ -1,4 +1,8 @@
-import { PortableTextMarkComponent, PortableTextReactComponents, PortableTextTypeComponent } from "@portabletext/react";
+import {
+  PortableTextMarkComponent,
+  PortableTextReactComponents,
+  PortableTextTypeComponent,
+} from "@portabletext/react";
 
 import {
   PortableTextComponentOrItem,
@@ -28,7 +32,7 @@ export type PortableTextReactResolvers = Partial<
     PortableTextReactComponents,
     "types" | "marks"
   > & {
-    types: PortableTextReactComponents["types"] & RichTextCustomBlocks;
-    marks: PortableTextReactComponents["marks"] & RichTextCustomMarks;
+    types: PortableTextReactComponents["types"] & Partial<RichTextCustomBlocks>;
+    marks: PortableTextReactComponents["marks"] & Partial<RichTextCustomMarks>;
   }
 >;

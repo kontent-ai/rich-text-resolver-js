@@ -4,6 +4,7 @@ import { escapeHTML, PortableTextTypeComponentOptions, toHTML } from "@portablet
 import {
   browserParse,
   nodeParse,
+  nodesToPortableText,
   PortableTextBlock,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
@@ -11,7 +12,6 @@ import {
   PortableTextItemLink,
   PortableTextTable,
   ResolverFunction,
-  transformToPortableText,
 } from "../../../src";
 import { PortableTextHtmlResolvers, resolveImage, resolveTable } from "../../../src/utils/resolution/html";
 
@@ -132,8 +132,8 @@ describe("HTML transformer", () => {
 
     const browserTree = browserParse(richTextInput.value);
     const nodeTree = nodeParse(richTextInput.value);
-    const nodePortableText = transformToPortableText(nodeTree);
-    const browserPortableText = transformToPortableText(browserTree);
+    const nodePortableText = nodesToPortableText(nodeTree);
+    const browserPortableText = nodesToPortableText(browserTree);
     const nodeResult = toHTML(
       nodePortableText,
       getPortableTextComponents(richTextInput, customResolvers),

@@ -1,4 +1,4 @@
-import { browserParse, nodeParse, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
+import { browserParse, nodeParse, nodesToPortableText, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
@@ -18,8 +18,8 @@ describe("Portable Text Transformer", () => {
     const browserTree = browserParse(input);
     const nodeTree = nodeParse(input);
     return {
-      nodeResult: transformToPortableText(nodeTree),
-      browserResult: transformToPortableText(browserTree),
+      nodeResult: nodesToPortableText(nodeTree),
+      browserResult: nodesToPortableText(browserTree),
     };
   };
 
@@ -249,7 +249,7 @@ describe("Portable Text Transformer", () => {
     (parse) => {
       const input = "<p>text in a paragraph</p><div>text in a div, which doesnt exist in kontent RTE</div>";
       const tree = parse(input);
-      expect(() => transformToPortableText(tree)).toThrow();
+      expect(() => nodesToPortableText(tree)).toThrow();
     },
   );
 

@@ -103,10 +103,11 @@
     "vue": "^3.5.12"
   },
   "dependencies": {
-    "@portabletext/to-html": "^2.0.13",
     "@portabletext/react": "^3.1.0",
-    "@portabletext/vue": "^1.0.11",
+    "@portabletext/to-html": "^2.0.13",
     "@portabletext/types": "^2.0.13",
+    "@portabletext/vue": "^1.0.11",
+    "browser-or-node": "^3.0.0",
     "node-html-parser": "^6.1.13",
     "short-unique-id": "^5.2.0"
   },
