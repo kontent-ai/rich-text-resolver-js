@@ -118,7 +118,7 @@ export const traverseAndTransformNodesAsync = async <TContext, V>(
  * does not modify a node, the original node is used.
  *
  * @template T The type of the Portable Text nodes, defaulting to PortableTextObject.
- * @param {T} object - The root node of the Portable Text structure to be traversed.
+ * @param {T[]} nodes - Array of Portable Text objects.
  *   It can be a default Portable Text object or a custom type that extends from it.
  * @param {(object: T) => ArbitraryTypedObject | undefined} callback - A callback function
  *   invoked for each node in the Portable Text structure. It can return a modified version

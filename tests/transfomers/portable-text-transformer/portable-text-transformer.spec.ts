@@ -1,4 +1,4 @@
-import { browserParse, nodeParse, nodesToPortableText, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
+import { browserParse, nodeParse, nodesToPortableText, PortableTextItem, traversePortableText } from "../../../src";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {

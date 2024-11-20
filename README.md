@@ -9,7 +9,7 @@
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
-This package provides you with tools to transform rich text element value from Kontent.ai into a JSON tree and optionally to [portable text standard](https://github.com/portabletext/portabletext).
+This package provides utilities for transforming Kontent.ai rich text into structured formats suitable for resolution and rendering in various environments.
 
 ## Installation
 
@@ -19,60 +19,64 @@ Install the package via npm
 
 ---
 
-## Usage
+## Features
 
-Module provides two functions to parse rich text HTML into a simplified JSON tree: `browserParse` for client-side resolution and `nodeParse` for server-side use with Node.js. Their use is identical, the only difference is the underlying parsing logic.
+### Parsing rich text HTML to a JSON tree
 
-Parsed output can then be passed to a `transformToPortableText` function, which converts the JSON tree into portable text blocks.
-
-Full specification of portable text format can be found in [the corresponding repository](https://github.com/portabletext/portabletext).
-
-> 💡 The intermediate JSON structure can be manipulated before rendering into Portable text or used altogether independently. See [JSON transformer](docs/index.md) docs for further information.
+The tool provides environment-dependent parsers to transform HTML into a simplified JSON tree. Any valid HTML is parsed, including all attributes. Together with built-in traversal and transformation methods, this is a suitable option for processing HTML and rich text from external sources, to make it compatible with Kontent.ai rich text format. See dedicated [JSON transformer docs](docs/index.md) for further information.
 
 ### Portable text resolution
 
-Portable text supports majority of popular languages and frameworks.
+[Portable Text](https://github.com/portabletext/portabletext) is a universal standard for rich text representation, with tools available for its transformation and rendering in majority of popular frameworks and languages:
 
 - React: [react-portabletext](https://github.com/portabletext/react-portabletext)
 - HTML: [to-html](https://github.com/portabletext/to-html)
 - Svelte: [svelte-portabletext](https://github.com/portabletext/svelte-portabletext)
 - Vue: [vue-portabletext](https://github.com/portabletext/vue-portabletext)
+- Astro: [astro-portabletext](https://github.com/theisel/astro-portabletext)
 
-Resolution is described in each corresponding repository. You can also find example resolution below.
+The tool provides `transformToPortableText` function to convert rich text content into an array of Portable Text blocks, with custom blocks defined for Kontent.ai-specific objects.
 
-### Custom portable text blocks
+Combined with a suitable package for the framework of your choice, this makes for an optimal solution for resolving rich text.
 
-Besides default blocks for common elements, Portable text supports custom blocks, which can represent other entities. Each custom block should extend `ArbitraryTypedObject` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should indicate what the block represents. Value of `_type` property is used for subsequent override and resolution purposes. **This package comes with built-in custom block definitions for representing Kontent.ai-specific objects:**
+> [!IMPORTANT]
+> The provided Portable Text transformation functions expect a valid Kontent.ai rich text content, otherwise you risk errors or invalid blocks in the resulting array.
+>
+> It's possible to split the transformation into two steps. Parse HTML into a JSON tree, transform it to valid rich text [according to the specifications](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#section/HTML5-elements-allowed-in-rich-text), then pass it to `nodesToPortableText` function. See [JSON transformer docs](docs/index.md) for more details.
 
-#### Component/linked item
+#### Custom portable text blocks
+
+Besides default blocks for common elements, Portable Text supports custom blocks, which can represent other entities. Each custom block should extend `ArbitraryTypedObject` to ensure `_key` and `_type` properties are present. Key should be a unique identifier (e.g. guid), while type should indicate what the block represents. Value of `_type` property is used for subsequent override and resolution purposes. 
+
+**This package comes with built-in custom block definitions for representing Kontent.ai rich text entities:**
+
+##### Component/linked item
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L3-L11
 
-#### Image
+##### Image
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L13-L22
 
-> 💡 For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations for HTML and Vue, `toHTMLImageDefault` and `toVueImageDefault` respectively.
+> [!TIP] 
+> For image resolution, you may use `resolveImage` helper function. You can provide it either with a custom resolution method or use provided default implementations.
 
-#### Item link
+##### Item link
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L24-L31
 
-#### Table
+##### Table
 
 https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L33-L59
 
-> 💡 For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`)
-
-
-<br>
-
+> [!TIP] 
+> For table resolution, you may use `resolveTable` helper function. You can provide it either with a custom resolution method or use a default implementation from a resolution package of your choice (such as `toHTML` or `toPlainText`).
 
 ## Examples
 
 ### Modifying portable text nodes
 
-Package exports a `traversePortableText` method, which accepts a `PortableTextObject` and a callback function. The method recursively traverses all subnodes and optionally modifies them with the provided callback:
+Package exports a `traversePortableText` method, which accepts an array of `PortableTextObject` and a callback function. The method recursively traverses all nodes and their subnodes, optionally modifying them with the provided callback:
 
 ```ts
     const input = `<figure data-asset-id="guid" data-image-id="guid"><img src="https://asseturl.xyz" data-asset-id="guid" data-image-id="guid" alt=""></figure>`;
@@ -96,7 +100,7 @@ Package exports a `traversePortableText` method, which accepts a `PortableTextOb
     }
 
     const portableText = transformToPortableText(input);
-    const modifiedPortableText = portableText.map(block => traversePortableText(block, processBlocks));
+    const modifiedPortableText = traversePortableText(portableText, processBlocks);
 ```
 
 ### Plain HTML resolution
@@ -104,28 +108,26 @@ Package exports a `traversePortableText` method, which accepts a `PortableTextOb
 HTML resolution using `@portabletext/to-html` package.
 
 ```ts
-import { escapeHTML, PortableTextOptions, toHTML } from "@portabletext/to-html";
+import { toHTML } from "@portabletext/to-html";
 import {
-  browserParse,
   transformToPortableText,
   resolveTable,
   resolveImage,
-  toHTMLImageDefault,
+  PortableTextHtmlResolvers
 } from "@kontent-ai/rich-text-resolver";
 
 const richTextValue = "<rich text html>";
 const linkedItems = ["<array of linked items>"]; // e.g. from SDK
-const parsedTree = browserParse(richTextValue);
-const portableText = transformToPortableText(parsedTree);
+const portableText = transformToPortableText(richTextValue);
 
-const portableTextComponents: PortableTextOptions = {
+const resolvers: PortableTextHtmlResolvers = {
   components: {
     types: {
-      image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => {
+      image: ({ value }) => {
         // helper method for resolving images
-        return resolveImage(value, toHTMLImageDefault); 
+        return resolveImage(value); 
       },
-      component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponent>) => {
+      componentOrItem: ({ value }) => {
         const linkedItem = linkedItems.find(
           (item) => item.system.codename === value.component._ref
         );
@@ -136,26 +138,26 @@ const portableTextComponents: PortableTextOptions = {
           default: {
             return `Resolver for type ${linkedItem?.system.type} not implemented.`;
           }
-        }
+        };
       },
-      table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable> => {
+      table: ({ value }) => {
         // helper method for resolving tables
         const tableHtml = resolveTable(value, toHTML);
         return tableHtml;
       },
     },
     marks: {
-      internalLink: ({ children, value }: PortableTextMarkComponentOptions<PortableTextInternalLink>) => {
+      contentItemLink: ({ children, value }) => {
         return `<a href="https://website.com/${value.reference._ref}">${children}</a>`;
       },
-      link: ({ children, value }: PortableTextMarkComponentOptions<PortableTextExternalLink>) => {
-        return `<a href=${value?.href!} data-new-window=${value["data-new-window"]}>${children}</a>`;
+      link: ({ children, value }) => {
+        return `<a href=${value?.href} data-new-window=${value?.["data-new-window"]}>${children}</a>`;
       },
     },
   },
 };
 
-const resolvedHtml = toHTML(portableText, portableTextComponents);
+const resolvedHtml = toHTML(portableText, resolvers);
 ```
 
 ### React resolution
@@ -163,30 +165,35 @@ const resolvedHtml = toHTML(portableText, portableTextComponents);
 React, using `@portabletext/react` package.
 
 ```tsx
-import { PortableText, PortableTextReactComponents } from "@portabletext/react";
+import { PortableText, toPlainText } from "@portabletext/react";
+import {
+  PortableTextReactResolvers
+  transformToPortableText,
+  resolveTable,
+} from "@kontent-ai/rich-text-resolver";
 
 // assumes richTextElement from SDK
 
-const portableTextComponents: Partial<PortableTextReactComponents> = {
+const resolvers: PortableTextReactResolvers = {
   types: {
-    component: ({ value }: PortableTextTypeComponentProps<PortableTextComponent>) => {
+    componentOrItem: ({ value }) => {
       const item = richTextElement.linkedItems.find(item => item.system.codename === value.component._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
-    table: ({ value }: PortableTextTypeComponentProps<PortableTextTable>) => {
+    table: ({ value }) => {
       const tableString = resolveTable(value, toPlainText);
       return <>{tableString}</>;
     }
   },
   marks: {
-    link: ({ value, children }: PortableTextMarkComponentProps<PortableTextExternalLink>) => {
+    link: ({ value, children }) => {
       return (
         <a href={value?.href} rel={value?.rel} title={value?.title} data-new-window={value?.['data-new-window']}>
           {children}
         </a>
       )
     },
-    internalLink: ({ value, children }: PortableTextMarkComponentProps<PortableTextInternalLink>) => {
+    contentItemLink: ({ value, children }) => {
       const item = richTextElement.linkedItems.find(item => item.system.id === value?.reference._ref);
       return (
         <a href={"https://website.xyz/" + item?.system.codename}>
@@ -199,12 +206,10 @@ const portableTextComponents: Partial<PortableTextReactComponents> = {
 
 const MyComponent = ({ props }) => {
   // https://github.com/portabletext/react-portabletext#customizing-components
-
-  const parsedTree = browserParse(props.element.value); // or nodeParse for SSR
-  const portableText = transformToPortableText(parsedTree);
+  const portableText = transformToPortableText(props.element.value);
 
   return (
-    <PortableText value={portableText} components={portableTextComponents} />
+    <PortableText value={portableText} components={resolvers} />
   );
 };
 ```
@@ -283,7 +288,7 @@ const components: PortableTextComponents = {
   const validManagementApiFormat = toManagementApiFormat(portableText);
 ```
 
-> [!WARNING]  
+> [!IMPORTANT]  
 > MAPI transformation logic expects Portable Text that had been previously created from management API rich text and performs only minimal validation.
 >
 > Transformation from other formats (such as delivery API) is not supported unless the blocks are manually adjusted to be MAPI compatible prior to running the method.

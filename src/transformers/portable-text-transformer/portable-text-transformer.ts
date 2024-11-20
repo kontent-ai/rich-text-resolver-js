@@ -244,12 +244,12 @@ const processTable: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
   return [createTable(randomUUID(), rows)];
 };
 
-const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedItems) => processedItems;
-
 const processElement: NodeToPortableText<DomHtmlNode> = (node, processedItems, listContext) =>
   transformMap[node.tagName as ValidElement](node, processedItems, listContext);
 
 const processText: NodeToPortableText<DomTextNode> = (node) => [createSpan(randomUUID(), [], node.content)];
+
+const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedItems) => processedItems;
 
 const toPortableText: NodeToPortableText<DomNode> = (node, processedItems, listContext) =>
   isText(node)

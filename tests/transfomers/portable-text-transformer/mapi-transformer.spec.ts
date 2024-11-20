@@ -2,8 +2,8 @@ import {
   ArbitraryTypedObject,
   browserParse,
   nodeParse,
-  PortableTextSpan,
   nodesToPortableText,
+  PortableTextSpan,
   traversePortableText,
 } from "../../../src";
 import { toManagementApiFormat } from "../../../src/utils/resolution/mapi";

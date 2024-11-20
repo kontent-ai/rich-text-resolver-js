@@ -33,16 +33,14 @@ import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, P
   const portableTextTable: PortableTextTable = {
     _type: "table",
     _key: "guid",
-    numColumns: 1,
     rows: [
       {
         _type: "row",
-        _key: "",
+        _key: "guid",
         cells: [
           {
             _type: "cell",
             _key: "guid",
-            childBlocksCount: 1,
             content: [
               {
                 _type: "block",
