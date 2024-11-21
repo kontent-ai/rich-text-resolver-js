@@ -1,4 +1,4 @@
-import { DomHtmlNode, DomNode, DomTextNode, ParseResult } from "../../parser/index.js";
+import { DomHtmlNode, DomNode, DomTextNode } from "../../parser/index.js";
 import { isText } from "../../utils/index.js";
 
 export type ResolveDomTextNodeType = ((node: DomTextNode) => unknown) | null;
@@ -15,9 +15,9 @@ export type TransformDomNodeType = (
 ) => unknown;
 
 export const transformToJson = (
-  result: ParseResult,
+  result: DomNode[],
   customResolvers?: CustomResolversType,
-) => customResolvers ? result.children.map(node => transformDomNode(node, customResolvers)) : result.children;
+) => customResolvers ? result.map(node => transformDomNode(node, customResolvers)) : result;
 
 const nodeIdentity = (node: DomNode) => node;
 

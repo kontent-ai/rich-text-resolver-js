@@ -1,7 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 
 import { ResolveDomHtmlNodeType, ResolveDomTextNodeType, transformToJson } from "../../../src";
-import { parse, ParseResult } from "../../../src/parser";
+import { DomNode, parse } from "../../../src/parser";
 
 const dummy: Elements.RichTextElement = {
   images: [
@@ -47,7 +47,7 @@ const dummy: Elements.RichTextElement = {
     "<p>Test from rich text</p>\n<figure data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\"><img src=\"https://assets-eu-01.kc-usercontent.com:443/6d864951-9d19-0138-e14d-98ba886a4410/236ecb7f-41e3-40c7-b0db-ea9c2c44003b/sharad-bhat-62p19OGT2qg-unsplash.jpg\" data-asset-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" data-image-id=\"7d866175-d3db-4a02-b0eb-891fb06b6ab0\" alt=\"\"></figure>\n<object type=\"application/kenticocloud\" data-type=\"item\" data-rel=\"component\" data-codename=\"e53bff4f_0f6e_0168_a2fe_5ec0eaa032de\"></object>",
 };
 
-const transformJsonWithCustomResolvers = (result: ParseResult) =>
+const transformJsonWithCustomResolvers = (result: DomNode[]) =>
   transformToJson(result, {
     resolveDomTextNode: customResolveDomTextNode,
     resolveDomHtmlNode: customResolveDomHtmlNode,
@@ -163,13 +163,11 @@ describe("Json Transfomer Tests", () => {
     const parsed = parse(dummy.value);
     const result = transformToJson(parsed);
 
-    expect(result).toEqual(parsed.children);
+    expect(result).toEqual(parsed);
   });
 
   it("Test empty", () => {
-    const testValue: ParseResult = {
-      children: [],
-    };
+    const testValue: DomNode[] = [];
 
     const output = transformJsonWithCustomResolvers(testValue);
 
@@ -177,14 +175,12 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("Test only DomTextNode", () => {
-    const testValue: ParseResult = {
-      children: [
-        {
-          type: "text",
-          content: "test value",
-        },
-      ],
-    };
+    const testValue: DomNode[] = [
+      {
+        type: "text",
+        content: "test value",
+      },
+    ];
 
     const output = transformJsonWithCustomResolvers(testValue)[0];
 
@@ -196,16 +192,14 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("Test only DomHtmlNode", () => {
-    const testValue: ParseResult = {
-      children: [
-        {
-          type: "tag",
-          tagName: "p",
-          attributes: {},
-          children: [],
-        },
-      ],
-    };
+    const testValue: DomNode[] = [
+      {
+        type: "tag",
+        tagName: "p",
+        attributes: {},
+        children: [],
+      },
+    ];
 
     const output = transformJsonWithCustomResolvers(testValue)[0];
 
@@ -218,14 +212,12 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("Test text transformer returning null", () => {
-    const testValue: ParseResult = {
-      children: [
-        {
-          type: "text",
-          content: "test value",
-        },
-      ],
-    };
+    const testValue: DomNode[] = [
+      {
+        type: "text",
+        content: "test value",
+      },
+    ];
 
     const result = transformToJson(testValue, {
       resolveDomTextNode: () => null,

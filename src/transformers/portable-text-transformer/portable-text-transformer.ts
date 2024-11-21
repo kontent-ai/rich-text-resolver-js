@@ -5,7 +5,6 @@ import {
   ImgElementAttributes,
   ObjectElementAttributes,
   parse,
-  ParseResult,
 } from "../../parser/index.js";
 import {
   BlockElement,
@@ -258,14 +257,14 @@ const toPortableText: NodeToPortableText<DomNode> = (node, processedItems, listC
 /**
  * Transforms a parsed tree into an array of Portable Text Blocks.
  *
- * @param {ParseResult} parsedTree The parsed tree structure representing the rich text content.
+ * @param {DomNode[]} parsedNodes Array of nodes representing the rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
 export const nodesToPortableText = (
-  parsedTree: ParseResult,
+  parsedNodes: DomNode[],
 ): PortableTextObject[] =>
   traverseAndTransformNodes(
-    parsedTree.children,
+    parsedNodes,
     toPortableText,
     { depth: 0, type: "unknown" }, // initialization of list transformation context
     updateListContext,

@@ -33,13 +33,6 @@ export interface DomHtmlNode<TAttributes = Record<string, string | undefined>> {
   children: DomNode[];
 }
 
-/**
- * A tree structure representing a result of the `parse` method.
- */
-export interface ParseResult {
-  children: DomNode[];
-}
-
 type DeliverObjectElementAttributes = {
   "data-rel": "component" | "link";
   "data-type": "item";
