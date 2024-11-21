@@ -1,4 +1,6 @@
-import { browserParse, nodeParse, nodesToPortableText, PortableTextItem, traversePortableText } from "../../../src";
+import { nodesToPortableText, PortableTextItem, traversePortableText } from "../../../src";
+import { browserParse } from "../../../src/parser/browser";
+import { nodeParse } from "../../../src/parser/node";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
@@ -369,6 +371,8 @@ describe("Portable Text Transformer", () => {
     );
   });
   // refactor tests below =========================
+
+  // TODO: cleanup tests
 
   it("transforms a simple table", () => {
     transformAndCompare(

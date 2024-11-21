@@ -384,8 +384,21 @@ exports[`node parser parses external links 1`] = `
           "type": "text",
         },
         {
-          "content": "external link/a>",
-          "type": "text",
+          "attributes": {
+            "data-new-window": "true",
+            "href": "http://google.com",
+            "rel": "noopener noreferrer",
+            "target": "_blank",
+            "title": "linktitle",
+          },
+          "children": [
+            {
+              "content": "external link",
+              "type": "text",
+            },
+          ],
+          "tagName": "a",
+          "type": "tag",
         },
       ],
       "tagName": "p",

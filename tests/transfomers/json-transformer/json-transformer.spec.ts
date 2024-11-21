@@ -1,7 +1,7 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 
 import { ResolveDomHtmlNodeType, ResolveDomTextNodeType, transformToJson } from "../../../src";
-import { browserParse, ParseResult } from "../../../src/parser";
+import { parse, ParseResult } from "../../../src/parser";
 
 const dummy: Elements.RichTextElement = {
   images: [
@@ -160,7 +160,7 @@ const customResolveDomHtmlNode: ResolveDomHtmlNodeType = (node, traverse) => {
 
 describe("Json Transfomer Tests", () => {
   it("No custom resolvers provided", () => {
-    const parsed = browserParse(dummy.value);
+    const parsed = parse(dummy.value);
     const result = transformToJson(parsed);
 
     expect(result).toEqual(parsed.children);
@@ -238,7 +238,7 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("Test RichText", () => {
-    const parsed = browserParse(dummy.value);
+    const parsed = parse(dummy.value);
     const transformed = transformJsonWithCustomResolvers(parsed);
 
     const expectedOutput = JSON.parse(`
@@ -278,7 +278,7 @@ describe("Json Transfomer Tests", () => {
   it("test resolving table", () => {
     const inputValue =
       "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>";
-    const parsed = browserParse(inputValue);
+    const parsed = parse(inputValue);
 
     const result = transformJsonWithCustomResolvers(parsed);
     const expectedOutput = JSON.parse(`[
@@ -340,7 +340,7 @@ describe("Json Transfomer Tests", () => {
   });
 
   it("test transofrming list", () => {
-    const parsed = browserParse(
+    const parsed = parse(
       "<ul>\n  <li>Ivan</li>\n  <li>Jiri</li>\n  <li>Dan</li>\n  <li>Ondra\n    <ul>\n      <ul>\n        <li>Rosta</li>\n      </ul>\n      <li>Ondra</li>\n    </ul>\n  </li>\n</ul>",
     );
 

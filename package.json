@@ -20,14 +20,8 @@
       "require": "./dist/cjs/index.js"
     },
     "./parser": {
-      "node": {
-        "import": "./dist/esnext/src/parser/node/rich-text-node-parser.js",
-        "require": "./dist/cjs/src/parser/node/rich-text-node-parser.js"
-      },
-      "default": {
-        "import": "./dist/esnext/src/parser/browser/rich-text-browser-parser.js",
-        "require": "./dist/cjs/src/parser/browser/rich-text-browser-parser.js"
-      }
+      "import": "./dist/esnext/src/parser/index.js",
+      "require": "./dist/cjs/src/parser/index.js"
     },
     "./transformers/json": {
       "import": "./dist/esnext/src/transformers/json-transformer/json-transformer.js",

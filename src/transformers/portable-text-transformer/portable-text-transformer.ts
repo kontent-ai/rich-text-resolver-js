@@ -1,13 +1,10 @@
-import * as runtimeEnvironment from "browser-or-node";
-
 import {
-  browserParse,
   DomHtmlNode,
   DomNode,
   DomTextNode,
   ImgElementAttributes,
-  nodeParse,
   ObjectElementAttributes,
+  parse,
   ParseResult,
 } from "../../parser/index.js";
 import {
@@ -282,13 +279,7 @@ export const nodesToPortableText = (
  */
 export const transformToPortableText = (
   richText: string,
-): PortableTextObject[] => {
-  const parseResult = runtimeEnvironment.isBrowser
-    ? browserParse(richText)
-    : nodeParse(richText);
-
-  return nodesToPortableText(parseResult);
-};
+): PortableTextObject[] => nodesToPortableText(parse(richText));
 
 const transformMap: Record<ValidElement, NodeToPortableText<DomHtmlNode<any>>> = {
   ...(Object.fromEntries(

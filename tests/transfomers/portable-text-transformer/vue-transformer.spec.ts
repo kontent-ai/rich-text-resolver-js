@@ -2,7 +2,7 @@ import { PortableText, PortableTextComponentProps, PortableTextComponents, toPla
 import { mount } from "@vue/test-utils";
 import { h } from "vue";
 
-import { nodeParse, nodesToPortableText,PortableTextImage, PortableTextTable } from "../../../src";
+import { nodesToPortableText, parse, PortableTextImage, PortableTextTable } from "../../../src";
 import { resolveImage, resolveTable } from "../../../src/utils/resolution/vue";
 
 const components: PortableTextComponents = {
@@ -17,7 +17,7 @@ describe("PortableText Vue Renderer", () => {
     richTextValue: string,
     customComponents = components,
   ) => {
-    const jsonTree = nodeParse(richTextValue);
+    const jsonTree = parse(richTextValue);
     const portableText = nodesToPortableText(jsonTree);
 
     return mount(PortableText, {

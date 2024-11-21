@@ -1,11 +1,6 @@
-import {
-  ArbitraryTypedObject,
-  browserParse,
-  nodeParse,
-  nodesToPortableText,
-  PortableTextSpan,
-  traversePortableText,
-} from "../../../src";
+import { ArbitraryTypedObject, nodesToPortableText, PortableTextSpan, traversePortableText } from "../../../src";
+import { browserParse } from "../../../src/parser/browser";
+import { nodeParse } from "../../../src/parser/node";
 import { toManagementApiFormat } from "../../../src/utils/resolution/mapi";
 
 jest.mock("short-unique-id", () => {

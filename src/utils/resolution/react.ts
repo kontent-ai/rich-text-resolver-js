@@ -1,8 +1,4 @@
-import {
-  PortableTextMarkComponent,
-  PortableTextReactComponents,
-  PortableTextTypeComponent,
-} from "@portabletext/react";
+import { PortableTextMarkComponent, PortableTextReactComponents, PortableTextTypeComponent } from "@portabletext/react";
 
 import {
   PortableTextComponentOrItem,

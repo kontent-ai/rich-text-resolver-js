@@ -2,8 +2,6 @@ import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { escapeHTML, PortableTextTypeComponentOptions, toHTML } from "@portabletext/to-html";
 
 import {
-  browserParse,
-  nodeParse,
   nodesToPortableText,
   PortableTextBlock,
   PortableTextComponentOrItem,
@@ -13,6 +11,8 @@ import {
   PortableTextTable,
   ResolverFunction,
 } from "../../../src";
+import { browserParse } from "../../../src/parser/browser";
+import { nodeParse } from "../../../src/parser/node";
 import { PortableTextHtmlResolvers, resolveImage, resolveTable } from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
