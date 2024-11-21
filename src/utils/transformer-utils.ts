@@ -57,7 +57,7 @@ export type TransformNodeFunctionAsync<T extends DomNode, U, V> = (
  *
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
- * - If a `contextHandler` is provided, it **clones** and updates the context before passing it to child nodes traversal.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  */
 export const traverseAndTransformNodes = <TContext, V>(
   nodes: DomNode[],
@@ -66,7 +66,7 @@ export const traverseAndTransformNodes = <TContext, V>(
   contextHandler?: (node: DomNode, context: TContext) => TContext,
 ): V[] =>
   nodes.flatMap(node => {
-    const updatedContext = contextHandler?.(node, context) ?? { ...context };
+    const updatedContext = contextHandler?.(node, context) ?? context;
     const children = node.type === "tag"
       ? traverseAndTransformNodes(node.children, transform, updatedContext, contextHandler)
       : [];
@@ -89,7 +89,7 @@ export const traverseAndTransformNodes = <TContext, V>(
  *
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
- * - If a `contextHandler` is provided, it **clones** and updates the context before passing it to child nodes traversal.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  */
 export const traverseAndTransformNodesAsync = async <TContext, V>(
   nodes: DomNode[],
@@ -99,7 +99,7 @@ export const traverseAndTransformNodesAsync = async <TContext, V>(
 ): Promise<V[]> => {
   const results = await Promise.all(
     nodes.map(async (node) => {
-      const updatedContext = contextHandler?.(node, context) ?? { ...context };
+      const updatedContext = contextHandler?.(node, context) ?? context;
 
       const children = node.type === "tag"
         ? await traverseAndTransformNodesAsync(node.children, transform, updatedContext, contextHandler)
