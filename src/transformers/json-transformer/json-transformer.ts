@@ -1,35 +1,83 @@
-import { DomHtmlNode, DomNode, DomTextNode } from "../../parser/index.js";
-import { isText } from "../../utils/index.js";
+import { DomNode } from "../../parser/parser-models.js";
 
-export type ResolveDomTextNodeType = ((node: DomTextNode) => unknown) | null;
-export type ResolveDomHtmlNodeType = ((node: DomHtmlNode, traverse: (node: DomNode) => unknown) => unknown) | null;
+export type TransformNodeFunction<T extends DomNode, U, V> = (
+  node: T,
+  processedItems: V[],
+  context?: U,
+) => V[];
 
-type CustomResolversType = {
-  resolveDomTextNode: ResolveDomTextNodeType;
-  resolveDomHtmlNode: ResolveDomHtmlNodeType;
-};
+export type TransformNodeFunctionAsync<T extends DomNode, U, V> = (
+  node: T,
+  processedItems: V[],
+  context?: U,
+) => Promise<V[]>;
 
-export type TransformDomNodeType = (
-  node: DomNode,
-  customResolvers: CustomResolversType,
-) => unknown;
+/**
+ * Recursively traverses an array of `DomNode` elements, transforming each node using the provided `transform` function.
+ * You can optionally provide a context object and a handler to update it before a node is processed.
+ *
+ * @template TContext - The type of the context object used during traversal.
+ *
+ * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
+ * @param {TransformNodeFunction<DomNode, TContext, any>} transform - The function applied to each node to transform it.
+ * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler`. Empty object by default.
+ * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
+ *
+ * @returns {ReturnType<typeof transform>} The transformed result after applying the `transform` function to all nodes.
+ *
+ * @remarks
+ * - The function traverses and transforms the nodes in a depth-first manner.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ */
+export const traverseAndTransformNodes = <TContext, V>(
+  nodes: DomNode[],
+  transform: TransformNodeFunction<DomNode, TContext, V>,
+  context: TContext = {} as TContext,
+  contextHandler?: (node: DomNode, context: TContext) => TContext,
+): V[] =>
+  nodes.flatMap(node => {
+    const updatedContext = contextHandler?.(node, context) ?? context;
+    const children = node.type === "tag"
+      ? traverseAndTransformNodes(node.children, transform, updatedContext, contextHandler)
+      : [];
 
-export const transformToJson = (
-  result: DomNode[],
-  customResolvers?: CustomResolversType,
-) => customResolvers ? result.map(node => transformDomNode(node, customResolvers)) : result;
+    return transform(node, children, updatedContext);
+  });
 
-const nodeIdentity = (node: DomNode) => node;
+/**
+ * Recursively traverses an array of `DomNode` elements, transforming each node using the provided `transform` function in an asynchronous manner.
+ * You can optionally provide a context object and a handler to update it before a node is processed.
+ *
+ * @template TContext - The type of the context object used during traversal.
+ *
+ * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
+ * @param {TransformNodeFunction<DomNode, TContext, V>} transform - The function applied to each node to transform it.
+ * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler`. Empty object by default.
+ * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
+ *
+ * @returns {Promise<V[]>} The transformed result after applying the `transform` function to all nodes.
+ *
+ * @remarks
+ * - The function traverses and transforms the nodes in a depth-first manner.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ */
+export const traverseAndTransformNodesAsync = async <TContext, V>(
+  nodes: DomNode[],
+  transform: TransformNodeFunctionAsync<DomNode, TContext, V>,
+  context: TContext = {} as TContext,
+  contextHandler?: (node: DomNode, context: TContext) => TContext,
+): Promise<V[]> => {
+  const results = await Promise.all(
+    nodes.map(async (node) => {
+      const updatedContext = contextHandler?.(node, context) ?? context;
 
-const transformDomNode: TransformDomNodeType = (
-  node: DomNode,
-  { resolveDomHtmlNode, resolveDomTextNode }: CustomResolversType,
-) => {
-  if (isText(node)) {
-    return resolveDomTextNode ? resolveDomTextNode(node) : nodeIdentity(node);
-  }
+      const children = node.type === "tag"
+        ? await traverseAndTransformNodesAsync(node.children, transform, updatedContext, contextHandler)
+        : [];
 
-  return resolveDomHtmlNode
-    ? resolveDomHtmlNode(node, (node) => transformDomNode(node, { resolveDomHtmlNode, resolveDomTextNode }))
-    : nodeIdentity(node);
+      return transform(node, children, updatedContext);
+    }),
+  );
+
+  return results.flat();
 };

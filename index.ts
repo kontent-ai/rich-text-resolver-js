@@ -1,6 +1,6 @@
 export { PortableTextReactResolvers } from './src/utils/resolution/react.js';
-export { traversePortableText, traverseAndTransformNodes, traverseAndTransformNodesAsync } from './src/utils/transformer-utils.js';
-export { transformToJson } from "./src/transformers/json-transformer/json-transformer.js";
+export { traverseAndTransformNodes, traverseAndTransformNodesAsync } from './src/index.js';
+export { traversePortableText } from './src/utils/transformer-utils.js';
 export { nodesToPortableText, transformToPortableText } from "./src/transformers/portable-text-transformer/portable-text-transformer.js";
 export { parse } from "./src/parser/index.js";
 export { resolveImage, resolveTable, toHTMLImageDefault, PortableTextHtmlResolvers } from "./src/utils/resolution/html.js";

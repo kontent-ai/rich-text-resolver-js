@@ -24,6 +24,8 @@ import {
   PortableTextTableRow,
   Reference,
   TextStyleElement,
+  TransformNodeFunction,
+  traverseAndTransformNodes,
   ValidElement,
 } from "../../transformers/index.js";
 import {
@@ -48,8 +50,6 @@ import {
   randomUUID,
   textStyleElements,
   throwError,
-  TransformNodeFunction,
-  traverseAndTransformNodes,
 } from "../../utils/index.js";
 
 type ListContext = {
