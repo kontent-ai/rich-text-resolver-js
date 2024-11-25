@@ -51,11 +51,15 @@ type ManagementObjectElementAttributes = {
 
 export type AssetLinkElementAttributes = {
   "data-asset-id": string;
+  "data-asset-external-is"?: string;
+  "data-asset-codename"?: string;
   href?: string;
 };
 
 export type ItemLinkElementAttributes = {
   "data-item-id": string;
+  "data-item-external-id"?: string;
+  "data-item-codename"?: string;
   href?: string;
 };
 
@@ -69,7 +73,7 @@ export type ImgElementAttributes = {
   "data-asset-id": string;
   "data-image-id"?: string;
   "data-asset-codename"?: string;
-  "data-asset-external-id"?: string; // TODO: ensure all potential attributes are accounted for
+  "data-asset-external-id"?: string;
   alt?: string;
 };
 
