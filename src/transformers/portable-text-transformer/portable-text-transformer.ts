@@ -24,7 +24,7 @@ import {
   PortableTextTableRow,
   Reference,
   TextStyleElement,
-  TransformNodeFunction,
+  NodeTransformer,
   traverseAndTransformNodes,
   ValidElement,
 } from "../../transformers/index.js";
@@ -62,7 +62,7 @@ type ReferenceData = {
   refType: "id" | "external-id" | "codename";
 };
 
-type NodeToPortableText<T extends DomNode> = TransformNodeFunction<T, ListContext, PortableTextItem>;
+type NodeToPortableText<T extends DomNode> = NodeTransformer<T, ListContext, PortableTextItem>;
 
 const categorizeItems = (items: PortableTextItem[]) =>
   items.reduce(
@@ -129,13 +129,13 @@ const updateListContext = (node: DomNode, context: ListContext): ListContext =>
 
 const processLineBreak: NodeToPortableText<DomHtmlNode> = () => [createSpan(randomUUID(), [], "\n")];
 
-const processListItem: NodeToPortableText<DomHtmlNode> = (_, processedItems, listContext) => {
+const processListItem: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes, listContext) => {
   const {
     links,
     contentItemLinks,
     spans,
     listBlocks,
-  } = categorizeItems(processedItems);
+  } = categorizeItems(processedSubnodes);
 
   return [
     createListBlock(
@@ -151,19 +151,19 @@ const processListItem: NodeToPortableText<DomHtmlNode> = (_, processedItems, lis
   ];
 };
 
-const processBlock: NodeToPortableText<DomHtmlNode> = (node, processedItems) => {
-  const { spans, links, contentItemLinks } = categorizeItems(processedItems);
+const processBlock: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) => {
+  const { spans, links, contentItemLinks } = categorizeItems(processedSubnodes);
 
   return [
     createBlock(randomUUID(), [...links, ...contentItemLinks], node.tagName === "p" ? "normal" : node.tagName, spans),
   ];
 };
 
-const processMark: NodeToPortableText<DomHtmlNode> = (node, processedItems) => {
-  const { links, contentItemLinks, spans } = categorizeItems(processedItems);
+const processMark: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) => {
+  const { links, contentItemLinks, spans } = categorizeItems(processedSubnodes);
   const key = randomUUID();
   const mark = isExternalLink(node)
-    ? (links.push(createExternalLink(key, node.attributes)), key)
+    ? (links.push(createExternalLink(key, node.attributes)), key) // comma operator used for assigning key 
     : isItemLink(node)
     ? (contentItemLinks.push(createItemLink(key, node.attributes["data-item-id"])), key)
     : node.tagName;
@@ -217,41 +217,41 @@ const processLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElement
   ];
 };
 
-const processTableCell: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
-  const { links, contentItemLinks, spans } = categorizeItems(processedItems);
+const processTableCell: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
+  const { links, contentItemLinks, spans } = categorizeItems(processedSubnodes);
 
   // If there are spans, wrap them in a block; otherwise, return processed items directly in a table cell
   const cellContent = spans.length
     ? [createBlock(randomUUID(), [...links, ...contentItemLinks], "normal", spans)]
-    : processedItems as PortableTextObject[];
+    : processedSubnodes as PortableTextObject[];
 
   return [createTableCell(randomUUID(), cellContent)];
 };
 
-const processTableRow: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
-  const { cells } = categorizeItems(processedItems);
+const processTableRow: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
+  const { cells } = categorizeItems(processedSubnodes);
 
   return [createTableRow(randomUUID(), cells)];
 };
 
-const processTable: NodeToPortableText<DomHtmlNode> = (_, processedItems) => {
-  const { rows } = categorizeItems(processedItems);
+const processTable: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
+  const { rows } = categorizeItems(processedSubnodes);
 
   return [createTable(randomUUID(), rows)];
 };
 
-const processElement: NodeToPortableText<DomHtmlNode> = (node, processedItems, listContext) =>
-  transformMap[node.tagName as ValidElement](node, processedItems, listContext);
+const processElement: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes, listContext) =>
+  transformMap[node.tagName as ValidElement](node, processedSubnodes, listContext);
 
 const processText: NodeToPortableText<DomTextNode> = (node) => [createSpan(randomUUID(), [], node.content)];
 
-const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedItems) => processedItems;
+const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => processedSubnodes;
 
-const toPortableText: NodeToPortableText<DomNode> = (node, processedItems, listContext) =>
+const toPortableText: NodeToPortableText<DomNode> = (node, processedSubnodes, listContext) =>
   isText(node)
-    ? processText(node, processedItems)
+    ? processText(node, processedSubnodes)
     : isValidElement(node)
-    ? processElement(node, processedItems, listContext)
+    ? processElement(node, processedSubnodes, listContext)
     : throwError(`Unsupported tag encountered: ${node.tagName}`);
 
 /**
