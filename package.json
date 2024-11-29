@@ -103,7 +103,8 @@
     "@portabletext/vue": "^1.0.11",
     "browser-or-node": "^3.0.0",
     "node-html-parser": "^6.1.13",
-    "short-unique-id": "^5.2.0"
+    "short-unique-id": "^5.2.0",
+    "ts-pattern": "^5.5.0"
   },
   "publishConfig": {
     "access": "public",

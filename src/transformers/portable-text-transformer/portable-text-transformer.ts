@@ -1,3 +1,5 @@
+import { match } from "ts-pattern";
+
 import {
   DomHtmlNode,
   DomNode,
@@ -9,6 +11,7 @@ import {
 import {
   BlockElement,
   IgnoredElement,
+  NodeTransformer,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -24,9 +27,8 @@ import {
   PortableTextTableRow,
   Reference,
   TextStyleElement,
-  NodeTransformer,
+  Transformers,
   traverseAndTransformNodes,
-  ValidElement,
 } from "../../transformers/index.js";
 import {
   blockElements,
@@ -45,8 +47,6 @@ import {
   isExternalLink,
   isItemLink,
   isListBlock,
-  isText,
-  isValidElement,
   randomUUID,
   textStyleElements,
   throwError,
@@ -162,11 +162,16 @@ const processBlock: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) 
 const processMark: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) => {
   const { links, contentItemLinks, spans } = categorizeItems(processedSubnodes);
   const key = randomUUID();
-  const mark = isExternalLink(node)
-    ? (links.push(createExternalLink(key, node.attributes)), key) // comma operator used for assigning key 
-    : isItemLink(node)
-    ? (contentItemLinks.push(createItemLink(key, node.attributes["data-item-id"])), key)
-    : node.tagName;
+  const mark = match(node)
+    .when(isExternalLink, () => {
+      links.push(createExternalLink(key, node.attributes));
+      return key;
+    })
+    .when(isItemLink, (itemLinkNode) => {
+      contentItemLinks.push(createItemLink(key, itemLinkNode.attributes["data-item-id"]));
+      return key;
+    })
+    .otherwise(() => node.tagName);
 
   const updatedSpans = spans.map(
     s => ({ ...s, marks: [...(s.marks ?? []), mark] } as PortableTextSpan),
@@ -240,19 +245,9 @@ const processTable: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => 
   return [createTable(randomUUID(), rows)];
 };
 
-const processElement: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes, listContext) =>
-  transformMap[node.tagName as ValidElement](node, processedSubnodes, listContext);
-
 const processText: NodeToPortableText<DomTextNode> = (node) => [createSpan(randomUUID(), [], node.content)];
 
 const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => processedSubnodes;
-
-const toPortableText: NodeToPortableText<DomNode> = (node, processedSubnodes, listContext) =>
-  isText(node)
-    ? processText(node, processedSubnodes)
-    : isValidElement(node)
-    ? processElement(node, processedSubnodes, listContext)
-    : throwError(`Unsupported tag encountered: ${node.tagName}`);
 
 /**
  * Transforms a parsed tree into an array of Portable Text Blocks.
@@ -265,7 +260,7 @@ export const nodesToPortableText = (
 ): PortableTextObject[] =>
   traverseAndTransformNodes(
     parsedNodes,
-    toPortableText,
+    transformers,
     { depth: 0, type: "unknown" }, // initialization of list transformation context
     updateListContext,
   ) as PortableTextObject[];
@@ -280,22 +275,25 @@ export const transformToPortableText = (
   richText: string,
 ): PortableTextObject[] => nodesToPortableText(parse(richText));
 
-const transformMap: Record<ValidElement, NodeToPortableText<DomHtmlNode<any>>> = {
-  ...(Object.fromEntries(
-    blockElements.map((tagName) => [tagName, processBlock]),
-  ) as Record<BlockElement, NodeToPortableText<DomHtmlNode>>),
-  ...(Object.fromEntries(
-    textStyleElements.map((tagName) => [tagName, processMark]),
-  ) as Record<TextStyleElement, NodeToPortableText<DomHtmlNode>>),
-  ...(Object.fromEntries(
-    ignoredElements.map((tagName) => [tagName, ignoreProcessing]),
-  ) as Record<IgnoredElement, NodeToPortableText<DomHtmlNode>>),
-  a: processMark,
-  li: processListItem,
-  table: processTable,
-  tr: processTableRow,
-  td: processTableCell,
-  br: processLineBreak,
-  img: processImage,
-  object: processLinkedItemOrComponent,
+const transformers: Transformers<ListContext, PortableTextItem> = {
+  text: processText,
+  tag: {
+    ...(Object.fromEntries(
+      blockElements.map((tagName) => [tagName, processBlock]),
+    ) as Record<BlockElement, NodeToPortableText<DomHtmlNode>>),
+    ...(Object.fromEntries(
+      textStyleElements.map((tagName) => [tagName, processMark]),
+    ) as Record<TextStyleElement, NodeToPortableText<DomHtmlNode>>),
+    ...(Object.fromEntries(
+      ignoredElements.map((tagName) => [tagName, ignoreProcessing]),
+    ) as Record<IgnoredElement, NodeToPortableText<DomHtmlNode>>),
+    a: processMark,
+    li: processListItem,
+    table: processTable,
+    tr: processTableRow,
+    td: processTableCell,
+    br: processLineBreak,
+    img: processImage,
+    object: processLinkedItemOrComponent,
+  },
 };
