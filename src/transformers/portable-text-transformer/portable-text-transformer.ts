@@ -129,13 +129,13 @@ const updateListContext = (node: DomNode, context: ListContext): ListContext =>
 
 const processLineBreak: NodeToPortableText<DomHtmlNode> = () => [createSpan(randomUUID(), [], "\n")];
 
-const processListItem: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes, listContext) => {
+const processListItem: NodeToPortableText<DomHtmlNode> = (_, children, listContext) => {
   const {
     links,
     contentItemLinks,
     spans,
     listBlocks,
-  } = categorizeItems(processedSubnodes);
+  } = categorizeItems(children);
 
   return [
     createListBlock(
@@ -151,16 +151,16 @@ const processListItem: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes, 
   ];
 };
 
-const processBlock: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) => {
-  const { spans, links, contentItemLinks } = categorizeItems(processedSubnodes);
+const processBlock: NodeToPortableText<DomHtmlNode> = (node, children) => {
+  const { spans, links, contentItemLinks } = categorizeItems(children);
 
   return [
     createBlock(randomUUID(), [...links, ...contentItemLinks], node.tagName === "p" ? "normal" : node.tagName, spans),
   ];
 };
 
-const processMark: NodeToPortableText<DomHtmlNode> = (node, processedSubnodes) => {
-  const { links, contentItemLinks, spans } = categorizeItems(processedSubnodes);
+const processMark: NodeToPortableText<DomHtmlNode> = (node, children) => {
+  const { links, contentItemLinks, spans } = categorizeItems(children);
   const key = randomUUID();
   const mark = match(node)
     .when(isExternalLink, () => {
@@ -222,32 +222,32 @@ const processLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElement
   ];
 };
 
-const processTableCell: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
-  const { links, contentItemLinks, spans } = categorizeItems(processedSubnodes);
+const processTableCell: NodeToPortableText<DomHtmlNode> = (_, children) => {
+  const { links, contentItemLinks, spans } = categorizeItems(children);
 
-  // If there are spans, wrap them in a block; otherwise, return processed items directly in a table cell
+  // If there are spans, wrap them in a block; otherwise, return processed children directly in a table cell
   const cellContent = spans.length
     ? [createBlock(randomUUID(), [...links, ...contentItemLinks], "normal", spans)]
-    : processedSubnodes as PortableTextObject[];
+    : children as PortableTextObject[];
 
   return [createTableCell(randomUUID(), cellContent)];
 };
 
-const processTableRow: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
-  const { cells } = categorizeItems(processedSubnodes);
+const processTableRow: NodeToPortableText<DomHtmlNode> = (_, children) => {
+  const { cells } = categorizeItems(children);
 
   return [createTableRow(randomUUID(), cells)];
 };
 
-const processTable: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => {
-  const { rows } = categorizeItems(processedSubnodes);
+const processTable: NodeToPortableText<DomHtmlNode> = (_, children) => {
+  const { rows } = categorizeItems(children);
 
   return [createTable(randomUUID(), rows)];
 };
 
 const processText: NodeToPortableText<DomTextNode> = (node) => [createSpan(randomUUID(), [], node.content)];
 
-const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, processedSubnodes) => processedSubnodes;
+const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, children) => children;
 
 /**
  * Transforms a parsed tree into an array of Portable Text Blocks.

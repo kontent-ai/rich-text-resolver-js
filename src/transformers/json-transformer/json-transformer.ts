@@ -4,13 +4,13 @@ import { DomHtmlNode, DomNode, DomTextNode } from "../../parser/parser-models.js
 
 export type NodeTransformer<T extends DomNode, U, V> = (
   node: T,
-  transformedSubnodes: V[],
+  children: V[],
   context?: U,
 ) => V[];
 
 export type AsyncNodeTransformer<T extends DomNode, U, V> = (
   node: T,
-  transformedSubnodes: V[],
+  children: V[],
   context?: U,
 ) => Promise<V[]>;
 
