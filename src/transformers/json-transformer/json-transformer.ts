@@ -1,127 +1,258 @@
-import { match, P } from "ts-pattern";
+import { match } from "ts-pattern";
 
 import { DomHtmlNode, DomNode, DomTextNode } from "../../parser/parser-models.js";
 
-export type NodeTransformer<T extends DomNode, U, V> = (
-  node: T,
-  children: V[],
-  context?: U,
-) => V[];
+export type NodeTransformFn<
+  TNode extends DomNode,
+  TContext,
+  TOutput,
+> = TNode extends DomHtmlNode ? (node: TNode, children: TOutput[], context?: TContext) => TOutput[]
+  : (node: TNode, context?: TContext) => TOutput[];
 
-export type AsyncNodeTransformer<T extends DomNode, U, V> = (
-  node: T,
-  children: V[],
-  context?: U,
-) => Promise<V[]>;
+export type AsyncNodeTransformFn<
+  TNode extends DomNode,
+  TContext,
+  TOutput,
+> = TNode extends DomHtmlNode ? (node: TNode, children: TOutput[], context?: TContext) => Promise<TOutput[]>
+  : (node: TNode, context?: TContext) => Promise<TOutput[]>;
 
-export type Transformers<TContext, V> = {
-  text: NodeTransformer<DomTextNode, TContext, V>;
-  tag: Record<string, NodeTransformer<DomHtmlNode<any>, TContext, V>>;
-};
+export type TagStringifyFn<TContext = unknown> = (
+  node: DomHtmlNode<any>,
+  children: string,
+  context?: TContext,
+) => string;
 
-export type AsyncTransformers<TContext, V> = {
-  text: AsyncNodeTransformer<DomTextNode, TContext, V>;
-  tag: Record<string, AsyncNodeTransformer<DomHtmlNode<any>, TContext, V>>;
+export type AsyncTagStringifyFn<TContext = unknown> = (
+  node: DomHtmlNode<any>,
+  children: string,
+  context?: TContext,
+) => Promise<string>;
+
+/**
+ * A collection of node transformation functions for text and tag nodes.
+ *
+ * @template TOutput - The type of the result produced by transformations.
+ * @template TContext - The type of contextual data passed to transformation functions.
+ */
+export type NodeTransformers<TOutput, TContext = unknown> = {
+  /**
+   * Transformation function for text nodes.
+   */
+  text: NodeTransformFn<DomTextNode, TContext, TOutput>;
+  /**
+   * A mapping of tag names to transformation functions for HTML nodes.
+   * Use the `"*"` key as a wildcard fallback for all tags not explicitly defined.
+   */
+  tag: Record<string, NodeTransformFn<DomHtmlNode<any>, TContext, TOutput>>;
 };
 
 /**
- * Recursively traverses an array of `DomNodes`, transforming each node using the provided transform function.
+ * A collection of async node transformation functions for text and tag nodes.
+ *
+ * @template TOutput - The type of the result produced by transformations.
+ * @template TContext - The type of contextual data passed to transformation functions.
+ */
+export type AsyncNodeTransformers<TOutput, TContext = unknown> = {
+  /**
+   * Async transformation function for text nodes.
+   */
+  text: AsyncNodeTransformFn<DomTextNode, TContext, TOutput>;
+  /**
+   * A mapping of tag names to async transformation functions for HTML nodes.
+   * Use the `"*"` key as a wildcard fallback for all tags not explicitly defined.
+   */
+  tag: Record<string, AsyncNodeTransformFn<DomHtmlNode<any>, TContext, TOutput>>;
+};
+
+/**
+ * A record of functions that convert an HTML node and its children to a string.
+ *
+ * @template TContext - The type of contextual data passed to the conversion functions.
+ */
+export type TagStringifyMap<TContext = unknown> = Record<string, TagStringifyFn<TContext>>;
+
+/**
+ * A record of async functions that convert an HTML node and its children to a string.
+ *
+ * @template TContext - The type of contextual data passed to the conversion functions.
+ */
+export type AsyncTagStringifyMap<TContext = unknown> = Record<string, AsyncTagStringifyFn<TContext>>;
+
+/**
+ * Recursively traverses an array of `DomNode`, transforming each node using a corresponding transformation method from `transformers` parameter.
  * The transformation begins from the deepest nodes and propagates intermediate results upwards through the recursion.
  * You can optionally provide a context object and a handler to update it before a node is processed.
  *
  * @template TContext - The type of the context object used during traversal.
  *
  * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
- * @param {NodeTransformer<DomNode, TContext, V>} transform - The function applied to each node to transform it. Takes current node, an array of already transformed subnodes and an optional context as arguments.
+ * @param {NodeTransformers<TContext, TOutput>} transformers - An object defining transformation functions for each text and tag node respectively.
+ * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
  *
- * @returns {V[]} Flattened array of transformed nodes.
+ * @returns {TOutput[]} Flattened array of transformed nodes.
  *
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  */
-export const traverseAndTransformNodes = <TContext, V>(
+export const transformNodes = <TOutput, TContext>(
   nodes: DomNode[],
-  transform: NodeTransformer<DomNode, TContext, V> | Transformers<TContext, V>,
+  transformers: NodeTransformers<TOutput, TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
-): V[] => {
-  return nodes.flatMap(node => {
-    const updatedContext = contextHandler ? contextHandler(node, context) : context;
+): TOutput[] =>
+  nodes.flatMap(node =>
+    match(node)
+      .with({ type: "text" }, textNode => transformers.text(textNode))
+      .with({ type: "tag" }, tagNode => {
+        const updatedContext = contextHandler?.(tagNode, context) ?? context;
+        const children = transformNodes(tagNode.children, transformers, updatedContext, contextHandler);
+        const transformer = transformers.tag[tagNode.tagName] ?? transformers.tag["*"];
+        if (!transformer) {
+          throw new Error(`No transformer specified for tag: ${tagNode.tagName}`);
+        }
 
-    const children = node.type === "tag"
-      ? traverseAndTransformNodes(node.children, transform, updatedContext, contextHandler)
-      : [];
-
-    return match(transform)
-      .with(P.when(t => typeof t === "function"), transformFunc => transformFunc(node, children, updatedContext))
-      .otherwise(transformers =>
-        match(node)
-          .with({ type: "text" }, textNode => transformers.text(textNode, children, updatedContext))
-          .with({ type: "tag" }, tagNode => {
-            const transformer = transformers.tag[tagNode.tagName] ?? transformers.tag["*"];
-            if (transformer) {
-              return transformer(tagNode, children, updatedContext);
-            }
-
-            throw new Error(`No transformer specified for tag: ${tagNode.tagName}`);
-          })
-          .exhaustive()
-      );
-  });
-};
+        return transformer(tagNode, children, updatedContext);
+      })
+      .exhaustive()
+  );
 
 /**
- * Recursively traverses an array of `DomNodes`, transforming each node using the provided transform function in an asynchronous matter.
+ * Recursively traverses an array of `DomNode`, transforming each node using a corresponding transformation method from `transformers` parameter in an asynchronous manner.
  * The transformation begins from the deepest nodes and propagates intermediate results upwards through the recursion.
  * You can optionally provide a context object and a handler to update it before a node is processed.
  *
  * @template TContext - The type of the context object used during traversal.
  *
  * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
- * @param {AsyncNodeTransformer<DomNode, TContext, V>} transform - The function applied to each node to transform it. Takes current node, an array of already transformed subnodes and an optional context as arguments.
+ * @param {AsyncNodeTransformers<TContext, TOutput>} transformers - An object defining asynchronous transformation functions for each text and tag node respectively.
+ * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to the `transform` function and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current node.
  *
- * @returns {Promise<V[]>} Flattened array of transformed nodes.
+ * @returns {Promise<TOutput[]>} Flattened array of transformed nodes.
  *
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  */
-export const traverseAndTransformNodesAsync = async <TContext, V>(
+export const transformNodesAsync = async <TOutput, TContext>(
   nodes: DomNode[],
-  transform: AsyncNodeTransformer<DomNode, TContext, V> | AsyncTransformers<TContext, V>,
+  transformers: AsyncNodeTransformers<TOutput, TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
-): Promise<V[]> => {
+): Promise<TOutput[]> => {
   const results = await Promise.all(
-    nodes.map(async (node) => {
-      const updatedContext = contextHandler?.(node, context) ?? context;
+    nodes.map(async (node) =>
+      match(node)
+        .with({ type: "text" }, textNode => transformers.text(textNode))
+        .with({ type: "tag" }, async tagNode => {
+          const updatedContext = contextHandler?.(tagNode, context) ?? context;
+          const children = await transformNodesAsync(tagNode.children, transformers, updatedContext, contextHandler);
+          const transformer = transformers.tag[tagNode.tagName] ?? transformers.tag["*"];
+          if (!transformer) {
+            throw new Error(`No transformer specified for tag: ${tagNode.tagName}`);
+          }
 
-      const children = node.type === "tag"
-        ? await traverseAndTransformNodesAsync(node.children, transform, updatedContext, contextHandler)
-        : [];
-
-      return match(transform)
-        .with(P.when(t => typeof t === "function"), transformFunc => transformFunc(node, children, updatedContext))
-        .otherwise(transformers =>
-          match(node)
-            .with({ type: "text" }, textNode => transformers.text(textNode, children, updatedContext))
-            .with({ type: "tag" }, tagNode => {
-              const transformer = transformers.tag[tagNode.tagName] ?? transformers.tag["*"];
-              if (transformer) {
-                return transformer(tagNode, children, updatedContext);
-              }
-
-              throw new Error(`No transformer specified for tag: ${tagNode.tagName}`);
-            })
-            .exhaustive()
-        );
-    }),
+          return await transformer(tagNode, children, updatedContext);
+        })
+        .exhaustive()
+    ),
   );
 
   return results.flat();
 };
+
+/**
+ * Recursively traverses an array of `DomNode`, transforming each tag node to its HTML string representation, including all attributes.
+ * You can override transformation for individual tags by providing a custom transformer via `transformers` parameter. Text nodes are transformed automatically.
+ * An optional context object and a handler to update it before a tag node is processed can be provided.
+ *
+ * @template TContext - The type of the context object used during traversal.
+ *
+ * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
+ * @param {TagStringifyMap<TContext>} transformers - Record of `tag : function` pairs defining transformations for individual tags.
+ * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
+ * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
+ * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
+ *
+ * @returns {string} HTML or other string result of the transformation.
+ *
+ * @remarks
+ * - The function traverses and transforms the nodes in a depth-first manner.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ */
+export const nodesToHtml = <TContext>(
+  nodes: DomNode[],
+  transformers: TagStringifyMap<TContext>,
+  context: TContext = {} as TContext,
+  contextHandler?: (node: DomNode, context: TContext) => TContext,
+): string =>
+  nodes.map(node =>
+    match(node)
+      .with({ type: "text" }, textNode => textNode.content)
+      .with({ type: "tag" }, tagNode => {
+        const updatedContext = contextHandler?.(tagNode, context) ?? context;
+        const children = nodesToHtml(tagNode.children, transformers, updatedContext, contextHandler);
+        const transformer = transformers[tagNode.tagName] ?? transformers["*"];
+
+        return (
+          transformer?.(tagNode, children, updatedContext)
+            ?? `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
+        );
+      })
+      .exhaustive()
+  ).join("");
+
+/**
+ * Recursively traverses an array of `DomNode`, transforming each tag node to its HTML string representation in an asynchronous manner.
+ * You can override transformation for individual tags by providing a custom transformer via `transformers` parameter. Text nodes are transformed automatically.
+ * An optional context object and a handler to update it before a tag node is processed can be provided.
+ *
+ * @template TContext - The type of the context object used during traversal.
+ *
+ * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
+ * @param {AsyncTagStringifyMap<TContext>} transformers - Record of `tag : function` pairs defining async transformations for individual tags.
+ * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
+ * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
+ * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
+ *
+ * @returns {Promise<string>} HTML or other string result of the transformation.
+ *
+ * @remarks
+ * - The function traverses and transforms the nodes in a depth-first manner.
+ * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ */
+export const nodesToHtmlAsync = async <TContext>(
+  nodes: DomNode[],
+  transformers: AsyncTagStringifyMap<TContext>,
+  context: TContext = {} as TContext,
+  contextHandler?: (node: DomNode, context: TContext) => TContext,
+): Promise<string> =>
+  (
+    await Promise.all(
+      nodes.map(async node =>
+        match(node)
+          .with({ type: "text" }, textNode => textNode.content)
+          .with({ type: "tag" }, async tagNode => {
+            const updatedContext = contextHandler?.(tagNode, context) ?? context;
+            const children = await nodesToHtmlAsync(tagNode.children, transformers, updatedContext, contextHandler);
+            const transformer = transformers[tagNode.tagName] ?? transformers["*"];
+
+            return (
+              await transformer?.(tagNode, children, updatedContext)
+                ?? `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
+            );
+          })
+          .exhaustive()
+      ),
+    )
+  ).join("");
+
+const formatAttributes = (attributes: Record<string, string | undefined>): string =>
+  Object.entries(attributes)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => ` ${key}="${value}"`)
+    .join(" ");

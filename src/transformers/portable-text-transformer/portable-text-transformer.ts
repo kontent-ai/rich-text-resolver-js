@@ -11,7 +11,8 @@ import {
 import {
   BlockElement,
   IgnoredElement,
-  NodeTransformer,
+  NodeTransformers,
+  NodeTransformFn,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -27,8 +28,7 @@ import {
   PortableTextTableRow,
   Reference,
   TextStyleElement,
-  Transformers,
-  traverseAndTransformNodes,
+  transformNodes,
 } from "../../transformers/index.js";
 import {
   blockElements,
@@ -62,7 +62,7 @@ type ReferenceData = {
   refType: "id" | "external-id" | "codename";
 };
 
-type NodeToPortableText<T extends DomNode> = NodeTransformer<T, ListContext, PortableTextItem>;
+type NodeToPortableText<T extends DomNode> = NodeTransformFn<T, ListContext, PortableTextItem>;
 
 const categorizeItems = (items: PortableTextItem[]) =>
   items.reduce(
@@ -258,7 +258,7 @@ const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, children) => child
 export const nodesToPortableText = (
   parsedNodes: DomNode[],
 ): PortableTextObject[] =>
-  traverseAndTransformNodes(
+  transformNodes(
     parsedNodes,
     transformers,
     { depth: 0, type: "unknown" }, // initialization of list transformation context
@@ -275,7 +275,7 @@ export const transformToPortableText = (
   richText: string,
 ): PortableTextObject[] => nodesToPortableText(parse(richText));
 
-const transformers: Transformers<ListContext, PortableTextItem> = {
+const transformers: NodeTransformers<PortableTextItem, ListContext> = {
   text: processText,
   tag: {
     ...(Object.fromEntries(

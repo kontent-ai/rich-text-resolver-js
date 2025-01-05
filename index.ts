@@ -1,5 +1,5 @@
 export { PortableTextReactResolvers } from './src/utils/resolution/react.js';
-export { traverseAndTransformNodes, traverseAndTransformNodesAsync } from './src/index.js';
+export { transformNodes, transformNodesAsync, nodesToHtml, nodesToHtmlAsync, NodeTransformFn, NodeTransformers, AsyncNodeTransformFn, AsyncNodeTransformers, TagStringifyFn, AsyncTagStringifyFn, TagStringifyMap, AsyncTagStringifyMap } from './src/index.js';
 export { traversePortableText } from './src/utils/transformer-utils.js';
 export { nodesToPortableText, transformToPortableText } from "./src/transformers/portable-text-transformer/portable-text-transformer.js";
 export { parse } from "./src/parser/index.js";
