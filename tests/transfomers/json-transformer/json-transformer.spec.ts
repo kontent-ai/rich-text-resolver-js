@@ -6,14 +6,14 @@ import {
   DomNode,
   NodeTransformers,
   TagStringifyMap,
-  parse,
+  parseHtml,
   AsyncTagStringifyMap,
   AsyncNodeTransformers,
 } from "../../../src";
 
 describe("transformNodes and transformNodesAsync", () => {
   const input = "<p>Hello <b>World</b>!</p><p>Another <i>paragraph</i> with a nested <span>span</span></p>";
-  const nodes = parse(input);
+  const nodes = parseHtml(input);
 
   test("should throw if no tag transformer is specified", () => {
     const transformers: NodeTransformers<string> = {
@@ -162,7 +162,7 @@ describe("transformNodes and transformNodesAsync", () => {
 
 describe("nodesToHtml and nodesToHtmlAsync", () => {
   const input = "<p>Hello <b>World</b>!</p><p>Another <i>paragraph</i> with a nested <span>span</span></p>";
-  const nodes = parse(input);
+  const nodes = parseHtml(input);
 
   test("should convert nodes to HTML with default resolution (without any transformers, sync)", () => {
     const transformers: TagStringifyMap = {};

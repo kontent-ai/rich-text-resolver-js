@@ -6,7 +6,7 @@ import {
   DomTextNode,
   ImgElementAttributes,
   ObjectElementAttributes,
-  parse,
+  parseHtml,
 } from "../../parser/index.js";
 import {
   BlockElement,
@@ -273,7 +273,7 @@ export const nodesToPortableText = (
  */
 export const transformToPortableText = (
   richText: string,
-): PortableTextObject[] => nodesToPortableText(parse(richText));
+): PortableTextObject[] => nodesToPortableText(parseHtml(richText));
 
 const transformers: NodeTransformers<PortableTextItem, ListContext> = {
   text: processText,
