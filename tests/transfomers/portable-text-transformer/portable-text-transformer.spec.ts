@@ -370,31 +370,6 @@ describe("Portable Text Transformer", () => {
       `<p>Text <a href="https://example.com">inner text 1</a> text between <a href="https://example.org">inner text 2</a>.</p>`,
     );
   });
-  // refactor tests below =========================
-
-  // TODO: cleanup tests
-
-  it("transforms a simple table", () => {
-    transformAndCompare(
-      `<table><tbody><tr><td><p>hello world</p></td><td><p>hello second world</p></td></tr></tbody></table>`,
-    );
-  });
-
-  it("transforms minimal rich text", () => {
-    transformAndCompare("<p>minimal</p>");
-  });
-
-  it("transforms minimal rich text with formatting", () => {
-    transformAndCompare("<p><strong>minimal</strong></p>");
-  });
-
-  it("transforms simplest list", () => {
-    transformAndCompare("<ul><li>some text</li></ul>");
-  });
-
-  it("transforms list with two items", () => {
-    transformAndCompare("<ul><li>first</li><li>second</li></ul>");
-  });
 
   it("transforms table cell with text and image", () => {
     transformAndCompare(

@@ -445,63 +445,6 @@ exports[`Portable Text Transformer transforms a linked item and a component from
 ]
 `;
 
-exports[`Portable Text Transformer transforms a simple table 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "table",
-    "rows": [
-      {
-        "_key": "guid",
-        "_type": "row",
-        "cells": [
-          {
-            "_key": "guid",
-            "_type": "cell",
-            "content": [
-              {
-                "_key": "guid",
-                "_type": "block",
-                "children": [
-                  {
-                    "_key": "guid",
-                    "_type": "span",
-                    "marks": [],
-                    "text": "hello world",
-                  },
-                ],
-                "markDefs": [],
-                "style": "normal",
-              },
-            ],
-          },
-          {
-            "_key": "guid",
-            "_type": "cell",
-            "content": [
-              {
-                "_key": "guid",
-                "_type": "block",
-                "children": [
-                  {
-                    "_key": "guid",
-                    "_type": "span",
-                    "marks": [],
-                    "text": "hello second world",
-                  },
-                ],
-                "markDefs": [],
-                "style": "normal",
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]
-`;
-
 exports[`Portable Text Transformer transforms asset from MAPI 1`] = `
 [
   {
@@ -1044,43 +987,6 @@ exports[`Portable Text Transformer transforms item links 1`] = `
 ]
 `;
 
-exports[`Portable Text Transformer transforms list with two items 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "first",
-      },
-    ],
-    "level": 1,
-    "listItem": "bullet",
-    "markDefs": [],
-    "style": "normal",
-  },
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "second",
-      },
-    ],
-    "level": 1,
-    "listItem": "bullet",
-    "markDefs": [],
-    "style": "normal",
-  },
-]
-`;
-
 exports[`Portable Text Transformer transforms lists 1`] = `
 [
   {
@@ -1200,46 +1106,6 @@ exports[`Portable Text Transformer transforms lists 1`] = `
 ]
 `;
 
-exports[`Portable Text Transformer transforms minimal rich text 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "minimal",
-      },
-    ],
-    "markDefs": [],
-    "style": "normal",
-  },
-]
-`;
-
-exports[`Portable Text Transformer transforms minimal rich text with formatting 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [
-          "strong",
-        ],
-        "text": "minimal",
-      },
-    ],
-    "markDefs": [],
-    "style": "normal",
-  },
-]
-`;
-
 exports[`Portable Text Transformer transforms nested styles 1`] = `
 [
   {
@@ -1274,27 +1140,6 @@ exports[`Portable Text Transformer transforms nested styles 1`] = `
         "text": "superscript",
       },
     ],
-    "markDefs": [],
-    "style": "normal",
-  },
-]
-`;
-
-exports[`Portable Text Transformer transforms simplest list 1`] = `
-[
-  {
-    "_key": "guid",
-    "_type": "block",
-    "children": [
-      {
-        "_key": "guid",
-        "_type": "span",
-        "marks": [],
-        "text": "some text",
-      },
-    ],
-    "level": 1,
-    "listItem": "bullet",
     "markDefs": [],
     "style": "normal",
   },
