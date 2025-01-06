@@ -23,7 +23,7 @@ Install the package via npm
 
 ### Parsing rich text HTML to a JSON tree
 
-The tool provides environment-dependent parsers to transform HTML into a simplified JSON tree. Any valid HTML is parsed, including all attributes. Together with built-in traversal and transformation methods, this is a suitable option for processing HTML and rich text from external sources, to make it compatible with Kontent.ai rich text format. See dedicated [JSON transformer docs](docs/index.md) for further information.
+The tool provides environment-aware `parseHtml` function to transform HTML into an array of simplified JSON trees. Any valid HTML is parsed, including all attributes. Together with built-in transformation methods, this is a suitable option for processing HTML and rich text from external sources, to make it compatible with Kontent.ai rich text format. See dedicated [JSON transformer docs](docs/index.md) for further information.
 
 ### Portable text resolution
 
@@ -41,8 +41,6 @@ Combined with a suitable package for the framework of your choice, this makes fo
 
 > [!IMPORTANT]
 > The provided Portable Text transformation functions expect a valid Kontent.ai rich text content, otherwise you risk errors or invalid blocks in the resulting array.
->
-> It's possible to split the transformation into two steps. Parse HTML into a JSON tree, transform it to valid rich text [according to the specifications](https://kontent.ai/learn/docs/apis/openapi/management-api-v2/#section/HTML5-elements-allowed-in-rich-text), then pass it to `nodesToPortableText` function. See [JSON transformer docs](docs/index.md) for more details.
 
 #### Custom portable text blocks
 
@@ -280,7 +278,7 @@ const components: PortableTextComponents = {
   const richTextContent =
     `<p>Here is an <a data-item-id="12345"><strong>internal link</strong></a> in some text.</p>`;
 
-  const tree = nodeParse(richTextContent);
+  const tree = parseHtml(richTextContent);
   const portableText = transformToPortableText(tree);
   
   // your logic to modify the portable text
