@@ -2,27 +2,27 @@ import { match } from "ts-pattern";
 
 import { DomHtmlNode, DomNode, DomTextNode } from "../../parser/parser-models.js";
 
-export type NodeTransformFn<
+export type NodeTransformer<
   TNode extends DomNode,
   TContext,
   TOutput,
 > = TNode extends DomHtmlNode ? (node: TNode, children: TOutput[], context?: TContext) => TOutput[]
   : (node: TNode, context?: TContext) => TOutput[];
 
-export type AsyncNodeTransformFn<
+export type AsyncNodeTransformer<
   TNode extends DomNode,
   TContext,
   TOutput,
 > = TNode extends DomHtmlNode ? (node: TNode, children: TOutput[], context?: TContext) => Promise<TOutput[]>
   : (node: TNode, context?: TContext) => Promise<TOutput[]>;
 
-export type TagStringifyFn<TContext = unknown> = (
+export type NodeToString<TContext = unknown> = (
   node: DomHtmlNode<any>,
   children: string,
   context?: TContext,
 ) => string;
 
-export type AsyncTagStringifyFn<TContext = unknown> = (
+export type NodeToStringAsync<TContext = unknown> = (
   node: DomHtmlNode<any>,
   children: string,
   context?: TContext,
@@ -38,12 +38,12 @@ export type NodeTransformers<TOutput, TContext = unknown> = {
   /**
    * Transformation function for text nodes.
    */
-  text: NodeTransformFn<DomTextNode, TContext, TOutput>;
+  text: NodeTransformer<DomTextNode, TContext, TOutput>;
   /**
    * A mapping of tag names to transformation functions for HTML nodes.
    * Use the `"*"` key as a wildcard fallback for all tags not explicitly defined.
    */
-  tag: Record<string, NodeTransformFn<DomHtmlNode<any>, TContext, TOutput>>;
+  tag: Record<string, NodeTransformer<DomHtmlNode<any>, TContext, TOutput>>;
 };
 
 /**
@@ -56,12 +56,12 @@ export type AsyncNodeTransformers<TOutput, TContext = unknown> = {
   /**
    * Async transformation function for text nodes.
    */
-  text: AsyncNodeTransformFn<DomTextNode, TContext, TOutput>;
+  text: AsyncNodeTransformer<DomTextNode, TContext, TOutput>;
   /**
    * A mapping of tag names to async transformation functions for HTML nodes.
    * Use the `"*"` key as a wildcard fallback for all tags not explicitly defined.
    */
-  tag: Record<string, AsyncNodeTransformFn<DomHtmlNode<any>, TContext, TOutput>>;
+  tag: Record<string, AsyncNodeTransformer<DomHtmlNode<any>, TContext, TOutput>>;
 };
 
 /**
@@ -69,14 +69,14 @@ export type AsyncNodeTransformers<TOutput, TContext = unknown> = {
  *
  * @template TContext - The type of contextual data passed to the conversion functions.
  */
-export type TagStringifyMap<TContext = unknown> = Record<string, TagStringifyFn<TContext>>;
+export type NodeToStringMap<TContext = unknown> = Record<string, NodeToString<TContext>>;
 
 /**
  * A record of async functions that convert an HTML node and its children to a string.
  *
  * @template TContext - The type of contextual data passed to the conversion functions.
  */
-export type AsyncTagStringifyMap<TContext = unknown> = Record<string, AsyncTagStringifyFn<TContext>>;
+export type AsyncNodeToStringMap<TContext = unknown> = Record<string, NodeToStringAsync<TContext>>;
 
 /**
  * Recursively traverses an array of `DomNode`, transforming each node using a corresponding transformation method from `transformers` parameter.
@@ -173,7 +173,7 @@ export const transformNodesAsync = async <TOutput, TContext>(
  * @template TContext - The type of the context object used during traversal.
  *
  * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
- * @param {TagStringifyMap<TContext>} transformers - Record of `tag : function` pairs defining transformations for individual tags.
+ * @param {NodeToStringMap<TContext>} transformers - Record of `tag : function` pairs defining transformations for individual tags.
  * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
@@ -186,7 +186,7 @@ export const transformNodesAsync = async <TOutput, TContext>(
  */
 export const nodesToHtml = <TContext>(
   nodes: DomNode[],
-  transformers: TagStringifyMap<TContext>,
+  transformers: NodeToStringMap<TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
 ): string =>
@@ -214,7 +214,7 @@ export const nodesToHtml = <TContext>(
  * @template TContext - The type of the context object used during traversal.
  *
  * @param {DomNode[]} nodes - The array of `DomNode` elements to traverse and transform.
- * @param {AsyncTagStringifyMap<TContext>} transformers - Record of `tag : function` pairs defining async transformations for individual tags.
+ * @param {AsyncNodeToStringMap<TContext>} transformers - Record of `tag : function` pairs defining async transformations for individual tags.
  * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
@@ -227,7 +227,7 @@ export const nodesToHtml = <TContext>(
  */
 export const nodesToHtmlAsync = async <TContext>(
   nodes: DomNode[],
-  transformers: AsyncTagStringifyMap<TContext>,
+  transformers: AsyncNodeToStringMap<TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
 ): Promise<string> =>
@@ -251,8 +251,11 @@ export const nodesToHtmlAsync = async <TContext>(
     )
   ).join("");
 
-const formatAttributes = (attributes: Record<string, string | undefined>): string =>
+const formatAttributes = (
+  attributes: Record<string, string | undefined>,
+  exclude: ReadonlyArray<string> = [],
+): string =>
   Object.entries(attributes)
-    .filter(([, value]) => value !== undefined)
+    .filter(([, value]) => !([undefined, ...exclude].includes(value)))
     .map(([key, value]) => ` ${key}="${value}"`)
     .join(" ");

@@ -11,8 +11,8 @@ import {
 import {
   BlockElement,
   IgnoredElement,
+  NodeTransformer,
   NodeTransformers,
-  NodeTransformFn,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -62,7 +62,7 @@ type ReferenceData = {
   refType: "id" | "external-id" | "codename";
 };
 
-type NodeToPortableText<T extends DomNode> = NodeTransformFn<T, ListContext, PortableTextItem>;
+type NodeToPortableText<T extends DomNode> = NodeTransformer<T, ListContext, PortableTextItem>;
 
 const categorizeItems = (items: PortableTextItem[]) =>
   items.reduce(

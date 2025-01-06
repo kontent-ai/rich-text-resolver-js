@@ -1,14 +1,14 @@
 import {
-  transformNodes,
-  transformNodesAsync,
+  AsyncNodeToStringMap,
+  AsyncNodeTransformers,
+  DomNode,
   nodesToHtml,
   nodesToHtmlAsync,
-  DomNode,
+  NodeToStringMap,
   NodeTransformers,
-  TagStringifyMap,
   parseHtml,
-  AsyncTagStringifyMap,
-  AsyncNodeTransformers,
+  transformNodes,
+  transformNodesAsync,
 } from "../../../src";
 
 describe("transformNodes and transformNodesAsync", () => {
@@ -165,21 +165,21 @@ describe("nodesToHtml and nodesToHtmlAsync", () => {
   const nodes = parseHtml(input);
 
   test("should convert nodes to HTML with default resolution (without any transformers, sync)", () => {
-    const transformers: TagStringifyMap = {};
+    const transformers: NodeToStringMap = {};
     const html = nodesToHtml(nodes, transformers);
 
     expect(html).toEqual(input);
   });
 
   test("should convert nodes to HTML with default resolution (without any transformes, async)", async () => {
-    const transformers: AsyncTagStringifyMap = {};
+    const transformers: AsyncNodeToStringMap = {};
     const html = await nodesToHtmlAsync(nodes, transformers);
 
     expect(html).toEqual(input);
   });
 
   test("should convert nodes to HTML with custom and wildcard stringifiers (sync)", () => {
-    const transformers: TagStringifyMap = {
+    const transformers: NodeToStringMap = {
       i: (_, children) => {
         return `<em data-custom="yes">${children}</em>`;
       },
@@ -193,21 +193,23 @@ describe("nodesToHtml and nodesToHtmlAsync", () => {
 
     const html = nodesToHtml(nodes, transformers);
 
-    expect(html).toBe(`<p>Hello <b>World</b>!</p><p>Another <em data-custom="yes">paragraph</em> with a nested <span>span</span></p>`);
+    expect(html).toBe(
+      `<p>Hello <b>World</b>!</p><p>Another <em data-custom="yes">paragraph</em> with a nested <span>span</span></p>`,
+    );
   });
 
   test("should remove span tags and keep text content only", () => {
-    const transformers: TagStringifyMap = {
+    const transformers: NodeToStringMap = {
       span: (_, children) => children,
     };
 
     const html = nodesToHtml(nodes, transformers);
 
     expect(html).toBe("<p>Hello <b>World</b>!</p><p>Another <i>paragraph</i> with a nested span</p>");
-  })
+  });
 
   test("should convert nodes to HTML with custom transformations in an async manner", async () => {
-    const asyncTransformers: AsyncTagStringifyMap = {
+    const asyncTransformers: AsyncNodeToStringMap = {
       b: async (_, children) => {
         // simulate some async operation
         await new Promise(resolve => setTimeout(resolve, 10));
@@ -221,11 +223,13 @@ describe("nodesToHtml and nodesToHtmlAsync", () => {
 
     const resultHtml = await nodesToHtmlAsync(nodes, asyncTransformers);
 
-    expect(resultHtml).toBe(`<p>Hello <strong data-async="1">World</strong>!</p><p>Another <i>paragraph</i> with a nested <span>span</span></p>`);
+    expect(resultHtml).toBe(
+      `<p>Hello <strong data-async="1">World</strong>!</p><p>Another <i>paragraph</i> with a nested <span>span</span></p>`,
+    );
   });
 
   test("should handle context updates in nodesToHtml", () => {
-    const transformers: TagStringifyMap<{ color: string }> = {
+    const transformers: NodeToStringMap<{ color: string }> = {
       p: (_, children, ctx) => {
         return `<p style="color:${ctx?.color}">${children}</p>`;
       },
