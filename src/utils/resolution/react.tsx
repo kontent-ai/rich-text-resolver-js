@@ -1,12 +1,15 @@
 import {
+  PortableText as PortableTextDefault,
   PortableTextMarkComponent,
+  PortableTextProps,
   PortableTextReactComponents,
   PortableTextTypeComponent,
   toPlainText,
 } from "@portabletext/react";
-import React from "react";
+import React, { JSX } from "react";
 
 import {
+  PortableTextBlock,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -14,6 +17,7 @@ import {
   PortableTextTable,
   PortableTextTableCell,
   PortableTextTableRow,
+  TypedObject,
 } from "../../transformers/transformer-models.js";
 
 type RichTextCustomBlocks = {
@@ -57,3 +61,52 @@ export const TableComponent: React.FC<PortableTextTable> = (table) => {
 export const ImageComponent: React.FC<PortableTextImage> = (image) => (
   <img src={image.asset.url} alt={image.asset.alt ?? ""} />
 );
+
+const defaultComponentResolvers: PortableTextReactResolvers = {
+  types: {
+    image: ({ value }) => <ImageComponent {...value} />,
+    table: ({ value }) => <TableComponent {...value} />,
+  },
+  marks: {
+    link: ({ value, children }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { _key, _type, ...attributes } = value!;
+      return <a {...attributes}>{children}</a>;
+    },
+    sup: ({ children }) => <sup>{children}</sup>,
+    sub: ({ children }) => <sub>{children}</sub>,
+  },
+};
+
+/**
+ * Wrapper around `PortableText` component from `@portabletext/react` package, with default resolvers for `sup` and `sub` marks added.
+ *
+ * @param param0 see `PortableTextProps` from `@portabletext/react` package
+ * @returns JSX element
+ */
+export const PortableText = <B extends TypedObject = PortableTextBlock>({
+  value: input,
+  components: componentOverrides,
+  listNestingMode,
+  onMissingComponent: missingComponentHandler,
+}: PortableTextProps<B>): JSX.Element => {
+  const mergedComponentResolvers: PortableTextReactResolvers = {
+    types: {
+      ...defaultComponentResolvers.types,
+      ...componentOverrides?.types,
+    },
+    marks: {
+      ...defaultComponentResolvers.marks,
+      ...componentOverrides?.marks,
+    },
+  };
+
+  return (
+    <PortableTextDefault
+      value={input}
+      components={mergedComponentResolvers}
+      listNestingMode={listNestingMode}
+      onMissingComponent={missingComponentHandler}
+    />
+  );
+};

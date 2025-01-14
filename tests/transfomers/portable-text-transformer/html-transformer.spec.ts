@@ -1,19 +1,20 @@
 import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
-import { escapeHTML, PortableTextTypeComponentOptions, toHTML } from "@portabletext/to-html";
+import { PortableTextTypeComponentOptions } from "@portabletext/to-html";
 
 import {
+  ArbitraryTypedObject,
   nodesToPortableText,
   PortableTextBlock,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
   PortableTextItemLink,
+  PortableTextMark,
   PortableTextTable,
-  ResolverFunction,
 } from "../../../src";
 import { browserParse } from "../../../src/parser/browser";
 import { nodeParse } from "../../../src/parser/node";
-import { PortableTextHtmlResolvers, resolveImage, resolveTable } from "../../../src/utils/resolution/html";
+import { PortableTextHtmlResolvers, resolveImage, toHTML } from "../../../src/utils/resolution/html";
 
 jest.mock("short-unique-id", () => {
   return jest.fn().mockImplementation(() => {
@@ -23,6 +24,8 @@ jest.mock("short-unique-id", () => {
   });
 });
 
+type ResolverFunction<T extends ArbitraryTypedObject> = (value: T, children?: any) => string;
+
 type CustomResolvers = {
   image?: ResolverFunction<PortableTextImage>;
   block?: ResolverFunction<PortableTextBlock>;
@@ -30,10 +33,12 @@ type CustomResolvers = {
   component?: ResolverFunction<PortableTextComponentOrItem>;
   contentItemLink?: ResolverFunction<PortableTextItemLink>;
   link?: ResolverFunction<PortableTextExternalLink>;
+  sup?: ResolverFunction<PortableTextMark>;
 };
 
 const customResolvers: Partial<CustomResolvers> = {
   image: (image) => `<img src="${image.asset.url}" alt="${image.asset.rel ?? ""}" height="800">`,
+  sup: (_, children) => `<sup custom-attribute="value">${children}</sup>`,
 };
 
 describe("HTML transformer", () => {
@@ -81,11 +86,10 @@ describe("HTML transformer", () => {
       types: {
         image: ({
           value,
-        }) => {
-          return customResolvers.image
+        }) =>
+          customResolvers.image
             ? customResolvers.image(value)
-            : resolveImage(value);
-        },
+            : resolveImage(value),
         componentOrItem: ({
           value,
         }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) => {
@@ -101,25 +105,16 @@ describe("HTML transformer", () => {
               return `Resolver for type ${linkedItem.system.type} not implemented.`;
           }
         },
-        table: ({
-          value,
-        }: PortableTextTypeComponentOptions<PortableTextTable>) => {
-          return resolveTable(value, toHTML);
-        },
       },
       marks: {
         contentItemLink: ({
           children,
           value,
-        }) => {
-          return `<a href="https://website.com/${value?.reference._ref}">${children}</a>`;
-        },
-        link: ({
+        }) => `<a href="https://website.com/${value?.reference._ref}">${children}</a>`,
+        sup: ({
           children,
           value,
-        }) => {
-          return `<a href=${escapeHTML(value?.href!)}">${children}</a>`;
-        },
+        }) => customResolvers.sup ? customResolvers.sup(value, children) : `<sup>${children}</sup>`,
       },
     },
   });
@@ -165,7 +160,7 @@ describe("HTML transformer", () => {
     );
   });
 
-  it("resolves a table", () => {
+  it("resolves a table using default fallback", () => {
     transformAndCompare(
       "<table><tbody>\n  <tr><td>Ivan</td><td>Jiri</td></tr>\n  <tr><td>Ondra</td><td>Dan</td></tr>\n</tbody></table>",
     );
@@ -187,6 +182,25 @@ describe("HTML transformer", () => {
   it("resolves styled text with line breaks", () => {
     transformAndCompare(
       "</p>\n<p><strong>Strong text with line break<br>\nStrong text with line break</strong></p>",
+    );
+  });
+
+  it("by default resolves text styled with sub and sup", () => {
+    transformAndCompare(
+      "<p><sub>Subscript text</sub><sup>Superscript text</sup></p>",
+    );
+  });
+
+  it("resolves superscript with custom resolver", () => {
+    transformAndCompare(
+      "<p><sup>Superscript text</sup></p>",
+      customResolvers,
+    );
+  });
+
+  it("resolves a link using default fallback", () => {
+    transformAndCompare(
+      "<p><a href=\"https://website.com/12345\" target=\"_blank\" rel=\"noopener noreferrer\">link</a></p>",
     );
   });
 });
