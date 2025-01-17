@@ -189,30 +189,6 @@ const MyComponent = ({ props }) => {
 };
 ```
 
-#### Gatsby.js
-
-For [Gatsby.js](https://www.gatsbyjs.com), it is necessary to [ignore the RichText browser module by customizing webpack configuration](https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules) in order to utilize the package.
-
-```js
-// gatsby-node.js
-
-// https://www.gatsbyjs.com/docs/debugging-html-builds/#fixing-third-party-modules
-exports.onCreateWebpackConfig = ({ stage, loaders, actions }) => {
-  if (stage === "build-html" || stage === "develop-html") {
-    actions.setWebpackConfig({
-      module: {
-        rules: [
-          {
-            test: /rich-text-browser-parser/,
-            use: loaders.null(),
-          },
-        ],
-      },
-    });
-  }
-};
-```
-
 ### Vue resolution
 Using `@portabletext/vue` package
 
@@ -276,6 +252,9 @@ Package exports a `traversePortableText` method, which accepts an array of `Port
       }
 
       // logic for modifying other object types...
+
+        // return original block if no modifications required
+        return block;
     }
 
     const portableText = transformToPortableText(input);
