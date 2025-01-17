@@ -3,13 +3,13 @@ import { match } from "ts-pattern";
 import { DomHtmlNode, DomNode } from "../../parser/parser-models.js";
 
 export type NodeToHtml<TContext = unknown> = (
-  node: DomHtmlNode<any>,
+  node: DomHtmlNode<unknown>,
   children: string,
   context?: TContext,
 ) => string;
 
 export type NodeToHtmlAsync<TContext = unknown> = (
-  node: DomHtmlNode<any>,
+  node: DomHtmlNode<unknown>,
   children: string,
   context?: TContext,
 ) => Promise<string>;

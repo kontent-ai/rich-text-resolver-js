@@ -31,7 +31,7 @@ describe("nodesToHTML and nodesToHTMLAsync", () => {
         return `<em data-custom="yes">${children}</em>`;
       },
       "*": (node, children) => {
-        const attrs = Object.entries(node.attributes || {})
+        const attrs = Object.entries(node.attributes)
           .map(([k, v]) => ` ${k}="${v}"`)
           .join("");
         return `<${node.tagName}${attrs}>${children}</${node.tagName}>`;

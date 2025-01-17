@@ -43,7 +43,7 @@ type ManagementObjectElementAttributes = {
   "data-type": "item" | "component";
   "data-id": string;
   "data-external-id"?: string;
-  "data-rel": undefined; // TODO: needs to be defined as such, otherwise TS will infer it as string or eslint complains
+  "data-rel": undefined; // needs to be defined as such, otherwise TS will infer it as string or eslint complains
   "data-codename"?: string;
 };
 
