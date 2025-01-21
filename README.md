@@ -59,19 +59,19 @@ Besides default blocks for common elements, Portable Text supports custom blocks
 
 ##### Component/linked item – **PortableTextComponentOrItem**
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L3-L12
+https://github.com/kontent-ai/rich-text-resolver-js/blob/c62306f8415a6d8fdcec1434ef7102deb80cec88/showcase/showcase.ts#L3-L12
 
 ##### Image – **PortableTextImage**
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L14-L24
+https://github.com/kontent-ai/rich-text-resolver-js/blob/c62306f8415a6d8fdcec1434ef7102deb80cec88/showcase/showcase.ts#L14-L24
 
 ##### Item link – **PortableTextItemLink**
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L26-L34
+https://github.com/kontent-ai/rich-text-resolver-js/blob/c62306f8415a6d8fdcec1434ef7102deb80cec88/showcase/showcase.ts#L26-L34
 
 ##### Table – **PortableTextTable**
 
-https://github.com/kontent-ai/rich-text-resolver-js/blob/6fe68490a32bb304d141cff741fb7e57001550eb/showcase/showcase.ts#L36-L62
+https://github.com/kontent-ai/rich-text-resolver-js/blob/c62306f8415a6d8fdcec1434ef7102deb80cec88/showcase/showcase.ts#L36-L62
 
 ## Examples
 
