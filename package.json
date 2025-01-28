@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "2.0.0-rc2",
+  "version": "2.0.0",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
