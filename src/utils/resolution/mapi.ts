@@ -20,7 +20,7 @@ import { resolveTable } from "./html.js";
 const toManagementApiImage = (image: PortableTextImage) => createFigureTag(image.asset._ref);
 
 const toManagementApiRichTextItem = (richTextItem: PortableTextComponentOrItem) =>
-  `<object type="application/kenticocloud" data-type="${richTextItem.dataType}" data-id="${richTextItem.component._ref}"></object>`;
+  `<object type="application/kenticocloud" data-type="${richTextItem.dataType}" data-id="${richTextItem.componentOrItem._ref}"></object>`;
 
 const toManagementApiTable = (table: PortableTextTable) =>
   resolveTable(table, (blocks) => toHTML(blocks, portableTextComponents));
@@ -32,7 +32,7 @@ const toManagementApiExternalLink = (children: string, link?: PortableTextExtern
 
 const toManagementApiItemLink = (children: string, link?: PortableTextItemLink) =>
   link
-    ? `<a data-item-id="${link.reference._ref}">${children}</a>`
+    ? `<a data-item-id="${link.contentItemLink._ref}">${children}</a>`
     : throwError("Mark definition for item link not found.");
 
 const createImgTag = (assetId: string) => `<img src="#" data-asset-id="${assetId}">`;

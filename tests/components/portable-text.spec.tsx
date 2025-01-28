@@ -40,13 +40,13 @@ const dummyRichText: Elements.RichTextElement = {
 const portableTextComponents: PortableTextReactResolvers = {
   types: {
     componentOrItem: ({ value }) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.codename === value.component._ref);
+      const item = dummyRichText.linkedItems.find(item => item.system.codename === value.componentOrItem._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
   },
   marks: {
     contentItemLink: ({ value, children }) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.id === value?.reference._ref);
+      const item = dummyRichText.linkedItems.find(item => item.system.id === value?.contentItemLink._ref);
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
           {children}

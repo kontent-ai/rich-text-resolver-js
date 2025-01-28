@@ -92,7 +92,7 @@ describe("HTML resolution", () => {
           value,
         }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) => {
           const linkedItem = element.linkedItems.find(
-            (item) => item.system.codename === value.component._ref,
+            (item) => item.system.codename === value.componentOrItem._ref,
           );
           if (!linkedItem) return `Resolver for unknown type not implemented.`;
 
@@ -108,7 +108,7 @@ describe("HTML resolution", () => {
         contentItemLink: ({
           children,
           value,
-        }) => `<a href="https://website.com/${value?.reference._ref}">${children}</a>`,
+        }) => `<a href="https://website.com/${value?.contentItemLink._ref}">${children}</a>`,
         sup: ({
           children,
           value,

@@ -136,3 +136,5 @@ export const resolveImage = (
  */
 export const toHTMLImageDefault = (image: PortableTextImage): string =>
   `<img src="${image.asset.url}" alt="${image.asset.alt}">`;
+
+export { defaultComponents } from "@portabletext/to-html";

@@ -110,3 +110,5 @@ export const PortableText = <B extends TypedObject = PortableTextBlock>({
     />
   );
 };
+
+export { defaultComponents } from "@portabletext/react";
