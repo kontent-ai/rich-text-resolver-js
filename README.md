@@ -42,7 +42,7 @@ The tool provides environment-aware (browser or Node.js) `parseHTML` function to
 > [!TIP]
 > This module re-exports modified `toHTML` function and `<PortableText>` component from `to-html` and `react-portabletext` packages respectively. These modified helpers provide default resolution for tags which are either unsupported or only partially supported in the original packages (`sub` and `sup` tags, images, tables and links).
 >
-> Make sure to use these re-exports if you want to take advantage of the default resolution.
+> Make sure to use these re-exports if you want to take advantage of the default resolution. You can still provide your own custom resolutions for the above tags even when using these helpers. 
 
 The tool provides `transformToPortableText` function to convert rich text content into an array of Portable Text blocks, with custom blocks defined for Kontent.ai-specific objects.
 
@@ -101,7 +101,7 @@ const resolvers: PortableTextHtmlResolvers = {
       },
       componentOrItem: ({ value }) => {
         const linkedItem = linkedItems.find(
-          (item) => item.system.codename === value.component._ref
+          (item) => item.system.codename === value.componentOrItem._ref
         );
         switch (linkedItem?.system.type) {
           case "component_type_codename": {
@@ -120,7 +120,7 @@ const resolvers: PortableTextHtmlResolvers = {
     },
     marks: {
       contentItemLink: ({ children, value }) => {
-        return `<a href="https://website.com/${value.reference._ref}">${children}</a>`;
+        return `<a href="https://website.com/${value.contentItemLink._ref}">${children}</a>`;
       },
       link: ({ children, value }) => {
         return `<a href=${value?.href} data-new-window=${value?.["data-new-window"]}>${children}</a>`;
@@ -137,7 +137,6 @@ const resolvedHtml = toHTML(portableText, resolvers);
 React, using a slightly modified version of `PortableText` component from `@portabletext/react` package.
 
 ```tsx
-import { toPlainText } from "@portabletext/react";
 import {
   PortableTextReactResolvers,
   PortableText,
@@ -153,7 +152,7 @@ import {
 const resolvers: PortableTextReactResolvers = {
   types: {
     componentOrItem: ({ value }) => {
-      const item = richTextElement.linkedItems.find(item => item.system.codename === value.component._ref);
+      const item = richTextElement.linkedItems.find(item => item.system.codename === value?.componentOrItem._ref);
       return <div>{item?.elements.text_element.value}</div>;
     },
     // Image and Table components are used as a default fallback if a resolver isn't explicitly specified
@@ -169,7 +168,7 @@ const resolvers: PortableTextReactResolvers = {
       )
     },
     contentItemLink: ({ value, children }) => {
-      const item = richTextElement.linkedItems.find(item => item.system.id === value?.reference._ref);
+      const item = richTextElement.linkedItems.find(item => item.system.id === value?.contentItemLink._ref);
       return (
         <a href={"https://website.xyz/" + item?.system.codename}>
           {children}

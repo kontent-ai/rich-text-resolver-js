@@ -128,7 +128,7 @@ export const createItemLink = (
 ): PortableTextItemLink => ({
   _key: guid,
   _type: "contentItemLink",
-  reference: {
+  contentItemLink: {
     _type: "reference",
     _ref: reference,
     referenceType,
@@ -167,7 +167,7 @@ export const createComponentOrItemBlock = (
   _type: "componentOrItem",
   _key: guid,
   dataType,
-  component: reference,
+  componentOrItem: reference,
 });
 
 export const { randomUUID } = new ShortUniqueId({ length: 10 });

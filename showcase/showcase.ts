@@ -3,7 +3,7 @@ import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, P
   const portableTextComponent: PortableTextComponentOrItem = {
     _type: "componentOrItem",
     _key: "guid",
-    component: {
+    componentOrItem: {
       _type: "reference",
       _ref: "linkedItemOrComponentCodename",
       referenceType: "codename",
@@ -26,7 +26,7 @@ import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, P
   const portableTextItemLink: PortableTextItemLink = {
     _type: "contentItemLink",
     _key: "guid",
-    reference: {
+    contentItemLink: {
       _type: "reference",
       _ref: "0184a8ac-9781-4292-9e30-1fb56f648a6c",
       referenceType: "id",

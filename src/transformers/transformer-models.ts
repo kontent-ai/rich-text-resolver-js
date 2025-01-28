@@ -61,7 +61,7 @@ export interface PortableTextExternalLink extends PortableTextMarkDefinition {
  */
 export interface PortableTextItemLink extends PortableTextMarkDefinition {
   _type: "contentItemLink";
-  reference: Reference;
+  contentItemLink: Reference;
 }
 
 /**
@@ -120,7 +120,7 @@ export interface PortableTextComponentOrItem extends ArbitraryTypedObject {
   /**
    * Reference to a component or a linked item.
    */
-  component: Reference;
+  componentOrItem: Reference;
 }
 
 /**

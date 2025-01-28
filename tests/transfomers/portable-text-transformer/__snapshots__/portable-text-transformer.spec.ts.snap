@@ -67,7 +67,7 @@ exports[`Portable Text Transformer doesn't extend link mark to adjacent spans 1`
       {
         "_key": "guid",
         "_type": "contentItemLink",
-        "reference": {
+        "contentItemLink": {
           "_ref": "3120ec15-a4a2-47ec-8ccd-c85ac8ac5ba5",
           "_type": "reference",
           "referenceType": "id",
@@ -85,7 +85,7 @@ exports[`Portable Text Transformer extends component block with additional data 
     "_key": "guid",
     "_type": "componentOrItem",
     "additionalData": "data",
-    "component": {
+    "componentOrItem": {
       "_ref": "test_item",
       "_type": "reference",
       "referenceType": "codename",
@@ -359,7 +359,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
   {
     "_key": "guid",
     "_type": "componentOrItem",
-    "component": {
+    "componentOrItem": {
       "_ref": "n27ec1626_93ac_0129_64e5_1beeda45416c",
       "_type": "reference",
       "referenceType": "codename",
@@ -383,7 +383,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
   {
     "_key": "guid",
     "_type": "componentOrItem",
-    "component": {
+    "componentOrItem": {
       "_ref": "commercet",
       "_type": "reference",
       "referenceType": "codename",
@@ -412,7 +412,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
   {
     "_key": "guid",
     "_type": "componentOrItem",
-    "component": {
+    "componentOrItem": {
       "_ref": "d6a10cb4-3639-429f-b6b0-b7fea6dec252",
       "_type": "reference",
       "referenceType": "id",
@@ -436,7 +436,7 @@ exports[`Portable Text Transformer transforms a linked item and a component from
   {
     "_key": "guid",
     "_type": "componentOrItem",
-    "component": {
+    "componentOrItem": {
       "_ref": "99e17fe7-a215-400d-813a-dc3608ee0294",
       "_type": "reference",
       "referenceType": "id",
@@ -833,7 +833,7 @@ exports[`Portable Text Transformer transforms complex rich text into portable te
   {
     "_key": "guid",
     "_type": "componentOrItem",
-    "component": {
+    "componentOrItem": {
       "_ref": "test_item",
       "_type": "reference",
       "referenceType": "codename",
@@ -977,7 +977,7 @@ exports[`Portable Text Transformer transforms item links 1`] = `
       {
         "_key": "guid",
         "_type": "contentItemLink",
-        "reference": {
+        "contentItemLink": {
           "_ref": "23f71096-fa89-4f59-a3f9-970e970944ec",
           "_type": "reference",
           "referenceType": "id",
@@ -1714,7 +1714,7 @@ exports[`Portable Text Transformer transforms tables with input <p>Text</p>
                   {
                     "_key": "guid",
                     "_type": "contentItemLink",
-                    "reference": {
+                    "contentItemLink": {
                       "_ref": "6538fde0-e6e5-425c-8642-278e637b2dc1",
                       "_type": "reference",
                       "referenceType": "id",
@@ -2788,7 +2788,7 @@ exports[`Portable Text Transformer transforms tables with input <table>
                   {
                     "_key": "guid",
                     "_type": "contentItemLink",
-                    "reference": {
+                    "contentItemLink": {
                       "_ref": "e2d97322-470a-42e7-a31e-40be26c2ef24",
                       "_type": "reference",
                       "referenceType": "id",
@@ -2832,7 +2832,7 @@ exports[`Portable Text Transformer transforms tables with input <table>
                   {
                     "_key": "guid",
                     "_type": "contentItemLink",
-                    "reference": {
+                    "contentItemLink": {
                       "_ref": "abaf708d-5d91-4b50-9905-30f1d0f482f9",
                       "_type": "reference",
                       "referenceType": "id",
