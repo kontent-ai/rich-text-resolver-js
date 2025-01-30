@@ -66,6 +66,7 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
   };
 
   const mergedComponentResolvers = {
+    ...resolvers?.components,
     types: {
       ...defaultComponentResolvers.components.types,
       ...resolvers?.components.types,

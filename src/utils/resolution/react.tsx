@@ -62,7 +62,7 @@ export const ImageComponent: React.FC<PortableTextImage> = (image) => (
   <img src={image.asset.url} alt={image.asset.alt ?? ""} />
 );
 
-const defaultComponentResolvers: PortableTextReactResolvers = {
+const kontentDefaultComponentResolvers: PortableTextReactResolvers = {
   types: {
     image: ({ value }) => <ImageComponent {...value} />,
     table: ({ value }) => <TableComponent {...value} />,
@@ -91,12 +91,13 @@ export const PortableText = <B extends TypedObject = PortableTextBlock>({
   onMissingComponent: missingComponentHandler,
 }: PortableTextProps<B>): JSX.Element => {
   const mergedComponentResolvers: PortableTextReactResolvers = {
+    ...componentOverrides,
     types: {
-      ...defaultComponentResolvers.types,
+      ...kontentDefaultComponentResolvers.types,
       ...componentOverrides?.types,
     },
     marks: {
-      ...defaultComponentResolvers.marks,
+      ...kontentDefaultComponentResolvers.marks,
       ...componentOverrides?.marks,
     },
   };
