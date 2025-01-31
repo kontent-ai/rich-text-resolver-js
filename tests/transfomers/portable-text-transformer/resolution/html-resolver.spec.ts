@@ -13,75 +13,70 @@ jest.mock("short-unique-id", () => {
 });
 
 describe("HTML resolution", () => {
-  let richTextInput: Elements.RichTextElement;
-  let customResolvers: PortableTextHtmlResolvers;
-
-  beforeEach(() => {
-    richTextInput = {
-      value: "<p><br></p>",
-      type: ElementType.RichText,
-      images: [],
-      linkedItemCodenames: [],
-      linkedItems: [
-        {
-          system: {
-            id: "99e17fe7-a215-400d-813a-dc3608ee0294",
-            name: "test item",
-            codename: "test_item",
-            language: "default",
-            type: "test",
-            collection: "default",
-            sitemapLocations: [],
-            lastModified: "2022-10-11T11:27:25.4033512Z",
-            workflowStep: "published",
-            workflow: "default",
-          },
-          elements: {
-            text_element: {
-              type: ElementType.Text,
-              name: "text element",
-              value: "random text value",
-            },
-          },
+  const richTextInput: Elements.RichTextElement = {
+    value: "<p><br></p>",
+    type: ElementType.RichText,
+    images: [],
+    linkedItemCodenames: [],
+    linkedItems: [
+      {
+        system: {
+          id: "99e17fe7-a215-400d-813a-dc3608ee0294",
+          name: "test item",
+          codename: "test_item",
+          language: "default",
+          type: "test",
+          collection: "default",
+          sitemapLocations: [],
+          lastModified: "2022-10-11T11:27:25.4033512Z",
+          workflowStep: "published",
+          workflow: "default",
         },
-      ],
-      links: [],
-      name: "dummy",
-    };
-
-    customResolvers = {
-      components: {
-        block: {
-          h1: ({ children }) => `<h1 custom-attribute="value">${children}</h1>`,
-        },
-        types: {
-          image: ({ value }) => `<img src="${value.asset.url}" alt="${value.asset.rel ?? ""}" height="800">`,
-          componentOrItem: ({
-            value,
-          }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) => {
-            const linkedItem = richTextInput.linkedItems.find(
-              (item) => item.system.codename === value.componentOrItem._ref,
-            );
-            if (!linkedItem) {
-              return `Resolver for unknown type not implemented.`;
-            }
-
-            switch (linkedItem.system.type) {
-              case "test":
-                return `<p>resolved value of text_element: <strong>${linkedItem.elements.text_element.value}</strong></p>`;
-              default:
-                return `Resolver for type ${linkedItem.system.type} not implemented.`;
-            }
+        elements: {
+          text_element: {
+            type: ElementType.Text,
+            name: "text element",
+            value: "random text value",
           },
-        },
-        marks: {
-          contentItemLink: ({ children, value }) =>
-            `<a href="https://website.com/${value?.contentItemLink._ref}">${children}</a>`,
-          sup: ({ children }) => `<sup custom-attribute="value">${children}</sup>`,
         },
       },
-    };
-  });
+    ],
+    links: [],
+    name: "dummy",
+  };
+
+  const customResolvers: PortableTextHtmlResolvers = {
+    components: {
+      block: {
+        h1: ({ children }) => `<h1 custom-attribute="value">${children}</h1>`,
+      },
+      types: {
+        image: ({ value }) => `<img src="${value.asset.url}" alt="${value.asset.rel ?? ""}" height="800">`,
+        componentOrItem: ({
+          value,
+        }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) => {
+          const linkedItem = richTextInput.linkedItems.find(
+            (item) => item.system.codename === value.componentOrItem._ref,
+          );
+          if (!linkedItem) {
+            return `Resolver for unknown type not implemented.`;
+          }
+
+          switch (linkedItem.system.type) {
+            case "test":
+              return `<p>resolved value of text_element: <strong>${linkedItem.elements.text_element.value}</strong></p>`;
+            default:
+              return `Resolver for type ${linkedItem.system.type} not implemented.`;
+          }
+        },
+      },
+      marks: {
+        contentItemLink: ({ children, value }) =>
+          `<a href="https://website.com/${value?.contentItemLink._ref}">${children}</a>`,
+        sup: ({ children }) => `<sup custom-attribute="value">${children}</sup>`,
+      },
+    },
+  };
 
   const transformAndCompare = (
     richTextValue: string,
