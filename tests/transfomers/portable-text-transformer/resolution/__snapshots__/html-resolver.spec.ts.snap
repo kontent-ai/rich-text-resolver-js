@@ -4,6 +4,12 @@ exports[`HTML resolution builds basic portable text into HTML 1`] = `"<p><br/></
 
 exports[`HTML resolution by default resolves text styled with sub and sup 1`] = `"<p><sub>Subscript text</sub><sup>Superscript text</sup></p>"`;
 
+exports[`HTML resolution resolves a h2 heading while using custom resolvers for h1 1`] = `"<h1 custom-attribute="value">modified heading</h1><h2>heading</h2>"`;
+
+exports[`HTML resolution resolves a heading using custom resolvers 1`] = `"<h1 custom-attribute="value">heading</h1>"`;
+
+exports[`HTML resolution resolves a heading using default fallback 1`] = `"<h1>heading</h1>"`;
+
 exports[`HTML resolution resolves a link using default fallback 1`] = `"<p><a href="https://website.com/12345" target="_blank" rel="noopener noreferrer">link</a></p>"`;
 
 exports[`HTML resolution resolves a linked item 1`] = `"<p>resolved value of text_element: <strong>random text value</strong></p><p>text after component</p>"`;

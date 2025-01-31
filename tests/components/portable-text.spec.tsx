@@ -40,13 +40,17 @@ const dummyRichText: Elements.RichTextElement = {
 const portableTextComponents: PortableTextReactResolvers = {
   types: {
     componentOrItem: ({ value }) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.codename === value.componentOrItem._ref);
+      const item = dummyRichText.linkedItems.find(
+        (item) => item.system.codename === value.componentOrItem._ref,
+      );
       return <div>{item?.elements.text_element.value}</div>;
     },
   },
   marks: {
     contentItemLink: ({ value, children }) => {
-      const item = dummyRichText.linkedItems.find(item => item.system.id === value?.contentItemLink._ref);
+      const item = dummyRichText.linkedItems.find(
+        (item) => item.system.id === value?.contentItemLink._ref,
+      );
       return (
         <a href={"https://somerandomwebsite.xyz/" + item?.system.codename}>
           {children}
@@ -57,11 +61,15 @@ const portableTextComponents: PortableTextReactResolvers = {
 };
 
 describe("portable text React resolver", () => {
-  const renderPortableText = (richTextValue: string, components = portableTextComponents) => {
+  const renderPortableText = (
+    richTextValue: string,
+    components = portableTextComponents,
+  ) => {
     dummyRichText.value = richTextValue;
     const portableText = transformToPortableText(dummyRichText.value);
 
-    return render(<PortableText value={portableText} components={components} />).container.innerHTML;
+    return render(<PortableText value={portableText} components={components} />)
+      .container.innerHTML;
   };
 
   it("renders simple HTML", () => {
@@ -146,6 +154,28 @@ describe("portable text React resolver", () => {
       <p><a href="http://google.com" title="linktitle" target="_blank">external link</a></p>
     `,
       customComponentResolvers,
+    );
+    expect(tree).toMatchSnapshot();
+  });
+
+  it("renders a heading using custom resolvers", () => {
+    const customComponentResolvers: PortableTextReactResolvers = {
+      ...portableTextComponents,
+      block: {
+        h1: ({ children }) => <h1 className="custom class">{children}</h1>,
+      },
+    };
+
+    const tree = renderPortableText(
+      `<h1>heading</h1>`,
+      customComponentResolvers,
+    );
+    expect(tree).toMatchSnapshot();
+  });
+
+  it("renders a heading using default fallback", () => {
+    const tree = renderPortableText(
+      `<h1>heading</h1>`,
     );
     expect(tree).toMatchSnapshot();
   });
