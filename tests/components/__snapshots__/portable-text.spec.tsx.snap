@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`portable text React resolver renders a heading using custom resolvers 1`] = `"<h1 class="custom class">heading</h1>"`;
+
+exports[`portable text React resolver renders a heading using default fallback 1`] = `"<h1>heading</h1>"`;
+
 exports[`portable text React resolver renders a link using custom resolvers 1`] = `"<p><a href="http://google.com">external link</a></p>"`;
 
 exports[`portable text React resolver renders a resolved linked item 1`] = `"<div>random text value</div>"`;
