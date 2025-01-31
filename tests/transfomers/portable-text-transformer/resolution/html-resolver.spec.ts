@@ -87,9 +87,7 @@ describe("HTML resolution", () => {
     richTextValue: string,
     customResolvers?: PortableTextHtmlResolvers,
   ) => {
-    richTextInput.value = richTextValue;
-
-    const portableText = transformToPortableText(richTextInput.value);
+    const portableText = transformToPortableText(richTextValue);
     const result = toHTML(portableText, customResolvers);
 
     expect(result).toMatchSnapshot();
