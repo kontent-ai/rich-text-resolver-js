@@ -43,7 +43,7 @@ type RichTextHtmlComponents = Omit<PortableTextHtmlComponents, "types" | "marks"
  * @returns HTML string
  */
 export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtmlResolvers) => {
-  const defaultComponentResolvers: PortableTextHtmlResolvers = {
+  const kontentDefaultComponentResolvers: PortableTextHtmlResolvers = {
     components: {
       types: {
         image: ({ value }) => resolveImage(value),
@@ -68,11 +68,11 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
   const mergedComponentResolvers = {
     ...resolvers?.components,
     types: {
-      ...defaultComponentResolvers.components.types,
+      ...kontentDefaultComponentResolvers.components.types,
       ...resolvers?.components.types,
     },
     marks: {
-      ...defaultComponentResolvers.components.marks,
+      ...kontentDefaultComponentResolvers.components.marks,
       ...resolvers?.components.marks,
     },
   };
