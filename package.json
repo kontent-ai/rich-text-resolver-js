@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "private": false,
   "description": "Kontent.ai rich text element resolver and PortableText transformer for JavaScript and TypeScript",
   "license": "MIT",
@@ -87,6 +87,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@vue/test-utils": "^2.4.6",
+    "@portabletext/vue": "^1.0.12",
     "core-js": "^3.41.0",
     "dprint": "^0.49.1",
     "eslint": "^8.57.0",
@@ -101,7 +102,6 @@
     "@portabletext/react": "^3.2.1",
     "@portabletext/to-html": "^2.0.14",
     "@portabletext/types": "^2.0.13",
-    "@portabletext/vue": "^1.0.12",
     "browser-or-node": "^3.0.0",
     "node-html-parser": "^7.0.1",
     "short-unique-id": "^5.2.2",
