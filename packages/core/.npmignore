@@ -10,13 +10,12 @@ tsconfig.test.json
 src/**
 index.ts
 
-# docs
-media/**
-docs/**
-showcase/**
+# configs
+.eslintrc.js
+.swcrc
+tsconfig*.json
+!tsconfig.test.json
 
 # misc
 /.gitignore
-/.npmignore
-/tsconfig.json
-/.eslintrc
+/.npmignore 

@@ -1,0 +1,21 @@
+# repo metadata
+.github/**
+
+# tests
+tests/**
+jest.config.cjs
+tsconfig.test.json
+
+# source
+src/**
+index.ts
+
+# configs
+.eslintrc.js
+.swcrc
+tsconfig*.json
+!tsconfig.test.json
+
+# misc
+/.gitignore
+/.npmignore 

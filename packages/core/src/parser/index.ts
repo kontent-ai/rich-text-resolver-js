@@ -1,4 +1,5 @@
 import * as runtimeEnvironment from "browser-or-node";
+
 import { browserParse } from "./browser/index.js";
 import { nodeParse } from "./node/index.js";
 

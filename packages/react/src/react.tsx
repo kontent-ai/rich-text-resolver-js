@@ -1,14 +1,4 @@
 import {
-  PortableText as PortableTextDefault,
-  PortableTextMarkComponent,
-  PortableTextProps,
-  PortableTextReactComponents,
-  PortableTextTypeComponent,
-  toPlainText,
-} from "@portabletext/react";
-import React, { JSX } from "react";
-
-import {
   PortableTextBlock,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
@@ -18,7 +8,16 @@ import {
   PortableTextTableCell,
   PortableTextTableRow,
   TypedObject,
-} from "../../transformers/transformer-models.js";
+} from "@kontent-ai/rich-text-resolver";
+import {
+  PortableText as PortableTextDefault,
+  PortableTextMarkComponent,
+  PortableTextProps,
+  PortableTextReactComponents,
+  PortableTextTypeComponent,
+  toPlainText,
+} from "@portabletext/react";
+import React, { JSX } from "react";
 
 type RichTextCustomBlocks = {
   image: PortableTextTypeComponent<PortableTextImage>;

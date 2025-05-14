@@ -1,15 +1,12 @@
 module.exports = {
-  testEnvironment: 'jsdom',
-  testEnvironmentOptions: {
-    customExportConditions: ["node", "node-addons"],
- },
-  extensionsToTreatAsEsm: ['.ts'],
-  moduleNameMapper: {
-    '^(\\.{1,2}/.*)\\.js$': '$1',
-  },
-  transform: {
-    '^.+\\.tsx?$': [
-      '@swc/jest'
-    ],
-  },
-}
+  projects: [
+    '<rootDir>/packages/core/jest.config.cjs',
+    '<rootDir>/packages/react/jest.config.cjs'
+  ],
+  collectCoverageFrom: [
+    "packages/*/src/**/*.{ts,tsx}",
+    "!packages/*/src/**/*.d.ts",
+    "!packages/*/src/**/*.test.{ts,tsx}",
+    "!packages/*/src/**/*.spec.{ts,tsx}"
+  ],
+};

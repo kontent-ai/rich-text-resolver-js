@@ -4,10 +4,11 @@
       "https://plugins.dprint.dev/g-plane/markup_fmt-v0.11.0.wasm"
     ],
     "includes": [
-      "src/**/*.{ts,tsx,js,jsx,json,html}",
-      "tests/**/*.{ts,tsx,js,jsx,json,html}"
+      "packages/*/src/**/*.{ts,tsx,js,jsx,json,html}",
+      "packages/*/tests/**/*.{ts,tsx,js,jsx,json,html}"
     ],
     "excludes": [
-      "tests/**/*.snap.html"
+      "packages/*/tests/**/*.snap.html",
+      "packages/*/dist/**"
     ]
   }

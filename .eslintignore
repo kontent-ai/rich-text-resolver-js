@@ -1,5 +1,8 @@
 node_modules
+packages/*/dist
 dist
+coverage
 media
-index.ts
 showcase
+node_modules
+**/*.d.ts

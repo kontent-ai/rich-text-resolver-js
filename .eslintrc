@@ -1,13 +1,24 @@
 {
-    "root": true,
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
-    "extends": [
-      "kontent-ai"
-    ],
-    "parserOptions": {
-      "project": ["tsconfig.json", "tsconfig.test.json"]
-    },
-  }
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "kontent-ai"
+  ],
+  "parserOptions": {
+    "tsconfigRootDir": ".",
+    "project": ["./tsconfig.eslint.json"],
+    "createDefaultProgram": false
+  },
+  "ignorePatterns": [
+    "node_modules",
+    "packages/*/dist",
+    "dist",
+    "coverage",
+    "media",
+    "showcase",
+    "**/*.d.ts"
+  ]
+}

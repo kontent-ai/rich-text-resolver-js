@@ -2,8 +2,8 @@ import { Elements, ElementType } from "@kontent-ai/delivery-sdk";
 import { render } from "@testing-library/react";
 import React from "react";
 
-import { transformToPortableText } from "../../src";
-import { PortableText, PortableTextReactResolvers } from "../../src/utils/resolution/react";
+import { transformToPortableText } from "@kontent-ai/rich-text-resolver";
+import { PortableText, PortableTextReactResolvers } from "../../src/react";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

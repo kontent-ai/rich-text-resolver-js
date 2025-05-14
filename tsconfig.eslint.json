@@ -1,0 +1,17 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+      // only if you need Jest/node types in your lint
+      "types": ["node", "jest"]
+    },
+    "include": [
+      "packages/*/src",
+      "packages/*/tests",
+      // any other folders you want ESLint to walk
+    ],
+    "exclude": [
+      "node_modules",
+      "packages/*/dist"
+    ]
+  }
+  

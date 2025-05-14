@@ -1,4 +1,4 @@
-import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, PortableTextTable } from "../src/index.js"
+import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, PortableTextTable } from "../packages/core/src/index.js"
   
   const portableTextComponent: PortableTextComponentOrItem = {
     _type: "componentOrItem",
