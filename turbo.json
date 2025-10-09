@@ -5,9 +5,18 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
-    "test": {},
-    "test:coverage": {},
+    "test": {
+      "dependsOn": ["^build"]
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"]
+    },
+    "test:watch": {},
     "lint": {},
-    "fmt:check": {}
+    "biome": {},
+    "biome:check": {},
+    "clean": {
+      "cache": false
+    }
   }
 }

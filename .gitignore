@@ -170,6 +170,7 @@ dist
 
 # dist folder
 dist
+packages/*/dist
 
 # Turborepo
 .turbo
