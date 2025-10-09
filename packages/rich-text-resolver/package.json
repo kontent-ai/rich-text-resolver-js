@@ -1,0 +1,39 @@
+{
+  "name": "@kontent-ai/rich-text-resolver",
+  "version": "2.0.4",
+  "private": false,
+  "description": "Kontent.ai rich text element parser and transformer - Core package",
+  "license": "MIT",
+  "author": "Daniel Pokorny",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kontent-ai/rich-text-resolver-js.git",
+    "directory": "packages/rich-text-resolver"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@portabletext/types": "^2.0.13",
+    "browser-or-node": "^3.0.0",
+    "node-html-parser": "^7.0.1",
+    "short-unique-id": "^5.2.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
