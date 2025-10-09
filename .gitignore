@@ -170,3 +170,6 @@ dist
 
 # dist folder
 dist
+
+# Turborepo
+.turbo
