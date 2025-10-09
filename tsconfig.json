@@ -2,7 +2,7 @@
   "files": [],
   "references": [
     { "path": "./packages/rich-text-resolver" },
-    { "path": "./packages/rich-text-resolver-util" },
+    { "path": "./packages/rich-text-resolver-markdown" },
     { "path": "./packages/rich-text-resolver-react" },
     { "path": "./packages/rich-text-resolver-vue" }
   ],
