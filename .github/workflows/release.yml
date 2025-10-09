@@ -9,19 +9,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org'
-      - run: npm install
-      - run: npm run lint
-      - run: npm run build
-      - run: npm publish --access public
+          cache: 'pnpm'
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run build
+      - run: pnpm publish --access public --no-git-checks
         if: ${{!github.event.release.prerelease}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
-      - run: npm publish --access public --tag prerelease
+      - run: pnpm publish --access public --tag prerelease --no-git-checks
         if: ${{github.event.release.prerelease}}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
