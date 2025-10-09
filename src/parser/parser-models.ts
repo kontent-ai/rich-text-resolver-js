@@ -75,9 +75,7 @@ export type ImgElementAttributes = {
   alt?: string;
 };
 
-export type InternalLinkElementAttributes =
-  | AssetLinkElementAttributes
-  | ItemLinkElementAttributes;
+export type InternalLinkElementAttributes = AssetLinkElementAttributes | ItemLinkElementAttributes;
 
 export type ObjectElementAttributes =
   | DeliverObjectElementAttributes

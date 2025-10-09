@@ -1,4 +1,4 @@
-import {
+import type {
   ArbitraryTypedObject,
   PortableTextBlock,
   PortableTextListItemBlock,
@@ -6,7 +6,7 @@ import {
   PortableTextSpan,
 } from "@portabletext/types";
 
-import {
+import type {
   blockElements,
   ignoredElements,
   listTypeElements,
@@ -136,7 +136,9 @@ export interface PortableTextMark extends ArbitraryTypedObject {
  *
  * Narrows the `_type` to `block` for type guard purposes.
  */
-export interface PortableTextStrictBlock extends Omit<PortableTextBlock, "_type">, ArbitraryTypedObject {
+export interface PortableTextStrictBlock
+  extends Omit<PortableTextBlock, "_type">,
+    ArbitraryTypedObject {
   _type: "block";
 }
 
@@ -146,13 +148,12 @@ export interface PortableTextStrictBlock extends Omit<PortableTextBlock, "_type"
  * Narrows the `_type` to `block` for type guard purposes.
  */
 export interface PortableTextStrictListItemBlock
-  extends Omit<PortableTextListItemBlock, "_type">, ArbitraryTypedObject {
+  extends Omit<PortableTextListItemBlock, "_type">,
+    ArbitraryTypedObject {
   _type: "block";
 }
 
-export type PortableTextLink =
-  | PortableTextItemLink
-  | PortableTextExternalLink;
+export type PortableTextLink = PortableTextItemLink | PortableTextExternalLink;
 
 /**
  * Union of all default, top-level portable text object types.
@@ -199,12 +200,14 @@ export type ModularContentType = "component" | DeliveryLinkedItem | ManagementLi
  * Re-exports all types from the package, to allow both custom types and
  * predefined types to be imported from a single point via "exports" in package.json.
  */
+
+// biome-ignore lint/performance/noBarrelFile: Re exporting all types from the package
 export * from "@portabletext/types";
 
-export type TextStyleElement = typeof textStyleElements[number];
-export type BlockElement = typeof blockElements[number];
-export type IgnoredElement = typeof ignoredElements[number];
-export type MarkElement = typeof markElements[number];
-export type ValidElement = typeof validElements[number];
-export type ListTypeElement = typeof listTypeElements[number];
+export type TextStyleElement = (typeof textStyleElements)[number];
+export type BlockElement = (typeof blockElements)[number];
+export type IgnoredElement = (typeof ignoredElements)[number];
+export type MarkElement = (typeof markElements)[number];
+export type ValidElement = (typeof validElements)[number];
+export type ListTypeElement = (typeof listTypeElements)[number];
 export type ShortGuid = string;

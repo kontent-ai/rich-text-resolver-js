@@ -1,4 +1,4 @@
-import {
+import type {
   ArbitraryTypedObject,
   PortableTextBlockStyle,
   PortableTextListItemType,
@@ -7,7 +7,7 @@ import {
 } from "@portabletext/types";
 import ShortUniqueId from "short-unique-id";
 
-import {
+import type {
   ModularContentType,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
@@ -53,11 +53,7 @@ export const traversePortableText = <T extends ArbitraryTypedObject = PortableTe
   });
 };
 
-export const createSpan = (
-  guid: ShortGuid,
-  marks?: string[],
-  text?: string,
-): PortableTextSpan => ({
+export const createSpan = (guid: ShortGuid, marks?: string[], text?: string): PortableTextSpan => ({
   _type: "span",
   _key: guid,
   marks: marks || [],
@@ -135,16 +131,16 @@ export const createItemLink = (
   },
 });
 
-export const createTable = (
-  guid: ShortGuid,
-  rows?: PortableTextTableRow[],
-): PortableTextTable => ({
+export const createTable = (guid: ShortGuid, rows?: PortableTextTableRow[]): PortableTextTable => ({
   _key: guid,
   _type: "table",
   rows: rows ?? [],
 });
 
-export const createTableRow = (guid: ShortGuid, cells?: PortableTextTableCell[]): PortableTextTableRow => ({
+export const createTableRow = (
+  guid: ShortGuid,
+  cells?: PortableTextTableCell[],
+): PortableTextTableRow => ({
   _key: guid,
   _type: "row",
   cells: cells ?? [],

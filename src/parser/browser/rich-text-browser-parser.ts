@@ -1,6 +1,11 @@
-import { convertDomNodeAttributes, isElementNode, isRootNode, isTextNode } from "../../utils/browser-parser-utils.js";
+import {
+  convertDomNodeAttributes,
+  isElementNode,
+  isRootNode,
+  isTextNode,
+} from "../../utils/browser-parser-utils.js";
 import { getAllNewLineAndWhiteSpace, throwError } from "../../utils/common-utils.js";
-import { DomNode } from "../parser-models.js";
+import type { DomNode } from "../parser-models.js";
 
 export const parse = (input: string): DomNode[] => {
   const parser = new DOMParser();
@@ -17,7 +22,9 @@ const parseInternal = (document: Node): DomNode => {
     return {
       tagName: document.tagName.toLowerCase(),
       attributes: document.hasAttributes() ? convertDomNodeAttributes(document.attributes) : {},
-      children: document.hasChildNodes() ? Array.from(document.childNodes).flatMap(parseInternal) : [],
+      children: document.hasChildNodes()
+        ? Array.from(document.childNodes).flatMap(parseInternal)
+        : [],
       type: "tag",
     };
   }

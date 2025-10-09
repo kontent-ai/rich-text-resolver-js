@@ -1,7 +1,7 @@
 import { match, P } from "ts-pattern";
 
 import { parseHTML } from "../../parser/index.js";
-import {
+import type {
   DomHtmlNode,
   DomNode,
   DomTextNode,
@@ -32,7 +32,7 @@ import {
   createTableRow,
   randomUUID,
 } from "../../utils/transformer-utils.js";
-import {
+import type {
   BlockElement,
   IgnoredElement,
   PortableTextComponentOrItem,
@@ -71,10 +71,10 @@ const transformNodes = (
   transformers: PortableTextTransformers,
   context: ListContext,
 ): PortableTextItem[] =>
-  nodes.flatMap(node =>
+  nodes.flatMap((node) =>
     match(node)
-      .with({ type: "text" }, textNode => transformers.text(textNode))
-      .with({ type: "tag" }, tagNode => {
+      .with({ type: "text" }, (textNode) => transformers.text(textNode))
+      .with({ type: "tag" }, (tagNode) => {
         const updatedContext = updateListContext(tagNode, context);
         const children = transformNodes(tagNode.children, transformers, updatedContext);
         const transformer = transformers.tag[tagNode.tagName];
@@ -84,7 +84,7 @@ const transformNodes = (
 
         return transformer(tagNode, children, updatedContext);
       })
-      .exhaustive()
+      .exhaustive(),
   );
 
 export const categorizeItems = (items: PortableTextItem[]) => {
@@ -148,19 +148,16 @@ export const categorizeItems = (items: PortableTextItem[]) => {
 };
 
 const updateListContext = (node: DomNode, context: ListContext): ListContext =>
-  (isElement(node) && isListBlock(node))
+  isElement(node) && isListBlock(node)
     ? { depth: context.depth + 1, type: node.tagName === "ol" ? "number" : "bullet" }
     : context;
 
-const processLineBreak: NodeToPortableText<DomHtmlNode> = () => [createSpan(randomUUID(), [], "\n")];
+const processLineBreak: NodeToPortableText<DomHtmlNode> = () => [
+  createSpan(randomUUID(), [], "\n"),
+];
 
 const processListItem: NodeToPortableText<DomHtmlNode> = (_, children, listContext) => {
-  const {
-    links,
-    contentItemLinks,
-    spans,
-    listBlocks,
-  } = categorizeItems(children);
+  const { links, contentItemLinks, spans, listBlocks } = categorizeItems(children);
 
   return [
     createListBlock(
@@ -180,7 +177,12 @@ const processBlock: NodeToPortableText<DomHtmlNode> = (node, children) => {
   const { spans, links, contentItemLinks } = categorizeItems(children);
 
   return [
-    createBlock(randomUUID(), [...links, ...contentItemLinks], node.tagName === "p" ? "normal" : node.tagName, spans),
+    createBlock(
+      randomUUID(),
+      [...links, ...contentItemLinks],
+      node.tagName === "p" ? "normal" : node.tagName,
+      spans,
+    ),
   ];
 };
 
@@ -188,20 +190,22 @@ const processMark: NodeToPortableText<DomHtmlNode> = (node, children) => {
   const { links, contentItemLinks, spans } = categorizeItems(children);
   const key = randomUUID();
   const mark = match(node)
-    .when(isExternalLink, () => { // this includes asset, email, phone and regular url links
+    .when(isExternalLink, () => {
+      // this includes asset, email, phone and regular url links
       links.push(createExternalLink(key, node.attributes));
       return key;
     })
     .when(isItemLink, (itemLinkNode) => {
-      const { reference, refType } = getItemLinkReferenceData(itemLinkNode.attributes)
-        ?? throwError("Error transforming item link: Missing a valid item reference.");
+      const { reference, refType } =
+        getItemLinkReferenceData(itemLinkNode.attributes) ??
+        throwError("Error transforming item link: Missing a valid item reference.");
       contentItemLinks.push(createItemLink(key, reference, refType));
       return key;
     })
     .otherwise(() => node.tagName);
 
   const updatedSpans = spans.map(
-    s => ({ ...s, marks: [...(s.marks ?? []), mark] } as PortableTextSpan),
+    (s) => ({ ...s, marks: [...(s.marks ?? []), mark] }) as PortableTextSpan,
   );
   // links are returned to create markDefs in parent blocks higher up the recursion
   return [...updatedSpans, ...links, ...contentItemLinks];
@@ -213,41 +217,35 @@ const processImage: NodeToPortableText<DomHtmlNode<ImgElementAttributes>> = (nod
    * although assets in rich text can also be referenced by external-id or codename, only ID is always returned in the response.
    * if a user plans to transform portable text to mapi compatible HTML format, codenames and ext-ids need to be taken into account anyway though.
    */
-  const referenceData = getAssetReferenceData(node.attributes)
-    ?? throwError("Error transforming <img> tag: Missing a valid asset reference.");
+  const referenceData =
+    getAssetReferenceData(node.attributes) ??
+    throwError("Error transforming <img> tag: Missing a valid asset reference.");
   const { reference, refType } = referenceData;
 
   return [
-    createImageBlock(
-      randomUUID(),
-      reference,
-      node.attributes["src"],
-      refType,
-      node.attributes["alt"],
-    ),
+    createImageBlock(randomUUID(), reference, node.attributes.src, refType, node.attributes.alt),
   ];
 };
 
-const processLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElementAttributes>> = (node) => {
-  const referenceData = getItemOrComponentReferenceData(node.attributes)
-    ?? throwError("Error transforming <object> tag: Missing a valid item or component reference.");
+const processLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElementAttributes>> = (
+  node,
+) => {
+  const referenceData =
+    getItemOrComponentReferenceData(node.attributes) ??
+    throwError("Error transforming <object> tag: Missing a valid item or component reference.");
   const { reference, refType } = referenceData;
 
   // data-rel and data-type specify whether an object is a component or linked item in DAPI and MAPI respectively
-  const objectType = node.attributes["data-rel"] ? node.attributes["data-rel"] : node.attributes["data-type"];
+  const objectType = node.attributes["data-rel"]
+    ? node.attributes["data-rel"]
+    : node.attributes["data-type"];
   const itemComponentReference: Reference = {
     _type: "reference",
     _ref: reference,
     referenceType: refType,
   };
 
-  return [
-    createComponentOrItemBlock(
-      randomUUID(),
-      itemComponentReference,
-      objectType,
-    ),
-  ];
+  return [createComponentOrItemBlock(randomUUID(), itemComponentReference, objectType)];
 };
 
 const processTableCell: NodeToPortableText<DomHtmlNode> = (_, children) => {
@@ -256,7 +254,7 @@ const processTableCell: NodeToPortableText<DomHtmlNode> = (_, children) => {
   // If there are spans, wrap them in a block; otherwise, return processed children directly in a table cell
   const cellContent = spans.length
     ? [createBlock(randomUUID(), [...links, ...contentItemLinks], "normal", spans)]
-    : children as PortableTextObject[];
+    : (children as PortableTextObject[]);
 
   return [createTableCell(randomUUID(), cellContent)];
 };
@@ -273,7 +271,9 @@ const processTable: NodeToPortableText<DomHtmlNode> = (_, children) => {
   return [createTable(randomUUID(), rows)];
 };
 
-const processText: NodeToPortableText<DomTextNode> = (node) => [createSpan(randomUUID(), [], node.content)];
+const processText: NodeToPortableText<DomTextNode> = (node) => [
+  createSpan(randomUUID(), [], node.content),
+];
 
 const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, children) => children;
 
@@ -283,26 +283,30 @@ const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, children) => child
  * @param {string} richText HTML string of Kontent.ai rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */
-export const transformToPortableText = (
-  richText: string,
-): PortableTextObject[] => {
+export const transformToPortableText = (richText: string): PortableTextObject[] => {
   const parsedNodes = parseHTML(richText);
 
-  return transformNodes(parsedNodes, transformers, { depth: 0, type: "unknown" }) as PortableTextObject[];
+  return transformNodes(parsedNodes, transformers, {
+    depth: 0,
+    type: "unknown",
+  }) as PortableTextObject[];
 };
 
 const transformers: PortableTextTransformers = {
   text: processText,
   tag: {
-    ...(Object.fromEntries(
-      blockElements.map((tagName) => [tagName, processBlock]),
-    ) as Record<BlockElement, NodeToPortableText<DomHtmlNode>>),
-    ...(Object.fromEntries(
-      textStyleElements.map((tagName) => [tagName, processMark]),
-    ) as Record<TextStyleElement, NodeToPortableText<DomHtmlNode>>),
-    ...(Object.fromEntries(
-      ignoredElements.map((tagName) => [tagName, ignoreProcessing]),
-    ) as Record<IgnoredElement, NodeToPortableText<DomHtmlNode>>),
+    ...(Object.fromEntries(blockElements.map((tagName) => [tagName, processBlock])) as Record<
+      BlockElement,
+      NodeToPortableText<DomHtmlNode>
+    >),
+    ...(Object.fromEntries(textStyleElements.map((tagName) => [tagName, processMark])) as Record<
+      TextStyleElement,
+      NodeToPortableText<DomHtmlNode>
+    >),
+    ...(Object.fromEntries(ignoredElements.map((tagName) => [tagName, ignoreProcessing])) as Record<
+      IgnoredElement,
+      NodeToPortableText<DomHtmlNode>
+    >),
     a: processMark,
     li: processListItem,
     table: processTable,

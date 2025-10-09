@@ -4,7 +4,9 @@ export enum NodeType {
   DOCUMENT_NODE = 9,
 }
 
-export const convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): Record<string, string> => {
+export const convertDomNodeAttributes = (
+  domNodeAttributes: NamedNodeMap,
+): Record<string, string> => {
   const convertedAttributes: Record<string, string> = {};
 
   for (const attr of domNodeAttributes) {
@@ -14,8 +16,11 @@ export const convertDomNodeAttributes = (domNodeAttributes: NamedNodeMap): Recor
   return convertedAttributes;
 };
 
-export const isRootNode = (domNode: Node): domNode is Document => domNode.nodeType === NodeType.DOCUMENT_NODE;
+export const isRootNode = (domNode: Node): domNode is Document =>
+  domNode.nodeType === NodeType.DOCUMENT_NODE;
 
-export const isTextNode = (domNode: Node): domNode is Text => domNode.nodeType === NodeType.TEXT_NODE;
+export const isTextNode = (domNode: Node): domNode is Text =>
+  domNode.nodeType === NodeType.TEXT_NODE;
 
-export const isElementNode = (domNode: Node): domNode is Element => domNode.nodeType === NodeType.ELEMENT_NODE;
+export const isElementNode = (domNode: Node): domNode is Element =>
+  domNode.nodeType === NodeType.ELEMENT_NODE;

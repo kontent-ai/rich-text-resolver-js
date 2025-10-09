@@ -1,13 +1,10 @@
 {
     "root": true,
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
     "extends": [
-      "kontent-ai"
+      "@kontent-ai",
+      "@kontent-ai/eslint-config/jest"
     ],
     "parserOptions": {
       "project": ["tsconfig.json", "tsconfig.test.json"]
-    },
+    }
   }

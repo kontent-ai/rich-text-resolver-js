@@ -1,11 +1,11 @@
 import {
-  PortableTextMarkComponentOptions,
-  PortableTextOptions,
-  PortableTextTypeComponentOptions,
+  type PortableTextMarkComponentOptions,
+  type PortableTextOptions,
+  type PortableTextTypeComponentOptions,
   toHTML,
 } from "@portabletext/to-html";
 
-import {
+import type {
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -37,10 +37,14 @@ const toManagementApiItemLink = (children: string, link?: PortableTextItemLink) 
 
 const createImgTag = (assetId: string) => `<img src="#" data-asset-id="${assetId}">`;
 
-const createFigureTag = (assetId: string) => `<figure data-asset-id="${assetId}">${createImgTag(assetId)}</figure>`;
+const createFigureTag = (assetId: string) =>
+  `<figure data-asset-id="${assetId}">${createImgTag(assetId)}</figure>`;
 
 const createExternalLinkAttributes = (link: PortableTextExternalLink) =>
-  Object.entries(link).filter(([k]) => k !== "_type" && k !== "_key").map(([k, v]) => `${k}="${v}"`).join(" ");
+  Object.entries(link)
+    .filter(([k]) => k !== "_type" && k !== "_key")
+    .map(([k, v]) => `${k}="${v}"`)
+    .join(" ");
 
 /**
  * specifies resolution for custom types and marks that are not part of `toHTML` default implementation.
@@ -48,20 +52,29 @@ const createExternalLinkAttributes = (link: PortableTextExternalLink) =>
 const portableTextComponents: PortableTextOptions = {
   components: {
     types: {
-      image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) => toManagementApiImage(value),
+      image: ({ value }: PortableTextTypeComponentOptions<PortableTextImage>) =>
+        toManagementApiImage(value),
       component: ({ value }: PortableTextTypeComponentOptions<PortableTextComponentOrItem>) =>
         toManagementApiRichTextItem(value),
-      table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable>) => toManagementApiTable(value),
+      table: ({ value }: PortableTextTypeComponentOptions<PortableTextTable>) =>
+        toManagementApiTable(value),
     },
     marks: {
-      contentItemLink: ({ children, value }: PortableTextMarkComponentOptions<PortableTextItemLink>) =>
+      contentItemLink: ({
+        children,
+        value,
+      }: PortableTextMarkComponentOptions<PortableTextItemLink>) =>
         toManagementApiItemLink(children, value),
       link: ({ children, value }: PortableTextMarkComponentOptions<PortableTextExternalLink>) =>
         toManagementApiExternalLink(children, value),
-      sub: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) => `<sub>${children}</sub>`,
-      strong: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) => `<strong>${children}</strong>`,
-      sup: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) => `<sup>${children}</sup>`,
-      em: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) => `<em>${children}</em>`,
+      sub: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) =>
+        `<sub>${children}</sub>`,
+      strong: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) =>
+        `<strong>${children}</strong>`,
+      sup: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) =>
+        `<sup>${children}</sup>`,
+      em: ({ children }: PortableTextMarkComponentOptions<PortableTextMark>) =>
+        `<em>${children}</em>`,
     },
   },
 };
@@ -75,4 +88,5 @@ const portableTextComponents: PortableTextOptions = {
  * @param blocks portable text array
  * @returns MAPI-compatible rich text string
  */
-export const toManagementApiFormat = (blocks: PortableTextObject[]) => toHTML(blocks, portableTextComponents);
+export const toManagementApiFormat = (blocks: PortableTextObject[]) =>
+  toHTML(blocks, portableTextComponents);

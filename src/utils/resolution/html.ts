@@ -1,12 +1,13 @@
 import {
-  PortableTextHtmlComponents,
-  PortableTextMarkComponent,
-  PortableTextOptions,
-  PortableTextTypeComponent,
+  defaultComponents,
+  type PortableTextHtmlComponents,
+  type PortableTextMarkComponent,
+  type PortableTextOptions,
+  type PortableTextTypeComponent,
   toHTML as toHTMLDefault,
 } from "@portabletext/to-html";
 
-import {
+import type {
   PortableTextComponentOrItem,
   PortableTextExternalLink,
   PortableTextImage,
@@ -53,11 +54,9 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
         link: ({ value, children }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { _key, _type, ...attributes } = value!;
-          return `<a ${
-            Object.entries(attributes)
-              .map(([key, value]) => `${key}="${value}"`)
-              .join(" ")
-          }>${children}</a>`;
+          return `<a ${Object.entries(attributes)
+            .map(([key, value]) => `${key}="${value}"`)
+            .join(" ")}>${children}</a>`;
         },
         sup: ({ children }) => `<sup>${children}</sup>`,
         sub: ({ children }) => `<sub>${children}</sub>`,
@@ -138,4 +137,4 @@ export const resolveImage = (
 export const toHTMLImageDefault = (image: PortableTextImage): string =>
   `<img src="${image.asset.url}" alt="${image.asset.alt}">`;
 
-export { defaultComponents } from "@portabletext/to-html";
+export { defaultComponents };

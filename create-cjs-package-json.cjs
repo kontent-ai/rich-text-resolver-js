@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // This script is added to commonjs build script, to clarify
 // the files in this directory are CommonJS modules.
@@ -8,9 +8,9 @@ const path = require('path');
 // ensures that Node.js correctly interprets the .js files in dist/cjs as CommonJS.
 
 const packageJson = {
-  type: "commonjs"
+  type: "commonjs",
 };
 
-const filePath = path.join(__dirname, 'dist/cjs/package.json');
+const filePath = path.join(__dirname, "dist/cjs/package.json");
 
 fs.writeFileSync(filePath, JSON.stringify(packageJson, null, 2));
