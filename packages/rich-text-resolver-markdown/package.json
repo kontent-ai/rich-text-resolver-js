@@ -1,0 +1,37 @@
+{
+  "name": "@kontent-ai/rich-text-resolver-markdown",
+  "version": "3.0.0",
+  "private": false,
+  "description": "Kontent.ai rich text Markdown transformer - converts Portable Text to Markdown",
+  "license": "MIT",
+  "author": "Daniel Pokorny",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kontent-ai/rich-text-resolver-js.git",
+    "directory": "packages/rich-text-resolver-markdown"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*",
+    "@portabletext/to-html": "^2.0.14"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
