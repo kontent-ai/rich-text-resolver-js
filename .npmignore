@@ -19,4 +19,5 @@ showcase/**
 /.gitignore
 /.npmignore
 /tsconfig.json
+/tsconfig.esm.json
 /.eslintrc
