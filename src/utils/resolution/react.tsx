@@ -1,14 +1,17 @@
 import {
+  defaultComponents,
   PortableText as PortableTextDefault,
-  PortableTextMarkComponent,
-  PortableTextProps,
-  PortableTextReactComponents,
-  PortableTextTypeComponent,
+  type PortableTextMarkComponent,
+  type PortableTextProps,
+  type PortableTextReactComponents,
+  type PortableTextTypeComponent,
   toPlainText,
 } from "@portabletext/react";
-import React, { JSX } from "react";
+import type { JSX } from "react";
+// biome-ignore lint/style/useImportType: <explanation>
+import React from "react";
 
-import {
+import type {
   PortableTextBlock,
   PortableTextComponentOrItem,
   PortableTextExternalLink,
@@ -112,4 +115,4 @@ export const PortableText = <B extends TypedObject = PortableTextBlock>({
   );
 };
 
-export { defaultComponents } from "@portabletext/react";
+export { defaultComponents };

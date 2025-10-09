@@ -1,6 +1,6 @@
 import { match } from "ts-pattern";
 
-import { DomHtmlNode, DomNode } from "../../parser/parser-models.js";
+import type { DomHtmlNode, DomNode } from "../../parser/parser-models.js";
 
 export type NodeToHtml<TContext = unknown> = (
   node: DomHtmlNode<unknown>,
@@ -53,21 +53,28 @@ export const nodesToHTML = <TContext>(
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
 ): string =>
-  nodes.map(node =>
-    match(node)
-      .with({ type: "text" }, textNode => textNode.content)
-      .with({ type: "tag" }, tagNode => {
-        const updatedContext = contextHandler?.(tagNode, context) ?? context;
-        const children = nodesToHTML(tagNode.children, transformers, updatedContext, contextHandler);
-        const transformer = transformers[tagNode.tagName] ?? transformers["*"];
+  nodes
+    .map((node) =>
+      match(node)
+        .with({ type: "text" }, (textNode) => textNode.content)
+        .with({ type: "tag" }, (tagNode) => {
+          const updatedContext = contextHandler?.(tagNode, context) ?? context;
+          const children = nodesToHTML(
+            tagNode.children,
+            transformers,
+            updatedContext,
+            contextHandler,
+          );
+          const transformer = transformers[tagNode.tagName] ?? transformers["*"];
 
-        return (
-          transformer?.(tagNode, children, updatedContext)
-            ?? `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
-        );
-      })
-      .exhaustive()
-  ).join("");
+          return (
+            transformer?.(tagNode, children, updatedContext) ??
+            `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
+          );
+        })
+        .exhaustive(),
+    )
+    .join("");
 
 /**
  * Recursively traverses an array of `DomNode`, transforming each tag node to its HTML string representation in an asynchronous manner.
@@ -96,27 +103,30 @@ export const nodesToHTMLAsync = async <TContext>(
 ): Promise<string> =>
   (
     await Promise.all(
-      nodes.map(async node =>
+      nodes.map(async (node) =>
         match(node)
-          .with({ type: "text" }, textNode => textNode.content)
-          .with({ type: "tag" }, async tagNode => {
+          .with({ type: "text" }, (textNode) => textNode.content)
+          .with({ type: "tag" }, async (tagNode) => {
             const updatedContext = contextHandler?.(tagNode, context) ?? context;
-            const children = await nodesToHTMLAsync(tagNode.children, transformers, updatedContext, contextHandler);
+            const children = await nodesToHTMLAsync(
+              tagNode.children,
+              transformers,
+              updatedContext,
+              contextHandler,
+            );
             const transformer = transformers[tagNode.tagName] ?? transformers["*"];
 
             return (
-              await transformer?.(tagNode, children, updatedContext)
-                ?? `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
+              (await transformer?.(tagNode, children, updatedContext)) ??
+              `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
             );
           })
-          .exhaustive()
+          .exhaustive(),
       ),
     )
   ).join("");
 
-const formatAttributes = (
-  attributes: Record<string, string | undefined>,
-): string =>
+const formatAttributes = (attributes: Record<string, string | undefined>): string =>
   Object.entries(attributes)
     .filter(([, value]) => value !== undefined)
     .map(([key, value]) => ` ${key}="${value}"`)

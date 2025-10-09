@@ -1,20 +1,25 @@
 import { match, P } from "ts-pattern";
 
-import {
+import type {
   DomHtmlNode,
   DomNode,
   DomTextNode,
   ItemLinkElementAttributes,
   ObjectElementAttributes,
 } from "../parser/parser-models.js";
-import { BlockElement, MarkElement, ValidElement } from "../transformers/transformer-models.js";
+import type {
+  BlockElement,
+  MarkElement,
+  ValidElement,
+} from "../transformers/transformer-models.js";
 import { blockElements, markElements, validElements } from "../utils/constants.js";
 
 export const isOrderedListBlock = (node: DomHtmlNode): boolean => node.tagName === "ol";
 
 export const isUnorderedListBlock = (node: DomHtmlNode): boolean => node.tagName === "ul";
 
-export const isListBlock = (node: DomHtmlNode): boolean => isUnorderedListBlock(node) || isOrderedListBlock(node);
+export const isListBlock = (node: DomHtmlNode): boolean =>
+  isUnorderedListBlock(node) || isOrderedListBlock(node);
 
 export const isListItem = (node: DomHtmlNode): boolean => node.tagName === "li";
 
@@ -28,11 +33,14 @@ export const isTableCell = (node: DomHtmlNode): boolean => node.tagName === "td"
 
 export const isLineBreak = (node: DomHtmlNode): boolean => node.tagName === "br";
 
-export const isBlockElement = (node: DomHtmlNode): boolean => blockElements.includes(node.tagName as BlockElement);
+export const isBlockElement = (node: DomHtmlNode): boolean =>
+  blockElements.includes(node.tagName as BlockElement);
 
-export const isValidElement = (node: DomHtmlNode): boolean => validElements.includes(node.tagName as ValidElement);
+export const isValidElement = (node: DomHtmlNode): boolean =>
+  validElements.includes(node.tagName as ValidElement);
 
-export const isMarkElement = (node: DomHtmlNode): boolean => markElements.includes(node.tagName as MarkElement);
+export const isMarkElement = (node: DomHtmlNode): boolean =>
+  markElements.includes(node.tagName as MarkElement);
 
 /**
  * Returns `true` for text nodes and type guards the node as `DomTextNode`.
@@ -47,13 +55,18 @@ export const isElement = (node: DomNode): node is DomHtmlNode => node.type === "
 /**
  * Returns `true` if the node is a linked item node (`<object></object>`) and narrows type guard.
  */
-export const isLinkedItemOrComponent = (node: DomNode): node is DomHtmlNode<ObjectElementAttributes> =>
+export const isLinkedItemOrComponent = (
+  node: DomNode,
+): node is DomHtmlNode<ObjectElementAttributes> =>
   match(node)
-    .with({
-      type: "tag",
-      tagName: "object",
-      attributes: P.when(attrs => attrs["type"] === "application/kenticocloud"),
-    }, () => true)
+    .with(
+      {
+        type: "tag",
+        tagName: "object",
+        attributes: P.when((attrs) => attrs.type === "application/kenticocloud"),
+      },
+      () => true,
+    )
     .otherwise(() => false);
 
 /**
@@ -61,15 +74,19 @@ export const isLinkedItemOrComponent = (node: DomNode): node is DomHtmlNode<Obje
  */
 export const isImage = (node: DomNode): node is DomHtmlNode =>
   match(node)
-    .with({
-      type: "tag",
-      tagName: "figure",
-      attributes: P.when(attrs =>
-        typeof attrs["data-asset-id"] === "string"
-        || typeof attrs["data-asset-external-id"] === "string"
-        || typeof attrs["data-asset-codename"] === "string"
-      ),
-    }, () => true)
+    .with(
+      {
+        type: "tag",
+        tagName: "figure",
+        attributes: P.when(
+          (attrs) =>
+            typeof attrs["data-asset-id"] === "string" ||
+            typeof attrs["data-asset-external-id"] === "string" ||
+            typeof attrs["data-asset-codename"] === "string",
+        ),
+      },
+      () => true,
+    )
     .otherwise(() => false);
 
 /**
@@ -77,15 +94,19 @@ export const isImage = (node: DomNode): node is DomHtmlNode =>
  */
 export const isItemLink = (node: DomHtmlNode): node is DomHtmlNode<ItemLinkElementAttributes> =>
   match(node)
-    .with({
-      type: "tag",
-      tagName: "a",
-      attributes: P.when(attrs =>
-        typeof attrs["data-item-id"] === "string"
-        || typeof attrs["data-item-external-id"] === "string"
-        || typeof attrs["data-item-codename"] === "string"
-      ),
-    }, () => true)
+    .with(
+      {
+        type: "tag",
+        tagName: "a",
+        attributes: P.when(
+          (attrs) =>
+            typeof attrs["data-item-id"] === "string" ||
+            typeof attrs["data-item-external-id"] === "string" ||
+            typeof attrs["data-item-codename"] === "string",
+        ),
+      },
+      () => true,
+    )
     .otherwise(() => false);
 
 export const throwError = (msg: string) => {
@@ -94,25 +115,30 @@ export const throwError = (msg: string) => {
 
 export const isAssetLink = (node: DomHtmlNode): node is DomHtmlNode =>
   match(node)
-    .with({
-      type: "tag",
-      tagName: "a",
-      attributes: P.when(attrs =>
-        typeof attrs["data-asset-id"] === "string"
-        || typeof attrs["data-asset-external-id"] === "string"
-        || typeof attrs["data-asset-codename"] === "string"
-      ),
-    }, () => true)
+    .with(
+      {
+        type: "tag",
+        tagName: "a",
+        attributes: P.when(
+          (attrs) =>
+            typeof attrs["data-asset-id"] === "string" ||
+            typeof attrs["data-asset-external-id"] === "string" ||
+            typeof attrs["data-asset-codename"] === "string",
+        ),
+      },
+      () => true,
+    )
     .otherwise(() => false);
 
 const createReferenceDataGetter =
-  (refAttributeTypes: ReadonlyArray<{ attr: string; refType: "id" | "codename" | "external-id" }>) =>
+  (
+    refAttributeTypes: ReadonlyArray<{ attr: string; refType: "id" | "codename" | "external-id" }>,
+  ) =>
   (attributes: Record<string, string | undefined>): ReferenceData | null => {
     const refInfo = refAttributeTypes.find(({ attr }) => attributes[attr]);
 
-    return refInfo
-      ? { reference: attributes[refInfo.attr]!, refType: refInfo.refType }
-      : null;
+    // biome-ignore lint/style/noNonNullAssertion: TODO LATER
+    return refInfo ? { reference: attributes[refInfo.attr]!, refType: refInfo.refType } : null;
   };
 
 const assetReferences = [
