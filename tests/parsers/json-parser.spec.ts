@@ -1,6 +1,7 @@
 import { parseHTML } from "../../src";
 import { browserParse } from "../../src/parser/browser";
 import { nodeParse } from "../../src/parser/node";
+import { describe, it, expect } from "vitest";
 
 describe("node parser", () => {
   it("parses empty rich text", () => {

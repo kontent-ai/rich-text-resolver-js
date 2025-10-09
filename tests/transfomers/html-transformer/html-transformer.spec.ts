@@ -6,6 +6,7 @@ import {
   NodeToHtmlMap,
   parseHTML,
 } from "../../../src/index.js";
+import { describe, test, expect } from "vitest";
 
 describe("nodesToHTML and nodesToHTMLAsync", () => {
   const input = "<p>Hello <b>World</b>!</p><p>Another <i>paragraph</i> with a nested <span>span</span></p>";

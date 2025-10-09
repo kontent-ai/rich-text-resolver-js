@@ -4,6 +4,7 @@ import { h } from "vue";
 
 import { PortableTextImage, PortableTextTable, transformToPortableText } from "../../../../src";
 import { resolveImage, resolveTable } from "../../../../src/utils/resolution/vue";
+import { describe, it, expect } from "vitest";
 
 const components: PortableTextComponents = {
   types: {

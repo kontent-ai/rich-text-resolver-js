@@ -1,13 +1,16 @@
 import { DomNode, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
 import { browserParse } from "../../../src/parser/browser";
 import { nodeParse } from "../../../src/parser/node";
+import { vi, describe, it, expect } from "vitest";
 
-jest.mock("short-unique-id", () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      randomUUID: jest.fn().mockReturnValue("guid"),
-    };
-  });
+vi.mock("short-unique-id", () => {
+  return {
+    default: vi.fn().mockImplementation(() => {
+      return {
+        randomUUID: vi.fn().mockReturnValue("guid"),
+      };
+    }),
+  };
 });
 
 describe("Portable Text Transformer", () => {
