@@ -1,0 +1,47 @@
+{
+  "name": "@kontent-ai/rich-text-resolver-vue",
+  "version": "3.0.0",
+  "private": false,
+  "description": "Kontent.ai rich text resolver for Vue - Composables and helpers",
+  "license": "MIT",
+  "author": "Daniel Pokorny",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kontent-ai/rich-text-resolver-js.git",
+    "directory": "packages/rich-text-resolver-vue"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*",
+    "@kontent-ai/rich-text-resolver-html": "workspace:*",
+    "@portabletext/vue": "^1.0.14"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.22"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^2.4.6"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
