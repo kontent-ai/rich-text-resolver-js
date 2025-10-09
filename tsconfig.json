@@ -1,4 +1,11 @@
 {
+  "files": [],
+  "references": [
+    { "path": "./packages/rich-text-resolver" },
+    { "path": "./packages/rich-text-resolver-util" },
+    { "path": "./packages/rich-text-resolver-react" },
+    { "path": "./packages/rich-text-resolver-vue" }
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
     /* Projects */

@@ -3,8 +3,8 @@
   "extends": ["@kontent-ai/biome-config/base"],
   "files": {
     "includes": [
-      "src/**/*.ts",
-      "src/**/*.tsx",
+      "packages/*/src/**/*.ts",
+      "packages/*/src/**/*.tsx",
       "!coverage",
       "!.turbo",
       "!showcase",
