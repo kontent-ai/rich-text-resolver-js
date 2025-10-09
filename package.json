@@ -13,7 +13,8 @@
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
-    "test:coverage": "turbo run test:coverage",
+    "test:seq": "pnpm -r --aggregate-output --workspace-concurrency=1 test",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "turbo run test:watch",
     "lint": "turbo run lint",
     "biome": "biome format --write packages",

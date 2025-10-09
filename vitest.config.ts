@@ -2,26 +2,20 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
-    globals: true,
-    setupFiles: ["./tests/setup.ts"],
-    include: ["tests/**/*.{test,spec}.{ts,tsx}"],
+    projects: ["packages/*"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
+      reportsDirectory: "coverage",
+      include: ["packages/**/*.ts", "packages/**/*.tsx"],
       exclude: [
-        "node_modules/",
-        "dist/",
-        "tests/",
-        "**/*.spec.ts",
-        "**/*.spec.tsx",
-        "**/*.config.*",
-        "create-cjs-package-json.cjs",
+        "packages/**/node_modules/",
+        "packages/**/dist/",
+        "packages/**/tests/",
+        "packages/**/*.spec.ts",
+        "packages/**/*.spec.tsx",
+        "packages/**/*.config.*",
       ],
     },
-  },
-  resolve: {
-    // Handle .js extensions for TypeScript imports (ESM compatibility)
-    extensions: [".ts", ".tsx", ".js", ".jsx"],
   },
 });
