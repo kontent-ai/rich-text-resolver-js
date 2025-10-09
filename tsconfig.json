@@ -101,6 +101,6 @@
     "**/*.spec.tsx",
     "**/*.test.tsx",
     "dist",
-    "create-cjs-package-json.js"
+    "showcase"
   ]
 }
