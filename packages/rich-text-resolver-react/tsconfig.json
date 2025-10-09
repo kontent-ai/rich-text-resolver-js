@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.esm.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "references": [
+    { "path": "../rich-text-resolver" }
+  ]
+}

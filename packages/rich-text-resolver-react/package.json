@@ -1,0 +1,52 @@
+{
+  "name": "@kontent-ai/rich-text-resolver-react",
+  "version": "3.0.0",
+  "private": false,
+  "description": "Kontent.ai rich text resolver for React - Components and helpers",
+  "license": "MIT",
+  "author": "Daniel Pokorny",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kontent-ai/rich-text-resolver-js.git",
+    "directory": "packages/rich-text-resolver-react"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*",
+    "@portabletext/react": "^4.0.3",
+    "@portabletext/types": "^2.0.13"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.1",
+    "react": "^19.2.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
