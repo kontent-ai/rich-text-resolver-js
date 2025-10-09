@@ -174,3 +174,6 @@ packages/*/dist
 
 # Turborepo
 .turbo
+
+# macOS system files
+.DS_Store
