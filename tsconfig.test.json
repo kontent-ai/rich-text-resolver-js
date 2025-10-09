@@ -3,6 +3,7 @@
   "exclude": ["node_modules", "build", "dist"],
   "include": ["tests/**/*"],
   "compilerOptions": {
-    "outDir": "build"
+    "outDir": "build",
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   }
 }

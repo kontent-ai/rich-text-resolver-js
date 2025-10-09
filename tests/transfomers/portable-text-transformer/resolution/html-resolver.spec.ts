@@ -3,13 +3,16 @@ import { PortableTextTypeComponentOptions } from "@portabletext/to-html";
 
 import { PortableTextComponentOrItem, transformToPortableText } from "../../../../src";
 import { PortableTextHtmlResolvers, toHTML } from "../../../../src/utils/resolution/html";
+import { vi, describe, it, expect } from "vitest";
 
-jest.mock("short-unique-id", () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      randomUUID: jest.fn().mockReturnValue("guid"),
-    };
-  });
+vi.mock("short-unique-id", () => {
+  return {
+    default: vi.fn().mockImplementation(() => {
+      return {
+        randomUUID: vi.fn().mockReturnValue("guid"),
+      };
+    }),
+  };
 });
 
 describe("HTML resolution", () => {

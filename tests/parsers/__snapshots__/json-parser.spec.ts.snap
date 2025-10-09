@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`node parser parses complex rich text into portable text 1`] = `
+exports[`node parser > parses complex rich text into portable text 1`] = `
 [
   {
     "attributes": {},
@@ -351,7 +351,7 @@ exports[`node parser parses complex rich text into portable text 1`] = `
 ]
 `;
 
-exports[`node parser parses empty rich text 1`] = `
+exports[`node parser > parses empty rich text 1`] = `
 [
   {
     "attributes": {},
@@ -369,7 +369,7 @@ exports[`node parser parses empty rich text 1`] = `
 ]
 `;
 
-exports[`node parser parses external links 1`] = `
+exports[`node parser > parses external links 1`] = `
 [
   {
     "attributes": {},
@@ -402,7 +402,7 @@ exports[`node parser parses external links 1`] = `
 ]
 `;
 
-exports[`node parser parses images 1`] = `
+exports[`node parser > parses images 1`] = `
 [
   {
     "attributes": {
@@ -428,7 +428,7 @@ exports[`node parser parses images 1`] = `
 ]
 `;
 
-exports[`node parser parses item links 1`] = `
+exports[`node parser > parses item links 1`] = `
 [
   {
     "attributes": {},
@@ -461,7 +461,7 @@ exports[`node parser parses item links 1`] = `
 ]
 `;
 
-exports[`node parser parses linked items/components 1`] = `
+exports[`node parser > parses linked items/components 1`] = `
 [
   {
     "attributes": {
@@ -477,7 +477,7 @@ exports[`node parser parses linked items/components 1`] = `
 ]
 `;
 
-exports[`node parser parses lists 1`] = `
+exports[`node parser > parses lists 1`] = `
 [
   {
     "attributes": {},
@@ -594,7 +594,7 @@ exports[`node parser parses lists 1`] = `
 ]
 `;
 
-exports[`node parser parses nested styles 1`] = `
+exports[`node parser > parses nested styles 1`] = `
 [
   {
     "attributes": {},
@@ -660,7 +660,7 @@ exports[`node parser parses nested styles 1`] = `
 ]
 `;
 
-exports[`node parser parses tables 1`] = `
+exports[`node parser > parses tables 1`] = `
 [
   {
     "attributes": {},

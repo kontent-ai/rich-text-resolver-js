@@ -4,6 +4,7 @@ import React from "react";
 
 import { transformToPortableText } from "../../src";
 import { PortableText, PortableTextReactResolvers } from "../../src/utils/resolution/react";
+import { describe, it, expect } from "vitest";
 
 const dummyRichText: Elements.RichTextElement = {
   value: "<p>some text in a paragraph</p>",

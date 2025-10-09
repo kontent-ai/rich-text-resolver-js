@@ -1,12 +1,15 @@
 import { ArbitraryTypedObject, PortableTextSpan, transformToPortableText, traversePortableText } from "../../../../src";
 import { toManagementApiFormat } from "../../../../src/utils/resolution/mapi";
+import { vi, describe, it, expect } from "vitest";
 
-jest.mock("short-unique-id", () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      randomUUID: jest.fn().mockReturnValue("guid"),
-    };
-  });
+vi.mock("short-unique-id", () => {
+  return {
+    default: vi.fn().mockImplementation(() => {
+      return {
+        randomUUID: vi.fn().mockReturnValue("guid"),
+      };
+    }),
+  };
 });
 
 const isSpan = (object: ArbitraryTypedObject): object is PortableTextSpan => object._type === "span";
