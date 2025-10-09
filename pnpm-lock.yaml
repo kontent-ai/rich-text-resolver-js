@@ -75,9 +75,6 @@ importers:
       short-unique-id:
         specifier: ^5.2.2
         version: 5.3.2
-      ts-pattern:
-        specifier: ^5.7.0
-        version: 5.8.0
 
   packages/rich-text-resolver-react:
     dependencies:
