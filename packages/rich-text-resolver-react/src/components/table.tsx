@@ -4,6 +4,7 @@ import type {
   PortableTextTableRow,
 } from "@kontent-ai/rich-text-resolver";
 import { toPlainText } from "@portabletext/react";
+// biome-ignore lint/style/useImportType: React is needed for JSX elements
 import React from "react";
 
 export const TableComponent: React.FC<PortableTextTable> = (table) => {
