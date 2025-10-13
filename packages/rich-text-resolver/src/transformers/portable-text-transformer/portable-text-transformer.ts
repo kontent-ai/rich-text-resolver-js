@@ -1,6 +1,6 @@
 import { match, P } from "ts-pattern";
 
-import { parseHTML } from "../../parser/index.js";
+import { parseHTML } from "../../parser/parse-html.js";
 import type {
   DomHtmlNode,
   DomNode,

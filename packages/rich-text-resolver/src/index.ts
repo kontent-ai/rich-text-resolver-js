@@ -1,3 +1,107 @@
-export * from "./parser/index.js";
-export * from "./transformers/index.js";
-export * from "./utils/index.js";
+// biome-ignore lint/performance/noBarrelFile: public API
+export * from "@portabletext/types";
+export { parse as browserParse } from "./parser/browser/rich-text-browser-parser.js";
+export { parse as nodeParse } from "./parser/node/rich-text-node-parser.js";
+export { parseHTML } from "./parser/parse-html.js";
+export type {
+  AssetLinkElementAttributes,
+  DomHtmlNode,
+  DomNode,
+  DomTextNode,
+  FigureElementAttributes,
+  ImgElementAttributes,
+  InternalLinkElementAttributes,
+  ItemLinkElementAttributes,
+  ObjectElementAttributes,
+} from "./parser/parser-models.js";
+export {
+  type AsyncNodeToHtmlMap,
+  type NodeToHtml,
+  type NodeToHtmlAsync,
+  type NodeToHtmlMap,
+  nodesToHTML,
+  nodesToHTMLAsync,
+} from "./transformers/html-transformer/html-transformer.js";
+export {
+  categorizeItems,
+  transformToPortableText,
+} from "./transformers/portable-text-transformer/portable-text-transformer.js";
+export type {
+  AssetReference,
+  BlockElement,
+  IgnoredElement,
+  ListTypeElement,
+  MarkElement,
+  ModularContentType,
+  PortableTextComponentOrItem,
+  PortableTextExternalLink,
+  PortableTextImage,
+  PortableTextInternalObject,
+  PortableTextItem,
+  PortableTextItemLink,
+  PortableTextLink,
+  PortableTextMark,
+  PortableTextObject,
+  PortableTextStrictBlock,
+  PortableTextStrictListItemBlock,
+  PortableTextTable,
+  PortableTextTableCell,
+  PortableTextTableRow,
+  Reference,
+  ShortGuid,
+  TextStyleElement,
+  ValidElement,
+} from "./transformers/transformer-models.js";
+export { convertDomNodeAttributes, NodeType } from "./utils/browser-parser-utils.js";
+export {
+  getAllNewLineAndWhiteSpace,
+  getAssetReferenceData,
+  getItemLinkReferenceData,
+  getItemOrComponentReferenceData,
+  isAnchor,
+  isAssetLink,
+  isBlockElement,
+  isElement,
+  isExternalLink,
+  isImage,
+  isItemLink,
+  isLineBreak,
+  isLinkedItemOrComponent,
+  isListBlock,
+  isListItem,
+  isMarkElement,
+  isOrderedListBlock,
+  isTableCell,
+  isText,
+  isUnorderedListBlock,
+  isValidElement,
+  throwError,
+} from "./utils/common-utils.js";
+export {
+  anchorElement,
+  assetElement,
+  blockElements,
+  ignoredElements,
+  lineBreakElement,
+  listItemElement,
+  listTypeElements,
+  markElements,
+  objectElement,
+  tableElements,
+  textStyleElements,
+  validElements,
+} from "./utils/constants.js";
+export {
+  createBlock,
+  createComponentOrItemBlock,
+  createExternalLink,
+  createImageBlock,
+  createItemLink,
+  createListBlock,
+  createSpan,
+  createTable,
+  createTableCell,
+  createTableRow,
+  randomUUID,
+  traversePortableText,
+} from "./utils/transformer-utils.js";

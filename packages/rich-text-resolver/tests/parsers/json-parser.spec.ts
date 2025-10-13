@@ -1,6 +1,4 @@
-import { parseHTML } from "../../src";
-import { browserParse } from "../../src/parser/browser";
-import { nodeParse } from "../../src/parser/node";
+import { parseHTML, browserParse, nodeParse } from "../../src";
 import { describe, it, expect } from "vitest";
 
 describe("node parser", () => {
