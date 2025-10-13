@@ -1,6 +1,4 @@
-import { DomNode, PortableTextItem, transformToPortableText, traversePortableText } from "../../../src";
-import { browserParse } from "../../../src/parser/browser";
-import { nodeParse } from "../../../src/parser/node";
+import { DomNode, PortableTextItem, transformToPortableText, traversePortableText, browserParse, nodeParse } from "../../../src";
 import { vi, describe, it, expect } from "vitest";
 
 vi.mock("short-unique-id", () => {
