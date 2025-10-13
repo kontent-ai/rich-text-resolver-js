@@ -63,6 +63,7 @@ type NodeToPortableText<TNode extends DomNode> = TNode extends DomHtmlNode
 
 type PortableTextTransformers = {
   text: NodeToPortableText<DomTextNode>;
+  // biome-ignore lint/suspicious/noExplicitAny: Required to support multiple specific attribute types (ImgElementAttributes, ObjectElementAttributes, etc.) in a single Record. TypeScript cannot unify these specific types without any.
   tag: Record<string, NodeToPortableText<DomHtmlNode<any>>>;
 };
 

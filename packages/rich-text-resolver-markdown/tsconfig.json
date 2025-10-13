@@ -5,7 +5,5 @@
     "rootDir": "./src"
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../rich-text-resolver" }
-  ]
+  "references": [{ "path": "../rich-text-resolver" }]
 }
