@@ -78,27 +78,26 @@ importers:
 
   packages/rich-text-resolver-html:
     dependencies:
-      '@kontent-ai/rich-text-resolver':
-        specifier: workspace:*
-        version: link:../rich-text-resolver
       '@portabletext/to-html':
         specifier: ^2.0.14
         version: 2.0.17
+    devDependencies:
+      '@kontent-ai/rich-text-resolver':
+        specifier: workspace:*
+        version: link:../rich-text-resolver
 
   packages/rich-text-resolver-markdown:
     dependencies:
-      '@kontent-ai/rich-text-resolver':
-        specifier: workspace:*
-        version: link:../rich-text-resolver
       '@portabletext/to-html':
         specifier: ^2.0.14
         version: 2.0.17
-
-  packages/rich-text-resolver-react:
-    dependencies:
+    devDependencies:
       '@kontent-ai/rich-text-resolver':
         specifier: workspace:*
         version: link:../rich-text-resolver
+
+  packages/rich-text-resolver-react:
+    dependencies:
       '@portabletext/react':
         specifier: ^4.0.3
         version: 4.0.3(react@19.2.0)
@@ -106,6 +105,9 @@ importers:
         specifier: ^2.0.13
         version: 2.0.15
     devDependencies:
+      '@kontent-ai/rich-text-resolver':
+        specifier: workspace:*
+        version: link:../rich-text-resolver
       '@testing-library/dom':
         specifier: ^10.4.0
         version: 10.4.1
@@ -125,12 +127,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0
 
-
   packages/rich-text-resolver-vue:
     dependencies:
-      '@kontent-ai/rich-text-resolver':
-        specifier: workspace:*
-        version: link:../rich-text-resolver
       '@kontent-ai/rich-text-resolver-html':
         specifier: workspace:*
         version: link:../rich-text-resolver-html
@@ -141,6 +139,9 @@ importers:
         specifier: ^3.5.22
         version: 3.5.22(typescript@5.9.3)
     devDependencies:
+      '@kontent-ai/rich-text-resolver':
+        specifier: workspace:*
+        version: link:../rich-text-resolver
       '@vue/test-utils':
         specifier: ^2.4.6
         version: 2.4.6

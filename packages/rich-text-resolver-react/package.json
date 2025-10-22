@@ -25,14 +25,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@kontent-ai/rich-text-resolver": "workspace:*",
     "@portabletext/react": "^4.0.3",
     "@portabletext/types": "^2.0.13"
   },
   "peerDependencies": {
+    "@kontent-ai/rich-text-resolver": "^2.0.0",
     "react": ">=18.0.0"
   },
   "devDependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
     "react": "^19.2.0",

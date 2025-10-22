@@ -25,14 +25,15 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@kontent-ai/rich-text-resolver": "workspace:*",
     "@kontent-ai/rich-text-resolver-html": "workspace:*",
     "@portabletext/vue": "^1.0.14"
   },
   "peerDependencies": {
+    "@kontent-ai/rich-text-resolver": "^2.0.0",
     "vue": "^3.5.22"
   },
   "devDependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*",
     "@vue/test-utils": "^2.4.6"
   },
   "publishConfig": {
