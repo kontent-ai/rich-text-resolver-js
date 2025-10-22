@@ -22,8 +22,13 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@kontent-ai/rich-text-resolver": "workspace:*",
     "@portabletext/to-html": "^2.0.14"
+  },
+  "peerDependencies": {
+    "@kontent-ai/rich-text-resolver": "^2.0.0"
+  },
+  "devDependencies": {
+    "@kontent-ai/rich-text-resolver": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
