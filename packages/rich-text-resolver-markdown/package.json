@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-markdown",
-  "version": "3.0.0",
+  "version": "2.0.4",
   "private": false,
   "description": "Kontent.ai rich text Markdown transformer - converts Portable Text to Markdown",
   "license": "MIT",

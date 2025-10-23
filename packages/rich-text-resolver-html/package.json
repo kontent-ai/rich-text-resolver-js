@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-html",
-  "version": "3.1.0",
+  "version": "2.0.4",
   "private": false,
   "description": "Kontent.ai rich text HTML and Management API transformer - converts Portable Text to HTML and MAPI format",
   "license": "MIT",
