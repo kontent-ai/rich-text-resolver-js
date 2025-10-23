@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-vue",
-  "version": "3.0.0",
+  "version": "2.0.4",
   "private": false,
   "description": "Kontent.ai rich text resolver for Vue - Composables and helpers",
   "license": "MIT",
