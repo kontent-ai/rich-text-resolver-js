@@ -74,7 +74,75 @@ For detailed documentation and examples, see individual package READMEs:
 - **[Vue Package Documentation](./packages/rich-text-resolver-vue/README.md)** - Vue composables and helpers
 - **[Markdown Package Documentation](./packages/rich-text-resolver-markdown/README.md)** - Markdown transformation utilities
 
-## Support & Contributing
+## Contributing
+
+### Development Setup
+
+```bash
+# Clone and install
+git clone https://github.com/kontent-ai/rich-text-resolver-js.git
+cd rich-text-resolver-js
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm test
+
+# Check formatting and linting
+pnpm biome:check
+```
+
+### Release Workflow
+
+This repository uses [Changesets](https://github.com/changesets/changesets) for version management and publishing.
+
+#### During Development
+
+When making changes that affect users (features, fixes, breaking changes), add a changeset:
+
+```bash
+pnpm changeset add
+```
+
+Follow the interactive prompts to:
+1. Select affected packages
+2. Choose bump type (patch/minor/major)
+3. Write a description of the change
+
+Commit the generated changeset file with your code changes.
+
+#### Stable Releases (Automated)
+
+1. **Add changesets** during development
+2. **Create PR** with your changes and changesets
+3. **Merge to main** - Changesets Action automatically creates a "Version Packages" PR
+4. **Review and merge** the Version Packages PR
+5. **Automated publishing** - Packages are published to npm automatically
+
+#### Prerelease/Beta Publishing (Manual)
+
+For testing prereleases from a branch:
+
+```bash
+# Enter prerelease mode
+pnpm changeset pre enter beta
+
+# Update versions with beta tags
+pnpm changeset version
+
+# Commit, build, and publish
+git add . && git commit -m "Version packages for beta release"
+pnpm build
+pnpm changeset publish
+git push --follow-tags
+
+# When done, exit prerelease mode
+pnpm changeset pre exit
+```
+
+## Support
 
 Found a bug or have a feature request? Please [open an issue](https://github.com/kontent-ai/rich-text-resolver-js/issues).
 
