@@ -36,7 +36,7 @@ import {
   PortableText,
   TableComponent,
   ImageComponent,
-} from "@kontent-ai/rich-text-resolver/utils/react";
+} from "@kontent-ai/rich-text-resolver-react";
 import {
   transformToPortableText,
 } from "@kontent-ai/rich-text-resolver";

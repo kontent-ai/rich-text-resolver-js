@@ -1,4 +1,4 @@
-import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, PortableTextTable } from "../src/index.js"
+import { PortableTextComponentOrItem, PortableTextImage, PortableTextItemLink, PortableTextTable } from "@kontent-ai/rich-text-resolver"
   
   const portableTextComponent: PortableTextComponentOrItem = {
     _type: "componentOrItem",
