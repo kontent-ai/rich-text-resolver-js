@@ -69,7 +69,7 @@ const markdownComponentResolvers = {
       number: ({ children, value }) => `\n${"   ".repeat((value.level ?? 1) - 1)}1. ${children}`,
     },
     types: {
-      image: ({ value }) => `![${value.asset.alt || ""}](${value.asset.url})\n\n`,
+      image: ({ value }) => `![${value.asset.alt ?? ""}](${value.asset.url})\n\n`,
       table: ({ value }) => resolveTableToMarkdown(value),
     },
     marks: {
@@ -148,24 +148,24 @@ export const toMarkdown = (
   const mergedComponentResolvers = {
     ...resolvers?.components,
     block: {
-      ...markdownComponentResolvers.components?.block,
-      ...resolvers?.components?.block,
+      ...markdownComponentResolvers.components.block,
+      ...resolvers?.components.block,
     },
     list: {
-      ...markdownComponentResolvers.components?.list,
-      ...resolvers?.components?.list,
+      ...markdownComponentResolvers.components.list,
+      ...resolvers?.components.list,
     },
     listItem: {
-      ...markdownComponentResolvers.components?.listItem,
+      ...markdownComponentResolvers.components.listItem,
     },
-    ...resolvers?.components?.listItem,
+    ...resolvers?.components.listItem,
     types: {
-      ...markdownComponentResolvers.components?.types,
-      ...resolvers?.components?.types,
+      ...markdownComponentResolvers.components.types,
+      ...resolvers?.components.types,
     },
     marks: {
-      ...markdownComponentResolvers.components?.marks,
-      ...resolvers?.components?.marks,
+      ...markdownComponentResolvers.components.marks,
+      ...resolvers?.components.marks,
     },
   };
 

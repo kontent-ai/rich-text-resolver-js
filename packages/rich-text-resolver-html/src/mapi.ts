@@ -1,13 +1,13 @@
-import type {
-  PortableTextComponentOrItem,
-  PortableTextExternalLink,
-  PortableTextImage,
-  PortableTextItemLink,
-  PortableTextMark,
-  PortableTextObject,
-  PortableTextTable,
+import {
+  type PortableTextComponentOrItem,
+  type PortableTextExternalLink,
+  type PortableTextImage,
+  type PortableTextItemLink,
+  type PortableTextMark,
+  type PortableTextObject,
+  type PortableTextTable,
+  throwError,
 } from "@kontent-ai/rich-text-resolver";
-import { throwError } from "@kontent-ai/rich-text-resolver";
 import {
   type PortableTextMarkComponentOptions,
   type PortableTextOptions,
@@ -42,7 +42,7 @@ const createFigureTag = (assetId: string) =>
 const createExternalLinkAttributes = (link: PortableTextExternalLink) =>
   Object.entries(link)
     .filter(([k]) => k !== "_type" && k !== "_key")
-    .map(([k, v]) => `${k}="${v}"`)
+    .map(([k, v]) => `${k}="${v as string}"`)
     .join(" ");
 
 /**

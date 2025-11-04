@@ -150,7 +150,10 @@ export const categorizeItems = (items: PortableTextItem[]) => {
 
 const updateListContext = (node: DomNode, context: ListContext): ListContext =>
   isElement(node) && isListBlock(node)
-    ? { depth: context.depth + 1, type: node.tagName === "ol" ? "number" : "bullet" }
+    ? {
+        depth: context.depth + 1,
+        type: node.tagName === "ol" ? "number" : "bullet",
+      }
     : context;
 
 const processLineBreak: NodeToPortableText<DomHtmlNode> = () => [
@@ -237,9 +240,7 @@ const processLinkedItemOrComponent: NodeToPortableText<DomHtmlNode<ObjectElement
   const { reference, refType } = referenceData;
 
   // data-rel and data-type specify whether an object is a component or linked item in DAPI and MAPI respectively
-  const objectType = node.attributes["data-rel"]
-    ? node.attributes["data-rel"]
-    : node.attributes["data-type"];
+  const objectType = node.attributes["data-rel"] ?? node.attributes["data-type"];
   const itemComponentReference: Reference = {
     _type: "reference",
     _ref: reference,

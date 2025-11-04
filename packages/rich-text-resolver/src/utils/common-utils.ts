@@ -132,13 +132,24 @@ export const isAssetLink = (node: DomHtmlNode): node is DomHtmlNode =>
 
 const createReferenceDataGetter =
   (
-    refAttributeTypes: ReadonlyArray<{ attr: string; refType: "id" | "codename" | "external-id" }>,
+    refAttributeTypes: ReadonlyArray<{
+      attr: string;
+      refType: "id" | "codename" | "external-id";
+    }>,
   ) =>
   (attributes: Record<string, string | undefined>): ReferenceData | null => {
-    const refInfo = refAttributeTypes.find(({ attr }) => attributes[attr]);
+    const refInfo = refAttributeTypes.find(({ attr }) => attributes[attr] !== undefined);
 
-    // biome-ignore lint/style/noNonNullAssertion: TODO LATER
-    return refInfo ? { reference: attributes[refInfo.attr]!, refType: refInfo.refType } : null;
+    return refInfo
+      ? {
+          reference:
+            attributes[refInfo.attr] ??
+            throwError(
+              `Missing a valid reference attribute in the node attributes: ${JSON.stringify(attributes)}`,
+            ),
+          refType: refInfo.refType,
+        }
+      : null;
   };
 
 const assetReferences = [

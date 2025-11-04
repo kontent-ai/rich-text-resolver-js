@@ -17,10 +17,10 @@ export const convertDomNodeAttributes = (
 };
 
 export const isRootNode = (domNode: Node): domNode is Document =>
-  domNode.nodeType === NodeType.DOCUMENT_NODE;
+  domNode.nodeType === NodeType.DOCUMENT_NODE.valueOf();
 
 export const isTextNode = (domNode: Node): domNode is Text =>
-  domNode.nodeType === NodeType.TEXT_NODE;
+  domNode.nodeType === NodeType.TEXT_NODE.valueOf();
 
 export const isElementNode = (domNode: Node): domNode is Element =>
-  domNode.nodeType === NodeType.ELEMENT_NODE;
+  domNode.nodeType === NodeType.ELEMENT_NODE.valueOf();

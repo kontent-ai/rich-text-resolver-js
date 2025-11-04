@@ -1,6 +1,6 @@
 import type { PortableTextBlock, TypedObject } from "@kontent-ai/rich-text-resolver";
 import { PortableText as PortableTextDefault, type PortableTextProps } from "@portabletext/react";
-// biome-ignore lint/correctness/noUnusedImports: React is required for JSX runtime
+// biome-ignore lint/correctness/noUnusedImports: React env neede for jsx
 import React, { type JSX } from "react";
 import { ImageComponent } from "./components/image.js";
 import { TableComponent } from "./components/table.js";
@@ -16,7 +16,7 @@ export const kontentDefaultComponentResolvers: PortableTextReactResolvers = {
       if (!value) {
         throw new Error("Error rendering link mark: Missing link value data.");
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const { _key, _type, ...attributes } = value;
       return <a {...attributes}>{children}</a>;
     },
