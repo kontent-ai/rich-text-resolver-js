@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": "//",
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "!**/*.spec.ts",
+      "!**/*.spec.tsx",
+      "!dist",
+      "!coverage"
+    ]
+  }
+}

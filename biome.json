@@ -1,17 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@kontent-ai/biome-config/base"],
-  "files": {
-    "includes": [
-      "packages/*/src/**/*.ts",
-      "packages/*/src/**/*.tsx",
-      "!coverage",
-      "!.turbo",
-      "!showcase",
-      "!**/*.spec.ts",
-      "!**/*.spec.tsx"
-    ]
-  },
+  "root": true,
   "linter": {
     "rules": {
       "correctness": {
