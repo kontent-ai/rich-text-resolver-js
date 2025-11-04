@@ -27,7 +27,7 @@ export const resolveImage = (
  */
 export const toVueImageDefault = (image: PortableTextImage): VueImage => ({
   src: image.asset.url,
-  alt: image.asset.alt || "",
+  alt: image.asset.alt ?? "",
 });
 
 // biome-ignore lint/suspicious/noExplicitAny: Dynamic HTML attributes passed to Vue's h() function require any type due to TypeScript's index signature constraints

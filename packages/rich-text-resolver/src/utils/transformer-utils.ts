@@ -56,8 +56,8 @@ export const traversePortableText = <T extends ArbitraryTypedObject = PortableTe
 export const createSpan = (guid: ShortGuid, marks?: string[], text?: string): PortableTextSpan => ({
   _type: "span",
   _key: guid,
-  marks: marks || [],
-  text: text || "",
+  marks: marks ?? [],
+  text: text ?? "",
 });
 
 export const createBlock = (
@@ -68,9 +68,9 @@ export const createBlock = (
 ): PortableTextStrictBlock => ({
   _type: "block",
   _key: guid,
-  markDefs: markDefs || [],
-  style: style || "normal",
-  children: children || [],
+  markDefs: markDefs ?? [],
+  style: style ?? "normal",
+  children: children ?? [],
 });
 
 export const createListBlock = (
@@ -83,11 +83,11 @@ export const createListBlock = (
 ): PortableTextStrictListItemBlock => ({
   _type: "block",
   _key: guid,
-  markDefs: markDefs || [],
+  markDefs: markDefs ?? [],
   level: level,
   listItem: listItem ?? "unknown",
-  style: style || "normal",
-  children: children || [],
+  style: style ?? "normal",
+  children: children ?? [],
 });
 
 export const createImageBlock = (

@@ -54,10 +54,11 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
           if (!value) {
             throw new Error("Error rendering link mark: Missing link value data.");
           }
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
           const { _key, _type, ...attributes } = value;
+
           return `<a ${Object.entries(attributes)
-            .map(([key, value]) => `${key}="${value}"`)
+            .map(([key, value]) => `${key}="${value as string}"`)
             .join(" ")}>${children}</a>`;
         },
         sup: ({ children }) => `<sup>${children}</sup>`,
