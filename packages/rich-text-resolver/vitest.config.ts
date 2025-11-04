@@ -11,11 +11,7 @@ export default defineConfig({
       reporter: ["text", "json", "lcov"],
       reportsDirectory: "./coverage",
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [
-        "**/*.spec.ts",
-        "**/*.spec.tsx",
-        "**/*.config.*",
-      ],
+      exclude: ["**/*.spec.ts", "**/*.spec.tsx", "**/*.config.*"],
       all: true,
     },
   },

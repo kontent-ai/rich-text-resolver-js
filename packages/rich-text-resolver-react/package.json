@@ -22,7 +22,10 @@
     "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "biome": "biome format --write .",
+    "biome:check": "biome check ."
   },
   "dependencies": {
     "@portabletext/react": "^4.0.3",
