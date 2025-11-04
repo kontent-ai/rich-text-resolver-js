@@ -6,13 +6,15 @@
       "outputs": ["dist/**"]
     },
     "test": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["build"]
     },
     "test:coverage": {
-      "dependsOn": ["^build"],
-      "cache": false
+      "dependsOn": ["build"],
+      "outputs": ["coverage/**"]
     },
-    "test:watch": {},
+    "test:watch": {
+      "dependsOn": ["build"]
+    },
     "lint": {},
     "biome": {},
     "biome:check": {},
