@@ -1,10 +1,27 @@
 {
-  "extends": "../../tsconfig.esm.json",
   "compilerOptions": {
+    "target": "ESNext",
     "jsx": "react",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "./src",
     "outDir": "./dist",
-    "rootDir": "./src"
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "references": [{ "path": "../rich-text-resolver" }]
+  "exclude": [
+    "node_modules",
+    "coverage",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.spec.tsx",
+    "**/*.test.tsx",
+    "dist"
+  ]
 }
