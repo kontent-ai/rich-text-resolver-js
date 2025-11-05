@@ -25,10 +25,18 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/types": "^2.0.13",
+    "@portabletext/types": "^2.0.15",
     "browser-or-node": "^3.0.0",
     "node-html-parser": "^7.0.1",
-    "short-unique-id": "^5.2.2"
+    "short-unique-id": "^5.2.2",
+    "ts-pattern": "^5.9.0"
+  },
+  "devDependencies": {
+    "@kontent-ai/eslint-config": "^2.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.0",
+    "@typescript-eslint/parser": "^8.46.0",
+    "eslint": "^9.39.1",
+    "jsdom": "^27.0.0"
   },
   "publishConfig": {
     "access": "public",

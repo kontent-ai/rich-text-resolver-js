@@ -7,11 +7,9 @@ import { vi, describe, it, expect } from "vitest";
 
 vi.mock("short-unique-id", () => {
   return {
-    default: vi.fn().mockImplementation(() => {
-      return {
-        randomUUID: vi.fn().mockReturnValue("guid"),
-      };
-    }),
+    default: class MockShortUniqueId {
+      randomUUID = vi.fn().mockReturnValue("guid");
+    },
   };
 });
 
