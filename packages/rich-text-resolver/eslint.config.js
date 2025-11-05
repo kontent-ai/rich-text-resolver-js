@@ -1,26 +1,10 @@
 import kontentAiConfig from "@kontent-ai/eslint-config";
+import { defineConfig, globalIgnores } from "eslint/config";
 
-export default [
+export default defineConfig([
+  globalIgnores(["coverage", "dist"]),
   {
-    ignores: [
-      "dist/**",
-      "coverage/**",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
-      "**/*.config.ts",
-      "**/*.config.js",
-      "tests/setup.ts",
-    ],
+    extends: [kontentAiConfig],
+    files: ["src/**/*.ts", "src/**/*.tsx"],
   },
-  {
-    files: ["**/*.ts", "**/*.tsx"],
-    ...kontentAiConfig,
-    languageOptions: {
-      ...kontentAiConfig.languageOptions,
-      parserOptions: {
-        ...kontentAiConfig.languageOptions.parserOptions,
-        project: "./tsconfig.json",
-      },
-    },
-  },
-];
+]);
