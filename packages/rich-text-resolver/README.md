@@ -24,22 +24,16 @@ The tool provides environment-aware (browser or Node.js) `parseHTML` function to
 
 ### Portable text resolution
 
-[Portable Text](https://github.com/portabletext/portabletext) is a universal standard for rich text representation, with tools available for its transformation and rendering in majority of popular frameworks and languages:
-
-- React: [react-portabletext](https://github.com/portabletext/react-portabletext)
-- HTML: [to-html](https://github.com/portabletext/to-html)
-- Svelte: [svelte-portabletext](https://github.com/portabletext/svelte-portabletext)
-- Vue: [vue-portabletext](https://github.com/portabletext/vue-portabletext)
-- Astro: [astro-portabletext](https://github.com/theisel/astro-portabletext)
+[Portable Text](https://github.com/portabletext/portabletext) is a universal standard for rich text representation, with tools available for its transformation and rendering in majority of popular frameworks and formats:
+- [@kontent-ai/rich-text-resolver-html](../rich-text-resolver-html) – HTML resolution and MAPI transformation
+- [@kontent-ai/rich-text-resolver-react](../rich-text-resolver-react) – React components and helpers
+- [@kontent-ai/rich-text-resolver-vue](../rich-text-resolver-vue) – Vue composables and helpers
+- [@kontent-ai/rich-text-resolver-markdown](../rich-text-resolver-markdown) – Markdown utilities
 
 > [!TIP]
-> We provide wrapper packages that offer default resolutions for tags that are either unsupported or only partially supported in the original packages (`sub` and `sup` tags, images, tables, and links).
-> - [@kontent-ai/rich-text-resolver-html](../rich-text-resolver-html) – HTML resolution and MAPI transformation
-> - [@kontent-ai/rich-text-resolver-react](../rich-text-resolver-react) – React components and helpers
-> - [@kontent-ai/rich-text-resolver-vue](../rich-text-resolver-vue) – Vue composables and helpers
-> - [@kontent-ai/rich-text-resolver-markdown](../rich-text-resolver-markdown) – Markdown utilities
->
-> Make sure to use these re-exports if you want to take advantage of the default resolutions. You can still provide your own custom resolutions for the tags above, even when using these helpers.
+> You can also find external libraries that enable portable text rendering in other frameworks:
+> - **Svelte:** [svelte-portabletext](https://github.com/portabletext/svelte-portabletext)  
+> - **Astro:** [astro-portabletext](https://github.com/theisel/astro-portabletext)
 
 This package provides `transformToPortableText` function to convert rich text content into an array of Portable Text blocks, with custom blocks defined for Kontent.ai-specific objects.
 
