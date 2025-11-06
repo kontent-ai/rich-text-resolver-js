@@ -35,13 +35,18 @@
     "vue": "^3.5.22"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.5",
+    "@kontent-ai/biome-config": "^0.5.1",
     "@kontent-ai/eslint-config": "^2.1.0",
     "@kontent-ai/rich-text-resolver": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
+    "@vitest/ui": "^4.0.7",
     "@vue/test-utils": "^2.4.6",
     "eslint": "^9.37.0",
-    "jsdom": "^27.0.0"
+    "jsdom": "^27.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^4.0.7"
   },
   "publishConfig": {
     "access": "public",
