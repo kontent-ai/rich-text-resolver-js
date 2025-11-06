@@ -26,10 +26,7 @@ export const kontentDefaultComponentResolvers: PortableTextReactResolvers = {
 };
 
 /**
- * Wrapper around `PortableText` component from `@portabletext/react` package, with default resolvers for `sup` and `sub` marks added.
- *
- * @param param0 see `PortableTextProps` from `@portabletext/react` package
- * @returns JSX element
+ * Wrapper around `PortableText` component from `@portabletext/react` package, with default resolvers for Kontent.ai-specific blocks and marks.
  */
 export const PortableText = <B extends TypedObject = PortableTextBlock>({
   value: input,
