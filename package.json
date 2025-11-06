@@ -18,6 +18,7 @@
     "biome": "turbo run biome",
     "biome:check": "turbo run biome:check --log-order=grouped",
     "clean": "turbo run clean && rm -rf node_modules/.cache",
+    "ci:check": "turbo run build lint biome:check test",
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish"
