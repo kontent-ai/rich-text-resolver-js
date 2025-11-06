@@ -13,7 +13,6 @@
   "scripts": {
     "build": "turbo run build  --log-order=grouped",
     "test": "turbo run test --log-order=grouped",
-    "test:coverage": "turbo run test:coverage --log-order=grouped",
     "test:watch": "turbo run test:watch --log-order=grouped",
     "lint": "turbo run lint --log-order=grouped",
     "biome": "turbo run biome",
@@ -28,7 +27,6 @@
     "@changesets/changelog-git": "^0.2.1",
     "@changesets/cli": "^2.29.7",
     "@kontent-ai/biome-config": "^0.5.1",
-    "@vitest/coverage-v8": "^4.0.7",
     "@vitest/ui": "^4.0.7",
     "turbo": "^2.5.8",
     "typescript": "^5.8.3",
