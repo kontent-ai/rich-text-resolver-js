@@ -49,6 +49,19 @@ const listResolver = (level: number, index: number) =>
     (str) => (level === 1 ? `${str}\n\n` : str),
   ]);
 
+export const sanitizeWhiteSpaces = (str: string, mark: string): string => {
+  // Normalize all non-breaking spaces to regular spaces
+  const normalized = str.replace(/&nbsp;/g, " ");
+
+  const start = normalized.search(/\S/); // index of first non-space
+  if (start === -1) {
+    return normalized;
+  }
+
+  const end = normalized.trimEnd().length;
+  return `${" ".repeat(start)}${mark}${normalized.slice(start, end).trim()}${mark}${" ".repeat(normalized.length - end)}`;
+};
+
 const markdownComponentResolvers = {
   components: {
     block: {
@@ -73,8 +86,8 @@ const markdownComponentResolvers = {
       table: ({ value }) => resolveTableToMarkdown(value),
     },
     marks: {
-      strong: ({ children }) => `**${children}**`,
-      em: ({ children }) => `_${children}_`,
+      strong: ({ children }) => sanitizeWhiteSpaces(children, "**"),
+      em: ({ children }) => sanitizeWhiteSpaces(children, "_"),
       code: ({ children }) => `\`${children}\``,
       link: ({ value, children }) => {
         if (!value) {
