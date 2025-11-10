@@ -62,6 +62,17 @@ Combined formatting: **_Bold and Italic_**, **\`Bold code\`**, and [**Bold link*
       
       expect(markdown).toEqual(expectedMarkdown);
     });
+
+    it("converts inline text marks with leading and trailing spaces to markdown", () => {
+      const html = `<p><strong>  bold text </strong>for testing</p>
+<p><em>  underlined text  </em>for testing</p>`;
+      const expectedMarkdown = `  **bold text** for testing\n\n  _underlined text_  for testing\n\n`;
+      
+      const portableText = transformToPortableText(html);
+      const markdown = toMarkdown(portableText);
+      
+      expect(markdown).toEqual(expectedMarkdown);
+    });
   });
 
   describe("Lists", () => {
