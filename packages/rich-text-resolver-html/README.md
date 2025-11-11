@@ -1,9 +1,12 @@
 # @kontent-ai/rich-text-resolver-html
 
-[![npm version](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-html?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-html)
-[![npm downloads](https://img.shields.io/npm/dt/@kontent-ai/rich-text-resolver-html?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-html)
+[![npm version][npm-shield]](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-html)
+[![MIT License][license-shield]][license-url]
+[![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
+[![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
-> **Note:** This is part of the [@kontent-ai/rich-text-resolver](../../README.md) monorepo.
+> [!NOTE]
+> This is part of the [@kontent-ai/rich-text-resolver](../../README.md) monorepo.
 > For general information and other packages, see the [main README](../../README.md).
 >
 > **Requires:** [@kontent-ai/rich-text-resolver](../rich-text-resolver) as peer dependency
@@ -13,8 +16,8 @@ HTML resolution and Management API transformer for Kontent.ai rich text. This pa
 ## Installation
 
 ```bash
-npm i @kontent-ai/rich-text-resolver-html
-npm i @kontent-ai/rich-text-resolver  # peer dependency
+npm i --save @kontent-ai/rich-text-resolver-html
+npm i --save @kontent-ai/rich-text-resolver  # peer dependency
 ```
 
 ## Examples
@@ -96,6 +99,8 @@ const validManagementApiFormat = toManagementApiFormat(portableText);
 >
 > If you're interested in transforming external HTML or rich text to a MAPI compatible format, see [HTML transformer docs](../../docs/index.md) instead.
 
-## License
-
-MIT - See [LICENSE](../../LICENSE) for details.
+[npm-shield]: https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-html?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?label=license&style=for-the-badge
+[license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
+[stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge

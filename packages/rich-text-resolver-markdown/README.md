@@ -1,9 +1,12 @@
 # @kontent-ai/rich-text-resolver-markdown
 
-[![npm version](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-markdown?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-markdown)
-[![npm downloads](https://img.shields.io/npm/dt/@kontent-ai/rich-text-resolver-markdown?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-markdown)
+[![npm version][npm-shield]](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-markdown)
+[![MIT License][license-shield]][license-url]
+[![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
+[![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
-> **Note:** This is part of the [@kontent-ai/rich-text-resolver](../../README.md) monorepo.
+> [!NOTE]
+> This is part of the [@kontent-ai/rich-text-resolver](../../README.md) monorepo.
 > For general information and other packages, see the [main README](../../README.md).
 >
 > **Requires:** [@kontent-ai/rich-text-resolver](../rich-text-resolver) as peer dependency
@@ -13,8 +16,8 @@ Markdown transformation utilities for Kontent.ai rich text. This package provide
 ## Installation
 
 ```bash
-npm i @kontent-ai/rich-text-resolver-markdown
-npm i @kontent-ai/rich-text-resolver  # peer dependency
+npm i --save @kontent-ai/rich-text-resolver-markdown
+npm i --save @kontent-ai/rich-text-resolver  # peer dependency
 ```
 
 ## Examples
@@ -64,6 +67,8 @@ const resolvers: PortableTextMarkdownResolvers = {
 const resolvedMarkdown = toMarkdown(portableText, resolvers);
 ```
 
-## License
-
-MIT - See [LICENSE](../../LICENSE) for details.
+[npm-shield]: https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-markdown?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?label=license&style=for-the-badge
+[license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
+[stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
+[discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge

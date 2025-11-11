@@ -1,11 +1,7 @@
 ![resolverlogo](https://github.com/kontent-ai/rich-text-resolver-js/assets/52500882/5cd40306-1b36-4d57-8731-f7718e61ebea)
 # Kontent.ai rich text resolver
 
-![Last modified][last-commit]
-[![Issues][issues-shield]][issues-url]
-[![Contributors][contributors-shield]][contributors-url]
 [![MIT License][license-shield]][license-url]
-[![codecov][codecov-shield]][codecov-url]
 [![Stack Overflow][stack-shield]](https://stackoverflow.com/tags/kontent-ai)
 [![Discord][discord-shield]](https://discord.gg/SKCxwPtevJ)
 
@@ -15,34 +11,34 @@ A monorepo providing utilities for transforming Kontent.ai rich text into struct
 
 This monorepo contains the following packages:
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [@kontent-ai/rich-text-resolver](./packages/rich-text-resolver) | [![npm](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver) | Core parsing and portable text transformation |
-| [@kontent-ai/rich-text-resolver-html](./packages/rich-text-resolver-html) | [![npm](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-html?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-html) | HTML resolution and MAPI transformation |
-| [@kontent-ai/rich-text-resolver-react](./packages/rich-text-resolver-react) | [![npm](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-react?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-react) | React components and helpers |
-| [@kontent-ai/rich-text-resolver-vue](./packages/rich-text-resolver-vue) | [![npm](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-vue?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-vue) | Vue composables and helpers |
-| [@kontent-ai/rich-text-resolver-markdown](./packages/rich-text-resolver-markdown) | [![npm](https://img.shields.io/npm/v/@kontent-ai/rich-text-resolver-markdown?style=flat-square)](https://www.npmjs.com/package/@kontent-ai/rich-text-resolver-markdown) | Markdown transformation utilities |
+| Package | Description |
+|---------|-------------|
+| [@kontent-ai/rich-text-resolver](./packages/rich-text-resolver) | Core parsing and portable text transformation |
+| [@kontent-ai/rich-text-resolver-html](./packages/rich-text-resolver-html) | HTML resolution and MAPI transformation |
+| [@kontent-ai/rich-text-resolver-react](./packages/rich-text-resolver-react) | React components and helpers |
+| [@kontent-ai/rich-text-resolver-vue](./packages/rich-text-resolver-vue) | Vue composables and helpers |
+| [@kontent-ai/rich-text-resolver-markdown](./packages/rich-text-resolver-markdown) | Markdown transformation utilities |
 
 ## Quick Start
 
 1. **Install the core package** for portable text transformation:
    ```bash
-   npm i @kontent-ai/rich-text-resolver
+   npm i --save @kontent-ai/rich-text-resolver
    ```
 
 2. **Choose a resolution package** for your framework:
    ```bash
    # For HTML resolution
-   npm i @kontent-ai/rich-text-resolver-html
+   npm i --save @kontent-ai/rich-text-resolver-html
 
    # For React
-   npm i @kontent-ai/rich-text-resolver-react react
+   npm i --save @kontent-ai/rich-text-resolver-react
 
    # For Vue
-   npm i @kontent-ai/rich-text-resolver-vue vue
+   npm i --save @kontent-ai/rich-text-resolver-vue
 
    # For Markdown
-   npm i @kontent-ai/rich-text-resolver-markdown
+   npm i --save @kontent-ai/rich-text-resolver-markdown
    ```
 
 3. **Transform and resolve** your rich text:
@@ -82,7 +78,7 @@ For detailed documentation and examples, see individual package READMEs:
 # Clone and install
 git clone https://github.com/kontent-ai/rich-text-resolver-js.git
 cd rich-text-resolver-js
-pnpm install
+pnpm install --frozen-lockfile
 
 # Build all packages
 pnpm build
@@ -130,12 +126,12 @@ For testing prereleases from a branch:
 pnpm changeset pre enter beta
 
 # Update versions with beta tags
-pnpm changeset version
+pnpm changeset:version
 
 # Commit, build, and publish
 git add . && git commit -m "Version packages for beta release"
 pnpm build
-pnpm changeset publish
+pnpm changeset:publish
 git push --follow-tags
 
 # When done, exit prerelease mode
@@ -146,14 +142,8 @@ pnpm changeset pre exit
 
 Found a bug or have a feature request? Please [open an issue](https://github.com/kontent-ai/rich-text-resolver-js/issues).
 
-[last-commit]: https://img.shields.io/github/last-commit/kontent-ai/rich-text-resolver-js?style=for-the-badge
-[contributors-shield]: https://img.shields.io/github/contributors/kontent-ai/rich-text-resolver-js?style=for-the-badge
-[contributors-url]: https://github.com/kontent-ai/rich-text-resolver-js/graphs/contributors
-[issues-shield]: https://img.shields.io/github/issues/kontent-ai/rich-text-resolver-js.svg?style=for-the-badge
-[issues-url]: https://github.com/kontent-ai/rich-text-resolver-js/issues
 [license-shield]: https://img.shields.io/github/license/kontent-ai/rich-text-resolver-js?label=license&style=for-the-badge
 [license-url]: https://github.com/kontent-ai/rich-text-resolver-js/blob/main/LICENSE
 [stack-shield]: https://img.shields.io/badge/Stack%20Overflow-ASK%20NOW-FE7A16.svg?logo=stackoverflow&logoColor=white&style=for-the-badge
 [discord-shield]: https://img.shields.io/discord/821885171984891914?label=Discord&logo=Discord&logoColor=white&style=for-the-badge
-[codecov-shield]: https://img.shields.io/codecov/c/github/kontent-ai/rich-text-resolver-js/main.svg?style=for-the-badge
-[codecov-url]: https://app.codecov.io/github/kontent-ai/rich-text-resolver-js
+
