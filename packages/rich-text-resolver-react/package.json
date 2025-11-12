@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-react",
-  "version": "3.0.0-beta.0",
+  "version": "3.0.0",
   "private": false,
   "description": "Kontent.ai rich text resolver for React - Components and helpers",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "@portabletext/types": "^2.0.13"
   },
   "peerDependencies": {
-    "@kontent-ai/rich-text-resolver": "^3.0.0-beta.0",
+    "@kontent-ai/rich-text-resolver": "^3.0.0",
     "react": ">=18.0.0"
   },
   "devDependencies": {
