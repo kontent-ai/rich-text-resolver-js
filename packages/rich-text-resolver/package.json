@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "private": false,
   "description": "Kontent.ai rich text element parser and transformer - Core package",
   "license": "MIT",
