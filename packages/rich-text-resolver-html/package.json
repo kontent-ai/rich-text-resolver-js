@@ -24,7 +24,7 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/to-html": "^2.0.14"
+    "@portabletext/to-html": "^4.0.1"
   },
   "peerDependencies": {
     "@kontent-ai/rich-text-resolver": "^3.0.1"

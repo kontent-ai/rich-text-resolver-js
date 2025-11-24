@@ -24,7 +24,7 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/types": "^2.0.15",
+    "@portabletext/types": "^3.0.0",
     "browser-or-node": "^3.0.0",
     "node-html-parser": "^7.0.1",
     "short-unique-id": "^5.2.2",
