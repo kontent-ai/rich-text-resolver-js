@@ -27,8 +27,8 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/react": "^4.0.3",
-    "@portabletext/types": "^2.0.13"
+    "@portabletext/react": "^5.0.0",
+    "@portabletext/types": "^3.0.0"
   },
   "peerDependencies": {
     "@kontent-ai/rich-text-resolver": "^3.0.1",
