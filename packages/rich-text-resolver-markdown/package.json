@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-markdown",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "private": false,
   "description": "Kontent.ai rich text Markdown transformer - converts Portable Text to Markdown",
   "license": "MIT",
@@ -27,7 +27,7 @@
     "@portabletext/to-html": "^4.0.1"
   },
   "peerDependencies": {
-    "@kontent-ai/rich-text-resolver": "^3.0.1"
+    "@kontent-ai/rich-text-resolver": "^3.0.2"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.3.7",
