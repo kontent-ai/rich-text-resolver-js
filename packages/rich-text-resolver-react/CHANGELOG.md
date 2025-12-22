@@ -1,5 +1,11 @@
 # @kontent-ai/rich-text-resolver-react
 
+## 3.0.2
+
+### Patch Changes
+
+- update packages
+
 ## 3.0.1
 
 ### Patch Changes
