@@ -1,6 +1,6 @@
 {
   "name": "@kontent-ai/rich-text-resolver-react",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "private": false,
   "description": "Kontent.ai rich text resolver for React - Components and helpers",
   "license": "MIT",

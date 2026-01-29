@@ -1,5 +1,11 @@
 # @kontent-ai/rich-text-resolver-react
 
+## 3.0.3
+
+### Patch Changes
+
+- update portable text react
+
 ## 3.0.2
 
 ### Patch Changes
