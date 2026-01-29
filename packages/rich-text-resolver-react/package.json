@@ -27,7 +27,7 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/react": "^5.0.0",
+    "@portabletext/react": "^6.0.0",
     "@portabletext/types": "^3.0.0"
   },
   "peerDependencies": {
