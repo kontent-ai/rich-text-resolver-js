@@ -80,8 +80,8 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1(@biomejs/biome@2.3.7)
       '@kontent-ai/delivery-sdk':
-        specifier: ^16.4.0
-        version: 16.4.0
+        specifier: ^16.4.2
+        version: 16.4.2
       '@kontent-ai/eslint-config':
         specifier: ^2.1.0
         version: 2.1.0(typescript@5.9.3)
@@ -160,8 +160,8 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1(@biomejs/biome@2.3.7)
       '@kontent-ai/delivery-sdk':
-        specifier: ^16.4.0
-        version: 16.4.0
+        specifier: ^16.4.2
+        version: 16.4.2
       '@kontent-ai/eslint-config':
         specifier: ^2.1.0
         version: 2.1.0(typescript@5.9.3)
@@ -664,12 +664,12 @@ packages:
     peerDependencies:
       '@biomejs/biome': ^2.1.2
 
-  '@kontent-ai/core-sdk@10.12.1':
-    resolution: {integrity: sha512-6lD5gVloyqOVgdQhjnnMLBz2Hj3cD/nrXlqrosktWaD0nKCzzxp7h/9F7kOObknWDvxl+hH+yeBLHTGWUegJdg==}
+  '@kontent-ai/core-sdk@10.12.4':
+    resolution: {integrity: sha512-mcERSS63WPYq42xWDzcaG4mO1G+YdEJozFRBWNkvEXoTsaV9GcERBJeJ+eRplwsM33do9DZ7UFGGeCdVs4+GWw==}
     engines: {node: '>= 20'}
 
-  '@kontent-ai/delivery-sdk@16.4.0':
-    resolution: {integrity: sha512-LeB8A0lDEj5Yu8RsUAYSVZNDyJYbmTHrhZHaMcZHablyvMjQst7374EZXv1qZOxNFzqaz2BricXtrSo9gytDsw==}
+  '@kontent-ai/delivery-sdk@16.4.2':
+    resolution: {integrity: sha512-iForpaSraxYNbq2WkkRrznMVvAt09mVDsl5ak9hzEJwUtHiVtL4OMYAQBrccpBc1Yzio0Po92Hgiz5IcnkqI/Q==}
     engines: {node: '>= 20'}
 
   '@kontent-ai/eslint-config@2.1.0':
@@ -1135,8 +1135,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.13.2:
-    resolution: {integrity: sha512-VPk9ebNqPcy5lRGuSlKx752IlDatOjT9paPlm8A7yOuW2Fbvp4X3JznJtT4f0GzGLLiWE9W8onz51SqLYwzGaA==}
+  axios@1.15.0:
+    resolution: {integrity: sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -1521,8 +1521,8 @@ packages:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
     engines: {node: '>=14'}
 
-  form-data@4.0.4:
-    resolution: {integrity: sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==}
+  form-data@4.0.5:
+    resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
 
   fs-extra@7.0.1:
@@ -2100,8 +2100,9 @@ packages:
   proto-list@1.2.4:
     resolution: {integrity: sha512-vtK/94akxsTMhe0/cbfpR+syPuszcuwhqVjJq26CuNDgFGj682oRBXOP5MJpv2r7JtE8MsiepGIqvvOTBwn2vA==}
 
-  proxy-from-env@1.1.0:
-    resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
+  proxy-from-env@2.1.0:
+    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
+    engines: {node: '>=10'}
 
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
@@ -3021,15 +3022,15 @@ snapshots:
     dependencies:
       '@biomejs/biome': 2.3.7
 
-  '@kontent-ai/core-sdk@10.12.1':
+  '@kontent-ai/core-sdk@10.12.4':
     dependencies:
-      axios: 1.13.2
+      axios: 1.15.0
     transitivePeerDependencies:
       - debug
 
-  '@kontent-ai/delivery-sdk@16.4.0':
+  '@kontent-ai/delivery-sdk@16.4.2':
     dependencies:
-      '@kontent-ai/core-sdk': 10.12.1
+      '@kontent-ai/core-sdk': 10.12.4
     transitivePeerDependencies:
       - debug
 
@@ -3551,11 +3552,11 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
-  axios@1.13.2:
+  axios@1.15.0:
     dependencies:
       follow-redirects: 1.15.11
-      form-data: 4.0.4
-      proxy-from-env: 1.1.0
+      form-data: 4.0.5
+      proxy-from-env: 2.1.0
     transitivePeerDependencies:
       - debug
 
@@ -4063,7 +4064,7 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  form-data@4.0.4:
+  form-data@4.0.5:
     dependencies:
       asynckit: 0.4.0
       combined-stream: 1.0.8
@@ -4666,7 +4667,7 @@ snapshots:
 
   proto-list@1.2.4: {}
 
-  proxy-from-env@1.1.0: {}
+  proxy-from-env@2.1.0: {}
 
   punycode@2.3.1: {}
 
