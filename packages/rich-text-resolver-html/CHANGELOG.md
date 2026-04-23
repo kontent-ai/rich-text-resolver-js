@@ -1,5 +1,11 @@
 # @kontent-ai/rich-text-resolver-html
 
+## 3.0.3
+
+### Patch Changes
+
+- bump packages
+
 ## 3.0.2
 
 ### Patch Changes
