@@ -208,9 +208,7 @@ const processMark: NodeToPortableText<DomHtmlNode> = (node, children) => {
     })
     .otherwise(() => node.tagName);
 
-  const updatedSpans = spans.map(
-    (s) => ({ ...s, marks: [...(s.marks ?? []), mark] }) as PortableTextSpan,
-  );
+  const updatedSpans = spans.map((s) => ({ ...s, marks: [...(s.marks ?? []), mark] }));
   // links are returned to create markDefs in parent blocks higher up the recursion
   return [...updatedSpans, ...links, ...contentItemLinks];
 };
