@@ -24,23 +24,24 @@
     "biome:check": "biome check ."
   },
   "dependencies": {
-    "@portabletext/types": "^3.0.0",
+    "@portabletext/types": "^3.0.1",
     "browser-or-node": "^3.0.0",
-    "node-html-parser": "^7.0.1",
-    "short-unique-id": "^5.2.2",
+    "node-html-parser": "^7.1.0",
+    "short-unique-id": "^5.3.2",
     "ts-pattern": "^5.9.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.3.7",
+    "@biomejs/biome": "^2.4.12",
     "@kontent-ai/biome-config": "^0.5.1",
-    "@kontent-ai/eslint-config": "^2.1.0",
-    "@typescript-eslint/eslint-plugin": "^8.47.0",
-    "@typescript-eslint/parser": "^8.47.0",
-    "@vitest/ui": "^4.0.13",
-    "eslint": "^9.39.1",
-    "jsdom": "^27.2.0",
-    "typescript": "^5.8.3",
-    "vitest": "^4.0.13"
+    "@kontent-ai/eslint-config": "^2.4.1",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
+    "@vitest/ui": "^4.1.5",
+    "eslint": "^9.39.4",
+    "jsdom": "^27.4.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.2",
+    "vitest": "^4.1.5"
   },
   "publishConfig": {
     "access": "public",
