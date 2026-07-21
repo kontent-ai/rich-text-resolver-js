@@ -177,3 +177,5 @@ packages/*/dist
 
 # macOS system files
 .DS_Store
+# npm lockfile — this is a pnpm repo, never commit
+package-lock.json

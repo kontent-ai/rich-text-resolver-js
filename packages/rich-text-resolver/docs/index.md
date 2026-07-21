@@ -38,6 +38,12 @@ export interface DomHtmlNode<TAttributes = Record<string, string | undefined>> {
 
 To transform the `DomNode` array back to HTML, you can use `nodesToHTML` function or its async variant `nodesToHTMLAsync`. The function accepts the parsed array and a `transformers` object, which defines custom transformation for each HTML node. Text nodes are transformed automatically. A wildcard `*` can be used to define fallback transformation for remaining tags. If no explicit or wildcard transformation is provided, default resolution is used.
 
+> [!WARNING]
+> **`nodesToHTML`/`nodesToHTMLAsync` do not escape output and are not safe to render as trusted HTML.**
+> These are low-level, general-purpose tree-to-string mappers intended for server-side transformation of external rich text into Kontent.ai-compatible markup before upserting via the Management API (e.g. content migrations). Text nodes are emitted verbatim and default attribute serialization is applied as-is, so input-controlled entities (for example `&lt;img src=x onerror=...&gt;`) are decoded during parsing and re-emitted as live markup. Output is intentionally not HTML-escaped so that non-HTML target formats are not corrupted.
+>
+> Do **not** pass the output of these functions directly to `dangerouslySetInnerHTML`, `innerHTML`, `v-html`, or any other sink that renders it as trusted HTML. If you need render-safe HTML from Portable Text, use `toHTML` from `@kontent-ai/rich-text-resolver-html`, which escapes attribute values on emit. If you must render `nodesToHTML` output, sanitize it first with a dedicated library such as DOMPurify.
+
 #### Basic
 Basic example of HTML transformation, removing HTML attribute `style` and transforming `b` tag to `strong`:
 ```ts

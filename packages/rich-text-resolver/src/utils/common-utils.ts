@@ -113,6 +113,22 @@ export const throwError = (msg: string) => {
   throw new Error(msg);
 };
 
+/**
+ * Escapes a string for safe interpolation into a double-quoted HTML attribute value.
+ *
+ * Encodes the five characters that have structural meaning in HTML attribute
+ * context: `&`, `<`, `>`, `"`, `'`. Without this, an attribute value containing
+ * `"` lets an attacker break out of the attribute and inject new attributes
+ * (e.g. event handlers), enabling stored XSS via rich-text content.
+ */
+export const escapeHtmlAttribute = (value: string): string =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 export const isAssetLink = (node: DomHtmlNode): node is DomHtmlNode =>
   match(node)
     .with(

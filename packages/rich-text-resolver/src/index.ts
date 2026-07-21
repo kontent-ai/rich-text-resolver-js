@@ -54,6 +54,7 @@ export type {
 } from "./transformers/transformer-models.js";
 export { convertDomNodeAttributes, NodeType } from "./utils/browser-parser-utils.js";
 export {
+  escapeHtmlAttribute,
   getAllNewLineAndWhiteSpace,
   getAssetReferenceData,
   getItemLinkReferenceData,

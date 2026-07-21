@@ -1,6 +1,7 @@
 import { match } from "ts-pattern";
 
 import type { DomHtmlNode, DomNode } from "../../parser/parser-models.js";
+import { escapeHtmlAttribute } from "../../utils/common-utils.js";
 
 export type NodeToHtml<TContext = unknown> = (
   node: DomHtmlNode<unknown>,
@@ -46,6 +47,15 @@ export type AsyncNodeToHtmlMap<TContext = unknown> = Record<string, NodeToHtmlAs
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ *
+ * @security This function does NOT escape its output and is not safe to render as trusted HTML.
+ * It is a low-level, general-purpose tree-to-string mapper intended for server-side transformation
+ * of external rich text into Kontent.ai-compatible markup before upserting via the Management API
+ * (e.g. content migrations). Text nodes are emitted verbatim and default attribute serialization is
+ * applied as-is, so input-controlled entities are decoded during parsing and re-emitted as live markup.
+ * Do not pass the output to `dangerouslySetInnerHTML`, `innerHTML`, `v-html`, or any trusted-HTML sink.
+ * For render-safe HTML use `toHTML` from `@kontent-ai/rich-text-resolver-html`, or sanitize the output
+ * with a dedicated library such as DOMPurify.
  */
 export const nodesToHTML = <TContext>(
   nodes: DomNode[],
@@ -94,6 +104,15 @@ export const nodesToHTML = <TContext>(
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ *
+ * @security This function does NOT escape its output and is not safe to render as trusted HTML.
+ * It is a low-level, general-purpose tree-to-string mapper intended for server-side transformation
+ * of external rich text into Kontent.ai-compatible markup before upserting via the Management API
+ * (e.g. content migrations). Text nodes are emitted verbatim and default attribute serialization is
+ * applied as-is, so input-controlled entities are decoded during parsing and re-emitted as live markup.
+ * Do not pass the output to `dangerouslySetInnerHTML`, `innerHTML`, `v-html`, or any trusted-HTML sink.
+ * For render-safe HTML use `toHTML` from `@kontent-ai/rich-text-resolver-html`, or sanitize the output
+ * with a dedicated library such as DOMPurify.
  */
 export const nodesToHTMLAsync = async <TContext>(
   nodes: DomNode[],
@@ -129,5 +148,5 @@ export const nodesToHTMLAsync = async <TContext>(
 const formatAttributes = (attributes: Record<string, string | undefined>): string =>
   Object.entries(attributes)
     .filter(([, value]) => value !== undefined)
-    .map(([key, value]) => ` ${key}="${value}"`)
+    .map(([key, value]) => ` ${key}="${escapeHtmlAttribute(value as string)}"`)
     .join(" ");

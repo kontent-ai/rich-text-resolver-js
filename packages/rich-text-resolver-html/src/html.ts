@@ -1,12 +1,13 @@
-import type {
-  PortableTextComponentOrItem,
-  PortableTextExternalLink,
-  PortableTextImage,
-  PortableTextItemLink,
-  PortableTextObject,
-  PortableTextTable,
-  PortableTextTableCell,
-  PortableTextTableRow,
+import {
+  escapeHtmlAttribute,
+  type PortableTextComponentOrItem,
+  type PortableTextExternalLink,
+  type PortableTextImage,
+  type PortableTextItemLink,
+  type PortableTextObject,
+  type PortableTextTable,
+  type PortableTextTableCell,
+  type PortableTextTableRow,
 } from "@kontent-ai/rich-text-resolver";
 import {
   defaultComponents,
@@ -58,7 +59,7 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
           const { _key, _type, ...attributes } = value;
 
           return `<a ${Object.entries(attributes)
-            .map(([key, value]) => `${key}="${value as string}"`)
+            .map(([key, value]) => `${key}="${escapeHtmlAttribute(value as string)}"`)
             .join(" ")}>${children}</a>`;
         },
         sup: ({ children }) => `<sup>${children}</sup>`,
@@ -138,6 +139,6 @@ export const resolveImage = (
  *          and potentially other HTML attributes.
  */
 export const toHTMLImageDefault = (image: PortableTextImage): string =>
-  `<img src="${image.asset.url}" alt="${image.asset.alt}">`;
+  `<img src="${escapeHtmlAttribute(image.asset.url)}" alt="${escapeHtmlAttribute(image.asset.alt ?? "")}">`;
 
 export { defaultComponents };
