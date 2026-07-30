@@ -19,10 +19,12 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      # persist-credentials must stay enabled: changesets/action pushes with a plain
-      # `git push origin`, relying on the credentials this step writes to .git/config.
       - name: Checkout code repository
         uses: actions/checkout@v6
+        with:
+          # changesets/action authenticates its own push via the ~/.netrc it writes,
+          # so no token needs to sit in .git/config while install/build scripts run.
+          persist-credentials: false
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
