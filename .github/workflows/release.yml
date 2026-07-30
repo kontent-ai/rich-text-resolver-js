@@ -5,10 +5,7 @@ on:
     branches:
       - main
 
-permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+permissions: {}
 
 env:
   CI: true
@@ -17,7 +14,13 @@ jobs:
   version:
     timeout-minutes: 15
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
     steps:
+      # persist-credentials must stay enabled: changesets/action pushes with a plain
+      # `git push origin`, relying on the credentials this step writes to .git/config.
       - name: Checkout code repository
         uses: actions/checkout@v6
 

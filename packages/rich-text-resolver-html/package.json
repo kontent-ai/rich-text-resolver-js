@@ -32,13 +32,13 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.12",
     "@kontent-ai/biome-config": "^0.5.1",
-    "@kontent-ai/delivery-sdk": "^16.4.2",
-    "@kontent-ai/eslint-config": "^2.4.1",
+    "@kontent-ai/delivery-sdk": "^16.4.6",
+    "@kontent-ai/eslint-config": "^3.0.0",
     "@kontent-ai/rich-text-resolver": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
     "@vitest/ui": "^4.1.5",
-    "eslint": "^9.39.4",
+    "eslint": "^10.8.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.5"
   },
