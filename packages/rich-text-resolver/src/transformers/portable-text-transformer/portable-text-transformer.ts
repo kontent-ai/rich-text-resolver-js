@@ -280,6 +280,12 @@ const ignoreProcessing: NodeToPortableText<DomHtmlNode> = (_, children) => child
 /**
  * Transforms rich text HTML into an array of Portable Text Blocks.
  *
+ * Expects Kontent.ai rich text. Kontent.ai validates rich text on write, which bounds what
+ * can reach this function.
+ *
+ * This is not a sanitizer. If you source the input from anywhere other than Kontent.ai,
+ * validate it yourself before rendering the result.
+ *
  * @param {string} richText HTML string of Kontent.ai rich text content.
  * @returns {PortableTextObject[]} An array of Portable Text Blocks representing the structured content.
  */

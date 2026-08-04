@@ -150,6 +150,12 @@ const resolveTableToMarkdown = (
 /**
  * Converts array of Kontent.ai portable text objects to Markdown using HTML library with custom resolvers.
  *
+ * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
+ * Kontent.ai validates rich text on write, which bounds what can reach this function.
+ *
+ * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
+ * other than Kontent.ai, validate it yourself before rendering.
+ *
  * @param blocks array of portable text objects
  * @param resolvers optional custom resolvers for Portable Text objects
  * @returns Markdown string

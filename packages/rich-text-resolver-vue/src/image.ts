@@ -21,6 +21,12 @@ export const resolveImage = (
  * Provides a default resolver function for an image object to Vue. Default fallback for `resolver`
  * argument of `resolveImage` function.
  *
+ * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
+ * Kontent.ai validates rich text on write, which bounds what can reach this function.
+ *
+ * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
+ * other than Kontent.ai, validate it yourself before rendering.
+ *
  * @param {PortableTextImage} image - The portable text image object to be rendered.
  * @returns {VueImage} An object representing the image, containing `src` and `alt` properties,
  *          and potentially other HTML attributes.

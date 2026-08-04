@@ -46,6 +46,9 @@ export type AsyncNodeToHtmlMap<TContext = unknown> = Record<string, NodeToHtmlAs
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ *
+ * Attribute values and text are written out as parsed, without escaping. This is not a
+ * sanitizer - do not render its output in a browser without sanitizing it first.
  */
 export const nodesToHTML = <TContext>(
   nodes: DomNode[],
@@ -94,6 +97,9 @@ export const nodesToHTML = <TContext>(
  * @remarks
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
+ *
+ * Attribute values and text are written out as parsed, without escaping. This is not a
+ * sanitizer - do not render its output in a browser without sanitizing it first.
  */
 export const nodesToHTMLAsync = async <TContext>(
   nodes: DomNode[],

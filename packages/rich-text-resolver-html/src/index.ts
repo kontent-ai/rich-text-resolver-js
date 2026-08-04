@@ -7,4 +7,5 @@ export {
   toHTML,
   toHTMLImageDefault,
 } from "./html.js";
+export { escapeHtmlAttribute, formatAttributes } from "./html-utils.js";
 export { toManagementApiFormat } from "./mapi.js";

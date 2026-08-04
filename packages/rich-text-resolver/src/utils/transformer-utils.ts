@@ -108,6 +108,11 @@ export const createImageBlock = (
   },
 });
 
+/**
+ * Copies every attribute of the source `<a>` element into the mark definition. Safe for
+ * Kontent.ai rich text, where the attribute set is validated server-side; if you call this
+ * with attributes from another source, the mark definition will carry whatever you pass.
+ */
 export const createExternalLink = (
   guid: ShortGuid,
   attributes: Readonly<Record<string, string | undefined>>,
