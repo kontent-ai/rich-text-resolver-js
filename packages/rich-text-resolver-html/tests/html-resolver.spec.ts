@@ -172,3 +172,62 @@ describe("HTML resolution", () => {
     );
   });
 });
+
+/**
+ * Inputs are verbatim Delivery API responses captured against a live environment, not
+ * hand-written HTML. Asserted as complete strings rather than snapshots, so reintroducing
+ * the bug cannot be papered over by regenerating a snapshot.
+ */
+describe("attribute escaping", () => {
+  it("does not let a link title break out into an event handler", () => {
+    const result = toHTML(
+      transformToPortableText(
+        `<p><a href="https://example.com" title="safe&quot; onclick=&quot;alert(1)">x</a></p>`,
+      ),
+    );
+
+    expect(result).toBe(
+      `<p><a href="https://example.com" title="safe&quot; onclick=&quot;alert(1)">x</a></p>`,
+    );
+  });
+
+  it("does not let an asset description break out into an event handler", () => {
+    const result = toHTML(
+      transformToPortableText(
+        `<figure data-asset-id="a"><img src="https://x/y.png" data-asset-id="a" alt="safe&quot; onerror=&quot;alert(1)"></figure>`,
+      ),
+    );
+
+    expect(result).toBe(`<img src="https://x/y.png" alt="safe&quot; onerror=&quot;alert(1)">`);
+  });
+
+  it("preserves a legitimate quote in a link title", () => {
+    const result = toHTML(
+      transformToPortableText(
+        `<p><a href="https://example.com" title="he said &quot;hi&quot;">x</a></p>`,
+      ),
+    );
+
+    expect(result).toBe(
+      `<p><a href="https://example.com" title="he said &quot;hi&quot;">x</a></p>`,
+    );
+  });
+
+  it("keeps an ampersand in a query string from becoming an entity", () => {
+    const result = toHTML(
+      transformToPortableText(`<p><a href="https://example.com/?a=1&amp;copy=2">x</a></p>`),
+    );
+
+    expect(result).toBe(`<p><a href="https://example.com/?a=1&amp;copy=2">x</a></p>`);
+  });
+
+  it("emits an empty alt when the asset has no description", () => {
+    const result = toHTML(
+      transformToPortableText(
+        `<figure data-asset-id="a"><img src="https://x/y.png" data-asset-id="a"></figure>`,
+      ),
+    );
+
+    expect(result).toBe(`<img src="https://x/y.png" alt="">`);
+  });
+});

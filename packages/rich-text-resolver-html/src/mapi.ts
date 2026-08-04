@@ -84,6 +84,9 @@ const portableTextComponents: PortableTextOptions = {
  * This function performs only minimal checks for compatibility and is therefore not suited for conversion of generic HTML
  * or any other rich text other than MAPI format.
  *
+ * Attribute values are written out as they are, without escaping. This is not a sanitizer -
+ * do not render its output in a browser without sanitizing it first.
+ *
  * @param blocks portable text array
  * @returns MAPI-compatible rich text string
  */

@@ -16,6 +16,7 @@ import {
   type PortableTextTypeComponent,
   toHTML as toHTMLDefault,
 } from "@portabletext/to-html";
+import { escapeHtmlAttribute, formatAttributes } from "./html-utils.js";
 
 type RichTextCustomBlocks = Partial<{
   image: PortableTextTypeComponent<PortableTextImage>;
@@ -38,6 +39,12 @@ type RichTextHtmlComponents = Omit<PortableTextHtmlComponents, "types" | "marks"
  *
  * This function is a wrapper around `toHTML` function from `@portabletext/to-html` package, with default resolvers for `sup` and `sub` marks added.
  *
+ * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
+ * Kontent.ai validates rich text on write, which bounds what can reach this function.
+ *
+ * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
+ * other than Kontent.ai, validate it yourself before rendering.
+ *
  * @param blocks array of portable text objects
  * @param resolvers optional custom resolvers for Portable Text objects
  * @returns HTML string
@@ -57,9 +64,7 @@ export const toHTML = (blocks: PortableTextObject[], resolvers?: PortableTextHtm
 
           const { _key, _type, ...attributes } = value;
 
-          return `<a ${Object.entries(attributes)
-            .map(([key, value]) => `${key}="${value as string}"`)
-            .join(" ")}>${children}</a>`;
+          return `<a ${formatAttributes(attributes)}>${children}</a>`;
         },
         sup: ({ children }) => `<sup>${children}</sup>`,
         sub: ({ children }) => `<sub>${children}</sub>`,
@@ -138,6 +143,6 @@ export const resolveImage = (
  *          and potentially other HTML attributes.
  */
 export const toHTMLImageDefault = (image: PortableTextImage): string =>
-  `<img src="${image.asset.url}" alt="${image.asset.alt}">`;
+  `<img src="${escapeHtmlAttribute(image.asset.url)}" alt="${escapeHtmlAttribute(image.asset.alt ?? "")}">`;
 
 export { defaultComponents };

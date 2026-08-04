@@ -27,6 +27,12 @@ export const kontentDefaultComponentResolvers: PortableTextReactResolvers = {
 
 /**
  * Wrapper around `PortableText` component from `@portabletext/react` package, with default resolvers for Kontent.ai-specific blocks and marks.
+ *
+ * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
+ * Kontent.ai validates rich text on write, which bounds what can reach this component.
+ *
+ * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
+ * other than Kontent.ai, validate it yourself before rendering.
  */
 export const PortableText = <B extends TypedObject = PortableTextBlock>({
   value: input,
