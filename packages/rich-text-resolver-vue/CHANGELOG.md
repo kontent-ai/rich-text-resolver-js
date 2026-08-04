@@ -1,5 +1,7 @@
 # @kontent-ai/rich-text-resolver-vue
 
+## 3.0.4
+
 ## 3.0.3
 
 ### Patch Changes
