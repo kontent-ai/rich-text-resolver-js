@@ -31,8 +31,7 @@ export type AsyncNodeToHtmlMap<TContext = unknown> = Record<string, NodeToHtmlAs
 export type NodeToHtmlOptions = {
   /**
    * Escape text nodes and default attribute values for HTML output. Defaults to true.
-   * Set to false to retain legacy unescaped output, for example when producing plain text.
-   * Custom transformer return values are always emitted verbatim.
+   * Set to false to retain legacy unescaped output.
    */
   escapeHtml?: boolean;
 };
@@ -57,19 +56,12 @@ export type NodeToHtmlOptions = {
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  *
- * Intended for transformations such as adapting external HTML for Management API imports,
- * including callers producing other string formats. The result is not validated as Kontent.ai rich text.
+ * Text (including script/style content) and default attribute values are HTML-escaped.
+ * Set `options.escapeHtml` to false for legacy output. Custom transformers receive
+ * transformed children and decoded attributes; their output is verbatim, so they must
+ * escape any attributes they serialize.
  *
- * `parseHTML` decodes entities. By default, text nodes and default attribute values are
- * HTML-escaped on output. Custom transformers receive already transformed children,
- * decoded node attributes, and emit their return values verbatim. They are responsible
- * for escaping any attributes they serialize. Set `options.escapeHtml` to false to disable
- * automatic escaping throughout the tree. Text inside script/style elements is also escaped;
- * use a custom transformer or the opt-out when deliberately preserving trusted raw source.
- *
- * This is not a sanitizer: tags, attribute names, and URL schemes are not filtered.
- * Sanitize the final output before browser rendering; sanitizing only the input is insufficient.
- * For Kontent.ai rich text rendering, use `transformToPortableText` and a resolution package.
+ * This is not a sanitizer. Sanitize final output before rendering untrusted HTML.
  */
 export const nodesToHTML = <TContext>(
   nodes: DomNode[],
@@ -97,7 +89,10 @@ export const nodesToHTML = <TContext>(
 
           return (
             transformer?.(tagNode, children, updatedContext) ??
-            `<${tagNode.tagName}${formatAttributes(tagNode.attributes, options)}>${children}</${tagNode.tagName}>`
+            `<${tagNode.tagName}${formatAttributes(
+              tagNode.attributes,
+              options,
+            )}>${children}</${tagNode.tagName}>`
           );
         })
         .exhaustive(),
@@ -124,19 +119,12 @@ export const nodesToHTML = <TContext>(
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  *
- * Intended for transformations such as adapting external HTML for Management API imports,
- * including callers producing other string formats. The result is not validated as Kontent.ai rich text.
+ * Text (including script/style content) and default attribute values are HTML-escaped.
+ * Set `options.escapeHtml` to false for legacy output. Custom transformers receive
+ * transformed children and decoded attributes; their output is verbatim, so they must
+ * escape any attributes they serialize.
  *
- * `parseHTML` decodes entities. By default, text nodes and default attribute values are
- * HTML-escaped on output. Custom transformers receive already transformed children,
- * decoded node attributes, and emit their return values verbatim. They are responsible
- * for escaping any attributes they serialize. Set `options.escapeHtml` to false to disable
- * automatic escaping throughout the tree. Text inside script/style elements is also escaped;
- * use a custom transformer or the opt-out when deliberately preserving trusted raw source.
- *
- * This is not a sanitizer: tags, attribute names, and URL schemes are not filtered.
- * Sanitize the final output before browser rendering; sanitizing only the input is insufficient.
- * For Kontent.ai rich text rendering, use `transformToPortableText` and a resolution package.
+ * This is not a sanitizer. Sanitize final output before rendering untrusted HTML.
  */
 export const nodesToHTMLAsync = async <TContext>(
   nodes: DomNode[],
@@ -165,7 +153,10 @@ export const nodesToHTMLAsync = async <TContext>(
 
             return (
               (await transformer?.(tagNode, children, updatedContext)) ??
-              `<${tagNode.tagName}${formatAttributes(tagNode.attributes, options)}>${children}</${tagNode.tagName}>`
+              `<${tagNode.tagName}${formatAttributes(
+                tagNode.attributes,
+                options,
+              )}>${children}</${tagNode.tagName}>`
             );
           })
           .exhaustive(),
