@@ -1,20 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { escapeHtml } from "@kontent-ai/rich-text-resolver";
 import { escapeHtmlAttribute, formatAttributes } from "../src/html-utils.js";
 
 describe("escapeHtmlAttribute", () => {
-  it("escapes every character that can break out of an attribute", () => {
-    expect(escapeHtmlAttribute(`&<>"'`)).toBe("&amp;&lt;&gt;&quot;&#39;");
-  });
-
-  it("escapes unconditionally, including input that looks already encoded", () => {
-    // the parser decodes entities before serialization, so every & here is a literal &
-    expect(escapeHtmlAttribute("&amp;")).toBe("&amp;amp;");
-  });
-
-  it("leaves ordinary values untouched", () => {
-    expect(escapeHtmlAttribute("https://example.com/image.png")).toBe(
-      "https://example.com/image.png",
-    );
+  it("is a deprecated alias of escapeHtml from the core package", () => {
+    expect(escapeHtmlAttribute).toBe(escapeHtml);
   });
 });
 

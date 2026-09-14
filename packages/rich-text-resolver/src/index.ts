@@ -16,10 +16,10 @@ export type {
 } from "./parser/parser-models.js";
 export {
   type AsyncNodeToHtmlMap,
+  escapeHtml,
   type NodeToHtml,
   type NodeToHtmlAsync,
   type NodeToHtmlMap,
-  type NodeToHtmlOptions,
   nodesToHTML,
   nodesToHTMLAsync,
 } from "./transformers/html-transformer/html-transformer.js";

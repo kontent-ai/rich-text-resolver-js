@@ -1,12 +1,13 @@
-import type {
-  PortableTextComponentOrItem,
-  PortableTextExternalLink,
-  PortableTextImage,
-  PortableTextItemLink,
-  PortableTextObject,
-  PortableTextTable,
-  PortableTextTableCell,
-  PortableTextTableRow,
+import {
+  escapeHtml,
+  type PortableTextComponentOrItem,
+  type PortableTextExternalLink,
+  type PortableTextImage,
+  type PortableTextItemLink,
+  type PortableTextObject,
+  type PortableTextTable,
+  type PortableTextTableCell,
+  type PortableTextTableRow,
 } from "@kontent-ai/rich-text-resolver";
 import {
   defaultComponents,
@@ -16,7 +17,7 @@ import {
   type PortableTextTypeComponent,
   toHTML as toHTMLDefault,
 } from "@portabletext/to-html";
-import { escapeHtmlAttribute, formatAttributes } from "./html-utils.js";
+import { formatAttributes } from "./html-utils.js";
 
 type RichTextCustomBlocks = Partial<{
   image: PortableTextTypeComponent<PortableTextImage>;
@@ -40,9 +41,7 @@ type RichTextHtmlComponents = Omit<PortableTextHtmlComponents, "types" | "marks"
  * This function is a wrapper around `toHTML` function from `@portabletext/to-html` package, with default resolvers for `sup` and `sub` marks added.
  *
  * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
- * Link attributes and URL schemes are preserved for compatibility; attribute values are escaped.
- * Relies on Kontent.ai's supported attributes and URL normalization. Escaping prevents quotes
- * in link titles or image alt text from introducing new attributes such as event handlers.
+ * Kontent.ai validates rich text on write, which bounds what can reach this function.
  *
  * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
  * other than Kontent.ai, validate it yourself before rendering.
@@ -145,6 +144,6 @@ export const resolveImage = (
  *          and potentially other HTML attributes.
  */
 export const toHTMLImageDefault = (image: PortableTextImage): string =>
-  `<img src="${escapeHtmlAttribute(image.asset.url)}" alt="${escapeHtmlAttribute(image.asset.alt ?? "")}">`;
+  `<img src="${escapeHtml(image.asset.url)}" alt="${escapeHtml(image.asset.alt ?? "")}">`;
 
 export { defaultComponents };

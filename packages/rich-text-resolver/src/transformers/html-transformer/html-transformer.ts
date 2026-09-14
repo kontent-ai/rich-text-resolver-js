@@ -28,14 +28,6 @@ export type NodeToHtmlMap<TContext = unknown> = Record<string, NodeToHtml<TConte
  */
 export type AsyncNodeToHtmlMap<TContext = unknown> = Record<string, NodeToHtmlAsync<TContext>>;
 
-export type NodeToHtmlOptions = {
-  /**
-   * Escape text nodes and default attribute values for HTML output. Defaults to true.
-   * Set to false to retain legacy unescaped output.
-   */
-  escapeHtml?: boolean;
-};
-
 /**
  * Recursively traverses an array of `DomNode`, transforming each tag node to its HTML string representation, including all attributes.
  * You can override transformation for individual tags by providing a custom transformer via `transformers` parameter. Text nodes are transformed automatically.
@@ -48,7 +40,6 @@ export type NodeToHtmlOptions = {
  * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
- * @param {NodeToHtmlOptions} [options={}] - Output options. Set `escapeHtml: false` for legacy unescaped output.
  *
  * @returns {string} HTML or other string result of the transformation.
  *
@@ -56,26 +47,20 @@ export type NodeToHtmlOptions = {
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  *
- * Text (including script/style content) and default attribute values are HTML-escaped.
- * Set `options.escapeHtml` to false for legacy output. Custom transformers receive
- * transformed children and decoded attributes; their output is verbatim, so they must
- * escape any attributes they serialize.
- *
- * This is not a sanitizer. Sanitize final output before rendering untrusted HTML.
+ * Text and attribute values are HTML-escaped. Custom transformers receive escaped `children`
+ * but decoded `node.attributes`, so escape any attributes they serialize. This is not a
+ * sanitizer - do not render its output in a browser without sanitizing it first.
  */
 export const nodesToHTML = <TContext>(
   nodes: DomNode[],
   transformers: NodeToHtmlMap<TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
-  options: NodeToHtmlOptions = {},
 ): string =>
   nodes
     .map((node) =>
       match(node)
-        .with({ type: "text" }, (textNode) =>
-          options.escapeHtml === false ? textNode.content : escapeHtmlText(textNode.content),
-        )
+        .with({ type: "text" }, (textNode) => escapeHtml(textNode.content))
         .with({ type: "tag" }, (tagNode) => {
           const updatedContext = contextHandler?.(tagNode, context) ?? context;
           const children = nodesToHTML(
@@ -83,16 +68,12 @@ export const nodesToHTML = <TContext>(
             transformers,
             updatedContext,
             contextHandler,
-            options,
           );
           const transformer = transformers[tagNode.tagName] ?? transformers["*"];
 
           return (
             transformer?.(tagNode, children, updatedContext) ??
-            `<${tagNode.tagName}${formatAttributes(
-              tagNode.attributes,
-              options,
-            )}>${children}</${tagNode.tagName}>`
+            `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
           );
         })
         .exhaustive(),
@@ -111,7 +92,6 @@ export const nodesToHTML = <TContext>(
  * A wildcard `*` tag can be used for defining a transformation for all tags for which a custom transformation wasn't specified.
  * @param {TContext} [context={}] - The initial context object passed to transformers and updated by the `contextHandler`. Empty object by default.
  * @param {(node: DomNode, context: TContext) => TContext} [contextHandler] - An optional function that updates the context based on the current tag node.
- * @param {NodeToHtmlOptions} [options={}] - Output options. Set `escapeHtml: false` for legacy unescaped output.
  *
  * @returns {Promise<string>} HTML or other string result of the transformation.
  *
@@ -119,27 +99,21 @@ export const nodesToHTML = <TContext>(
  * - The function traverses and transforms the nodes in a depth-first manner.
  * - If a `contextHandler` is provided, it updates the context before passing it to child nodes traversal.
  *
- * Text (including script/style content) and default attribute values are HTML-escaped.
- * Set `options.escapeHtml` to false for legacy output. Custom transformers receive
- * transformed children and decoded attributes; their output is verbatim, so they must
- * escape any attributes they serialize.
- *
- * This is not a sanitizer. Sanitize final output before rendering untrusted HTML.
+ * Text and attribute values are HTML-escaped. Custom transformers receive escaped `children`
+ * but decoded `node.attributes`, so escape any attributes they serialize. This is not a
+ * sanitizer - do not render its output in a browser without sanitizing it first.
  */
 export const nodesToHTMLAsync = async <TContext>(
   nodes: DomNode[],
   transformers: AsyncNodeToHtmlMap<TContext>,
   context: TContext = {} as TContext,
   contextHandler?: (node: DomNode, context: TContext) => TContext,
-  options: NodeToHtmlOptions = {},
 ): Promise<string> =>
   (
     await Promise.all(
       nodes.map(async (node) =>
         match(node)
-          .with({ type: "text" }, (textNode) =>
-            options.escapeHtml === false ? textNode.content : escapeHtmlText(textNode.content),
-          )
+          .with({ type: "text" }, (textNode) => escapeHtml(textNode.content))
           .with({ type: "tag" }, async (tagNode) => {
             const updatedContext = contextHandler?.(tagNode, context) ?? context;
             const children = await nodesToHTMLAsync(
@@ -147,16 +121,12 @@ export const nodesToHTMLAsync = async <TContext>(
               transformers,
               updatedContext,
               contextHandler,
-              options,
             );
             const transformer = transformers[tagNode.tagName] ?? transformers["*"];
 
             return (
               (await transformer?.(tagNode, children, updatedContext)) ??
-              `<${tagNode.tagName}${formatAttributes(
-                tagNode.attributes,
-                options,
-              )}>${children}</${tagNode.tagName}>`
+              `<${tagNode.tagName}${formatAttributes(tagNode.attributes)}>${children}</${tagNode.tagName}>`
             );
           })
           .exhaustive(),
@@ -164,20 +134,20 @@ export const nodesToHTMLAsync = async <TContext>(
     )
   ).join("");
 
-const escapeHtmlText = (value: string): string =>
-  value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/**
+ * Escapes `&`, `<`, `>`, `"` and `'` for use in HTML text or double-quoted attribute values.
+ * Escapes unconditionally, so input that looks already encoded is escaped again.
+ */
+export const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 
-const escapeHtmlAttribute = (value: string): string =>
-  escapeHtmlText(value).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-
-const formatAttributes = (
-  attributes: Record<string, string | undefined>,
-  options: NodeToHtmlOptions,
-): string =>
+const formatAttributes = (attributes: Record<string, string | undefined>): string =>
   Object.entries(attributes)
     .filter((entry): entry is [string, string] => entry[1] !== undefined)
-    .map(
-      ([key, value]) =>
-        ` ${key}="${options.escapeHtml === false ? value : escapeHtmlAttribute(value)}"`,
-    )
-    .join(" ");
+    .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
+    .join("");
