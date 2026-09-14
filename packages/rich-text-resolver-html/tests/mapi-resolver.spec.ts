@@ -48,6 +48,14 @@ describe("portabletext to MAPI resolver", () => {
     transformAndCompare(richTextContent);
   });
 
+  it("escapes external link attribute values", () => {
+    const richTextContent =
+      `<p><a href="https://example.com/?a=1&amp;b=2" title="say &quot;hi&quot; &lt;x&gt;" data-new-window="true">1 &lt; 2</a></p>`;
+
+    expect(toManagementApiFormat(transformToPortableText(richTextContent))).toBe(richTextContent);
+    transformAndCompare(richTextContent);
+  });
+
   it("handles link to an email", () => {
     const richTextContent = `<p><a data-email-address="someone@mail.com">email link</a></p>`;
     transformAndCompare(richTextContent);

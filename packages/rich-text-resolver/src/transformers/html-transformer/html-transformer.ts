@@ -146,7 +146,7 @@ export const escapeHtml = (value: string): string =>
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 
-const formatAttributes = (attributes: Record<string, string | undefined>): string =>
+const formatAttributes = (attributes: Readonly<Record<string, string | undefined>>): string =>
   Object.entries(attributes)
     .filter((entry): entry is [string, string] => entry[1] !== undefined)
     .map(([key, value]) => ` ${key}="${escapeHtml(value)}"`)
