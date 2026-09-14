@@ -22,8 +22,8 @@ jobs:
       - name: Checkout code repository
         uses: actions/checkout@v6
         with:
-          # changesets/action authenticates its own push via the ~/.netrc it writes,
-          # so no token needs to sit in .git/config while install/build scripts run.
+          # changesets/action pushes release commits and tags through the GitHub API with its
+          # github-token input, so no token needs to sit in .git/config while install/build scripts run.
           persist-credentials: false
 
       - name: Setup pnpm
@@ -42,10 +42,8 @@ jobs:
         run: pnpm build
       
       - name: Create and publish versions
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          commit: "changeset: update versions"
-          title: "changeset: update versions"
-          publish: pnpm changeset:publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "changeset: update versions"
+          pr-title: "changeset: update versions"
+          publish-script: pnpm changeset:publish
