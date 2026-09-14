@@ -4,68 +4,23 @@ This module provides an environment-aware (browser or Node.js) `parseHTML` funct
 
 This toolset can be particularly useful for transforming rich text or HTML content from external sources into a valid Kontent.ai rich text format in migration scenarios. 
 
-## Output encoding and intended use
+## Output encoding
 
-`nodesToHTML` and `nodesToHTMLAsync` are low-level tree-to-string transformation utilities. Their intended workflow is to adapt external HTML for import through the Kontent.ai Management API, using custom transformers to produce the required rich text structure. They can also produce other string formats. They do not validate the result as Kontent.ai rich text.
+`nodesToHTML` and `nodesToHTMLAsync` escape text and default attribute values after parsing, so literal text stays text and quotes stay inside attribute values. Actual elements retain their structure.
 
-Both functions escape HTML by default:
-
-- `parseHTML` decodes HTML entities in text and attribute values.
-- Text nodes are re-encoded on output: `&`, `<`, and `>` become `&amp;`, `&lt;`, and `&gt;`.
-- Default tag serialization also escapes double and single quotes in attribute values. Values are always escaped, including literal entity spellings such as `&quot;`.
-- Custom tag transformers receive already transformed children, including escaped text, and the original decoded node attributes. Their return values are emitted verbatim. Custom transformers must escape any attribute values they interpolate themselves; do not escape the entire `children` string, which can also contain child element markup.
-- Neither function filters tags, event-handler attributes, or URL schemes.
-
-For example, encoded markup stays literal text while actual elements retain their structure:
+To restore legacy unescaped output, pass `{ escapeHtml: false }` as the fifth argument. This applies to the entire tree in both variants:
 
 ```ts
-import { nodesToHTML, nodesToHTMLAsync, parseHTML } from "@kontent-ai/rich-text-resolver";
+import { nodesToHTML, parseHTML } from "@kontent-ai/rich-text-resolver";
 
-const input = "<p>&lt;strong&gt;literal text&lt;/strong&gt; &amp; <strong>bold text</strong></p>";
-const output = nodesToHTML(parseHTML(input), {});
-// <p>&lt;strong&gt;literal text&lt;/strong&gt; &amp; <strong>bold text</strong></p>
-// nodesToHTMLAsync produces the same output.
+const nodes = parseHTML("<p>&lt;b&gt;text&lt;/b&gt;</p>");
+nodesToHTML(nodes, {}); // <p>&lt;b&gt;text&lt;/b&gt;</p>
+nodesToHTML(nodes, {}, undefined, undefined, { escapeHtml: false }); // <p><b>text</b></p>
 ```
 
-Entity spelling and formatting can still change during a round trip. For example, `&nbsp;` may be emitted as an actual non-breaking-space character. These utilities do not guarantee byte-for-byte round trips.
+By default, custom transformers receive escaped child text and decoded attributes. Their returned markup is emitted verbatim, so escape any attributes you serialize yourself; do not escape the entire `children` string, which can include child element markup.
 
-### Opting out of escaping
-
-Earlier versions emitted decoded text and default attribute values without re-encoding them. To retain that behavior, pass `{ escapeHtml: false }` as the fifth argument. The existing third and fourth arguments remain the context and context handler. The option applies recursively to the entire tree in both variants:
-
-```ts
-const nodes = parseHTML("<p>AT&amp;T costs &lt; $10</p>");
-
-const plainText = nodesToHTML(
-  nodes,
-  { "*": (_, children) => children },
-  undefined,
-  undefined,
-  { escapeHtml: false },
-);
-// AT&T costs < $10
-
-const plainTextAsync = await nodesToHTMLAsync(
-  nodes,
-  { "*": async (_, children) => children },
-  undefined,
-  undefined,
-  { escapeHtml: false },
-);
-// AT&T costs < $10
-```
-
-Use this option when intentionally producing plain text or another format, or when maintaining a transformation that already handles its own encoding. With escaping disabled, encoded text can become active markup and quotes in attribute values can change the output's attribute structure.
-
-Default escaping applies to every text node, including text inside `<script>` and `<style>`. If a transformation deliberately preserves trusted script or stylesheet source, use a custom transformer that reads the original node content, or disable escaping. These functions do not automatically select JavaScript or CSS encoding based on the enclosing tag.
-
-### Rendering and validation
-
-These functions are not sanitizers. Actual unsafe tags, event-handler attributes, and unsafe URLs in the input are still emitted, and custom transformers can introduce unsafe markup. Sanitize the final output before rendering untrusted content in a browser, including server-rendered HTML, `innerHTML`, `dangerouslySetInnerHTML`, or `v-html`.
-
-For migrations, check the transformed content for fidelity and validate it against the destination's rich text requirements.
-
-For rendering Kontent.ai rich text, use `transformToPortableText` followed by the appropriate resolution package, such as `toHTML` from `@kontent-ai/rich-text-resolver-html`. That is a separate path from these utilities. Custom resolvers remain responsible for their output, and the rendering package is not a sanitizer for arbitrary input.
+Escaping is not sanitization: tags, attribute names, and URL schemes are not filtered. Sanitize the final output before rendering untrusted content in a browser.
 
 ## Usage
 
