@@ -19,6 +19,7 @@ export {
   type NodeToHtml,
   type NodeToHtmlAsync,
   type NodeToHtmlMap,
+  type NodeToHtmlOptions,
   nodesToHTML,
   nodesToHTMLAsync,
 } from "./transformers/html-transformer/html-transformer.js";
