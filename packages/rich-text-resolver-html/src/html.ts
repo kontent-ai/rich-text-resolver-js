@@ -40,7 +40,9 @@ type RichTextHtmlComponents = Omit<PortableTextHtmlComponents, "types" | "marks"
  * This function is a wrapper around `toHTML` function from `@portabletext/to-html` package, with default resolvers for `sup` and `sub` marks added.
  *
  * Expects Portable Text produced by `transformToPortableText` from Kontent.ai rich text.
- * Kontent.ai validates rich text on write, which bounds what can reach this function.
+ * Link attributes and URL schemes are preserved for compatibility; attribute values are escaped.
+ * Relies on Kontent.ai's supported attributes and URL normalization. Escaping prevents quotes
+ * in link titles or image alt text from introducing new attributes such as event handlers.
  *
  * This is not a sanitizer. If you build Portable Text by hand, or source it from anywhere
  * other than Kontent.ai, validate it yourself before rendering.
