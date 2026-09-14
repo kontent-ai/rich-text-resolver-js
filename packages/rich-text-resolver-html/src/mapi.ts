@@ -84,9 +84,8 @@ const portableTextComponents: PortableTextOptions = {
  * This function performs only minimal checks for compatibility and is therefore not suited for conversion of generic HTML
  * or any other rich text other than MAPI format.
  *
- * Output is intended for Management API upserts. Legacy attribute interpolation remains
- * unescaped: quotes in values can alter markup or cause import errors. Validate the imported
- * content, and sanitize the final output if it is separately rendered in a browser.
+ * Attribute values are written out as they are, without escaping. This is not a sanitizer -
+ * do not render its output in a browser without sanitizing it first.
  *
  * @param blocks portable text array
  * @returns MAPI-compatible rich text string

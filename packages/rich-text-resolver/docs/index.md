@@ -4,24 +4,6 @@ This module provides an environment-aware (browser or Node.js) `parseHTML` funct
 
 This toolset can be particularly useful for transforming rich text or HTML content from external sources into a valid Kontent.ai rich text format in migration scenarios. 
 
-## Output encoding
-
-`nodesToHTML` and `nodesToHTMLAsync` escape text and default attribute values after parsing, so literal text stays text and quotes stay inside attribute values. Actual elements retain their structure.
-
-To restore legacy unescaped output, pass `{ escapeHtml: false }` as the fifth argument. This applies to the entire tree in both variants:
-
-```ts
-import { nodesToHTML, parseHTML } from "@kontent-ai/rich-text-resolver";
-
-const nodes = parseHTML("<p>&lt;b&gt;text&lt;/b&gt;</p>");
-nodesToHTML(nodes, {}); // <p>&lt;b&gt;text&lt;/b&gt;</p>
-nodesToHTML(nodes, {}, undefined, undefined, { escapeHtml: false }); // <p><b>text</b></p>
-```
-
-By default, custom transformers receive escaped child text and decoded attributes. Their returned markup is emitted verbatim, so escape any attributes you serialize yourself; do not escape the entire `children` string, which can include child element markup.
-
-Escaping is not sanitization: tags, attribute names, and URL schemes are not filtered. Sanitize the final output before rendering untrusted content in a browser.
-
 ## Usage
 
 Pass stringified HTML to `parseHTML` function to get an array of `DomNode` objects:
@@ -218,3 +200,5 @@ console.log(output);
 // <p>Top level some text nested deep</p><p>Another top-level div with text</p>
 
 ```
+
+

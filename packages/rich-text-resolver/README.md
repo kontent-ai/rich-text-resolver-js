@@ -23,9 +23,6 @@ npm i --save @kontent-ai/rich-text-resolver
 
 The tool provides environment-aware (browser or Node.js) `parseHTML` function to transform HTML into an array of `DomNode` trees. Any valid HTML is parsed, including all attributes. Together with built-in transformation methods, this tool is a suitable option for processing HTML and rich text from external sources, to make it compatible with Kontent.ai rich text format. See dedicated [HTML transformer docs](./docs/index.md) for further information.
 
-> [!WARNING]
-> `nodesToHTML` and `nodesToHTMLAsync` escape text and default attribute values, but do not sanitize HTML. See [output encoding](./docs/index.md#output-encoding) for the opt-out and custom transformer requirements.
-
 ### Portable text resolution
 
 [Portable Text](https://github.com/portabletext/portabletext) is a universal standard for rich text representation, with tools available for its transformation and rendering in majority of popular frameworks and formats:
