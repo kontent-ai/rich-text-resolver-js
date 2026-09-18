@@ -31,7 +31,7 @@
     "@portabletext/types": "^3.0.1"
   },
   "peerDependencies": {
-    "@kontent-ai/rich-text-resolver": "^3.0.3",
+    "@kontent-ai/rich-text-resolver": "^3.1.0",
     "react": ">=18.0.0"
   },
   "devDependencies": {
