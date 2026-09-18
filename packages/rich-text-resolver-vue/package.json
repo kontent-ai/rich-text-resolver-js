@@ -31,7 +31,7 @@
     "@portabletext/vue": "^1.0.14"
   },
   "peerDependencies": {
-    "@kontent-ai/rich-text-resolver": "^3.0.3",
+    "@kontent-ai/rich-text-resolver": "^3.1.0",
     "vue": "^3.5.22"
   },
   "devDependencies": {
